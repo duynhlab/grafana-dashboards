@@ -11,6 +11,7 @@ You can also download more on [Grafana.com](https://grafana.com/grafana/dashboar
 |:--------------------------------|:--------------------|
 | high-level-sloth-slos.json      | Dashboard for High level Sloth SLOs. |
 | kubernetes-nginx-ingress.json   | Dashboard for Nginx Ingress Controller. |
+| microservices-dashboard.json    | Microservices Observability Platform: RED metrics (rate/errors/duration), Go runtime, and per-service drill-down for the duynhlab platform. |
 | redis-exporter.json             | Dashboard for Redis |
 | slo-detail.json                 | Dashboard for SLO / Detail. |
 | valut.json                 | Dashboard for Vault |
