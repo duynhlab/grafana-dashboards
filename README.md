@@ -1,5 +1,13 @@
 # grafana-dashboards
 
+> **⚠️ DEPRECATED — this repo is being retired.** The RFC-0017 platform boards
+> (microservices OTel + Business KPIs) now live in
+> [`duynhlab/helm-charts`](https://github.com/duynhlab/helm-charts) as the
+> `grafana-dashboards` chart (dashboards-as-code, consumed by homelab via
+> `GrafanaDashboard.configMapRef`). The remaining legacy boards here migrate in
+> a later wave; do not add new dashboards to this repo.
+
+
 ## Description
 This repository contains a modern set of Grafana dashboards for Kubernetes.
 They are inspired by many other dashboards from `kubernetes-mixin` and `grafana.com`.
