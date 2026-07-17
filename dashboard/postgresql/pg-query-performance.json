@@ -879,7 +879,6 @@
           "range": false,
           "instant": true,
           "refId": "A",
-          "legendFormat": "A",
           "format": "table"
         },
         {
@@ -891,8 +890,7 @@
           "expr": "sum by (datname, queryid, query) (rate(cnpg_pg_stat_statements_calls{cnpg_io_cluster=~\"$cluster\", datname=~\"$datname\"}[5m]))",
           "range": false,
           "instant": true,
-          "refId": "A",
-          "legendFormat": "B",
+          "refId": "B",
           "format": "table"
         },
         {
@@ -904,8 +902,7 @@
           "expr": "sum by (datname, queryid, query) (rate(cnpg_pg_stat_statements_time_milliseconds{cnpg_io_cluster=~\"$cluster\", datname=~\"$datname\"}[5m])) / clamp_min(sum by (datname, queryid, query) (rate(cnpg_pg_stat_statements_calls{cnpg_io_cluster=~\"$cluster\", datname=~\"$datname\"}[5m])), 1)",
           "range": false,
           "instant": true,
-          "refId": "A",
-          "legendFormat": "C",
+          "refId": "C",
           "format": "table"
         },
         {
@@ -917,8 +914,7 @@
           "expr": "sum by (datname, queryid, query) (rate(cnpg_pg_stat_statements_rows{cnpg_io_cluster=~\"$cluster\", datname=~\"$datname\"}[5m]))",
           "range": false,
           "instant": true,
-          "refId": "A",
-          "legendFormat": "D",
+          "refId": "D",
           "format": "table"
         }
       ],
