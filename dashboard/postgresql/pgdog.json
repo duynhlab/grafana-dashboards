@@ -155,7 +155,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "sum (pgdog_clients) by (instance)",
+          "expr": "sum (pgdog_clients{job=~\"$pooler\"}) by (instance)",
           "legendFormat": "__auto",
           "range": true,
           "refId": "A"
@@ -253,7 +253,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "sum (pgdog_cl_waiting{host=~\"$host\", port=~\"$port\", shard=\"$shard\", role=~\"$role\", database=~\"$database\", user=~\"$user\"}) by (host, port, shard, role, database, user)",
+          "expr": "sum (pgdog_cl_waiting{job=~\"$pooler\", host=~\"$host\", port=~\"$port\", shard=\"$shard\", role=~\"$role\", database=~\"$database\", user=~\"$user\"}) by (host, port, shard, role, database, user)",
           "legendFormat": "{{host}}:{{port}} shard:{{shard}} role:{{role}} db:{{database}} user:{{user}}",
           "range": true,
           "refId": "A"
@@ -364,7 +364,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "sum (pgdog_sv_active{host=~\"$host\", port=~\"$port\", shard=\"$shard\", role=~\"$role\", database=~\"$database\", user=~\"$user\"}) by (host, port, shard, role, database, user)",
+          "expr": "sum (pgdog_sv_active{job=~\"$pooler\", host=~\"$host\", port=~\"$port\", shard=\"$shard\", role=~\"$role\", database=~\"$database\", user=~\"$user\"}) by (host, port, shard, role, database, user)",
           "legendFormat": "{{host}}:{{port}} shard:{{shard}} role:{{role}} db:{{database}} user:{{user}}",
           "range": true,
           "refId": "A"
@@ -462,7 +462,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "sum (pgdog_sv_idle{host=~\"$host\", port=~\"$port\", shard=\"$shard\", role=~\"$role\", database=~\"$database\", user=~\"$user\"}) by (host, port, shard, role, database, user)",
+          "expr": "sum (pgdog_sv_idle{job=~\"$pooler\", host=~\"$host\", port=~\"$port\", shard=\"$shard\", role=~\"$role\", database=~\"$database\", user=~\"$user\"}) by (host, port, shard, role, database, user)",
           "legendFormat": "{{host}}:{{port}} shard:{{shard}} role:{{role}} db:{{database}} user:{{user}}",
           "range": true,
           "refId": "A"
@@ -560,7 +560,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "sum (pgdog_sv_idle_xact{host=~\"$host\", port=~\"$port\", shard=\"$shard\", role=~\"$role\", database=~\"$database\", user=~\"$user\"}) by (host, port, shard, role, database, user)",
+          "expr": "sum (pgdog_sv_idle_xact{job=~\"$pooler\", host=~\"$host\", port=~\"$port\", shard=\"$shard\", role=~\"$role\", database=~\"$database\", user=~\"$user\"}) by (host, port, shard, role, database, user)",
           "legendFormat": "{{host}}:{{port}} shard:{{shard}} role:{{role}} db:{{database}} user:{{user}}",
           "range": true,
           "refId": "A"
@@ -671,7 +671,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "max (pgdog_maxwait{host=~\"$host\", port=~\"$port\", shard=\"$shard\", role=~\"$role\", database=~\"$database\", user=~\"$user\"}) by (host, port, shard, role, database, user)",
+          "expr": "max (pgdog_maxwait{job=~\"$pooler\", host=~\"$host\", port=~\"$port\", shard=\"$shard\", role=~\"$role\", database=~\"$database\", user=~\"$user\"}) by (host, port, shard, role, database, user)",
           "legendFormat": "{{host}}:{{port}} shard:{{shard}} role:{{role}} db:{{database}} user:{{user}}",
           "range": true,
           "refId": "A"
@@ -769,7 +769,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "sum (rate(pgdog_errors{host=~\"$host\", port=~\"$port\", shard=\"$shard\", role=~\"$role\", database=~\"$database\", user=~\"$user\"}[$__rate_interval])) by (host, port, shard, role, database, user)",
+          "expr": "sum (rate(pgdog_errors{job=~\"$pooler\", host=~\"$host\", port=~\"$port\", shard=\"$shard\", role=~\"$role\", database=~\"$database\", user=~\"$user\"}[$__rate_interval])) by (host, port, shard, role, database, user)",
           "legendFormat": "{{host}}:{{port}} shard:{{shard}} role:{{role}} db:{{database}} user:{{user}}",
           "range": true,
           "refId": "A"
@@ -867,7 +867,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "sum (rate(pgdog_out_of_sync{host=~\"$host\", port=~\"$port\", shard=\"$shard\", role=~\"$role\", database=~\"$database\", user=~\"$user\"}[$__rate_interval])) by (host, port, shard, role, database, user)",
+          "expr": "sum (rate(pgdog_out_of_sync{job=~\"$pooler\", host=~\"$host\", port=~\"$port\", shard=\"$shard\", role=~\"$role\", database=~\"$database\", user=~\"$user\"}[$__rate_interval])) by (host, port, shard, role, database, user)",
           "legendFormat": "{{host}}:{{port}} shard:{{shard}} role:{{role}} db:{{database}} user:{{user}}",
           "range": true,
           "refId": "A"
@@ -978,7 +978,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "sum (rate(pgdog_total_xact_count{host=~\"$host\", port=~\"$port\", shard=\"$shard\", role=~\"$role\", database=~\"$database\", user=~\"$user\"}[$__rate_interval])) by (host, port, shard, role, database, user)",
+          "expr": "sum (rate(pgdog_total_xact_count{job=~\"$pooler\", host=~\"$host\", port=~\"$port\", shard=\"$shard\", role=~\"$role\", database=~\"$database\", user=~\"$user\"}[$__rate_interval])) by (host, port, shard, role, database, user)",
           "legendFormat": "{{host}}:{{port}} shard:{{shard}} role:{{role}} db:{{database}} user:{{user}}",
           "range": true,
           "refId": "A"
@@ -1076,7 +1076,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "sum (rate(pgdog_total_xact_2pc_count{host=~\"$host\", port=~\"$port\", shard=\"$shard\", role=~\"$role\", database=~\"$database\", user=~\"$user\"}[$__rate_interval])) by (host, port, shard, role, database, user)",
+          "expr": "sum (rate(pgdog_total_xact_2pc_count{job=~\"$pooler\", host=~\"$host\", port=~\"$port\", shard=\"$shard\", role=~\"$role\", database=~\"$database\", user=~\"$user\"}[$__rate_interval])) by (host, port, shard, role, database, user)",
           "legendFormat": "{{host}}:{{port}} shard:{{shard}} role:{{role}} db:{{database}} user:{{user}}",
           "range": true,
           "refId": "A"
@@ -1174,7 +1174,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "avg (rate(pgdog_total_xact_time{host=~\"$host\", port=~\"$port\", shard=\"$shard\", role=~\"$role\", database=~\"$database\", user=~\"$user\"}[$__rate_interval])) by (host, port, shard, role, database, user)",
+          "expr": "avg (rate(pgdog_total_xact_time{job=~\"$pooler\", host=~\"$host\", port=~\"$port\", shard=\"$shard\", role=~\"$role\", database=~\"$database\", user=~\"$user\"}[$__rate_interval])) by (host, port, shard, role, database, user)",
           "legendFormat": "{{host}}:{{port}} shard:{{shard}} role:{{role}} db:{{database}} user:{{user}}",
           "range": true,
           "refId": "A"
@@ -1272,7 +1272,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "sum (pgdog_avg_xact_count{host=~\"$host\", port=~\"$port\", shard=\"$shard\", role=~\"$role\", database=~\"$database\", user=~\"$user\"}) by (host, port, shard, role, database, user)",
+          "expr": "sum (pgdog_avg_xact_count{job=~\"$pooler\", host=~\"$host\", port=~\"$port\", shard=\"$shard\", role=~\"$role\", database=~\"$database\", user=~\"$user\"}) by (host, port, shard, role, database, user)",
           "legendFormat": "{{host}}:{{port}} shard:{{shard}} role:{{role}} db:{{database}} user:{{user}}",
           "range": true,
           "refId": "A"
@@ -1370,7 +1370,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "sum (pgdog_avg_xact_2pc_count{host=~\"$host\", port=~\"$port\", shard=\"$shard\", role=~\"$role\", database=~\"$database\", user=~\"$user\"}) by (host, port, shard, role, database, user)",
+          "expr": "sum (pgdog_avg_xact_2pc_count{job=~\"$pooler\", host=~\"$host\", port=~\"$port\", shard=\"$shard\", role=~\"$role\", database=~\"$database\", user=~\"$user\"}) by (host, port, shard, role, database, user)",
           "legendFormat": "{{host}}:{{port}} shard:{{shard}} role:{{role}} db:{{database}} user:{{user}}",
           "range": true,
           "refId": "A"
@@ -1468,7 +1468,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "avg (pgdog_avg_xact_time{host=~\"$host\", port=~\"$port\", shard=\"$shard\", role=~\"$role\", database=~\"$database\", user=~\"$user\"}) by (host, port, shard, role, database, user)",
+          "expr": "avg (pgdog_avg_xact_time{job=~\"$pooler\", host=~\"$host\", port=~\"$port\", shard=\"$shard\", role=~\"$role\", database=~\"$database\", user=~\"$user\"}) by (host, port, shard, role, database, user)",
           "legendFormat": "{{host}}:{{port}} shard:{{shard}} role:{{role}} db:{{database}} user:{{user}}",
           "range": true,
           "refId": "A"
@@ -1579,7 +1579,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "sum (rate(pgdog_total_query_count{host=~\"$host\", port=~\"$port\", shard=\"$shard\", role=~\"$role\", database=~\"$database\", user=~\"$user\"}[$__rate_interval])) by (host, port, shard, role, database, user)",
+          "expr": "sum (rate(pgdog_total_query_count{job=~\"$pooler\", host=~\"$host\", port=~\"$port\", shard=\"$shard\", role=~\"$role\", database=~\"$database\", user=~\"$user\"}[$__rate_interval])) by (host, port, shard, role, database, user)",
           "legendFormat": "{{host}}:{{port}} shard:{{shard}} role:{{role}} db:{{database}} user:{{user}}",
           "range": true,
           "refId": "A"
@@ -1677,7 +1677,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "avg (rate(pgdog_total_query_time{host=~\"$host\", port=~\"$port\", shard=\"$shard\", role=~\"$role\", database=~\"$database\", user=~\"$user\"}[$__rate_interval])) by (host, port, shard, role, database, user)",
+          "expr": "avg (rate(pgdog_total_query_time{job=~\"$pooler\", host=~\"$host\", port=~\"$port\", shard=\"$shard\", role=~\"$role\", database=~\"$database\", user=~\"$user\"}[$__rate_interval])) by (host, port, shard, role, database, user)",
           "legendFormat": "{{host}}:{{port}} shard:{{shard}} role:{{role}} db:{{database}} user:{{user}}",
           "range": true,
           "refId": "A"
@@ -1775,7 +1775,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "sum (pgdog_avg_query_count{host=~\"$host\", port=~\"$port\", shard=\"$shard\", role=~\"$role\", database=~\"$database\", user=~\"$user\"}) by (host, port, shard, role, database, user)",
+          "expr": "sum (pgdog_avg_query_count{job=~\"$pooler\", host=~\"$host\", port=~\"$port\", shard=\"$shard\", role=~\"$role\", database=~\"$database\", user=~\"$user\"}) by (host, port, shard, role, database, user)",
           "legendFormat": "{{host}}:{{port}} shard:{{shard}} role:{{role}} db:{{database}} user:{{user}}",
           "range": true,
           "refId": "A"
@@ -1873,7 +1873,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "avg (pgdog_avg_query_time{host=~\"$host\", port=~\"$port\", shard=\"$shard\", role=~\"$role\", database=~\"$database\", user=~\"$user\"}) by (host, port, shard, role, database, user)",
+          "expr": "avg (pgdog_avg_query_time{job=~\"$pooler\", host=~\"$host\", port=~\"$port\", shard=\"$shard\", role=~\"$role\", database=~\"$database\", user=~\"$user\"}) by (host, port, shard, role, database, user)",
           "legendFormat": "{{host}}:{{port}} shard:{{shard}} role:{{role}} db:{{database}} user:{{user}}",
           "range": true,
           "refId": "A"
@@ -1971,7 +1971,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "sum (pgdog_query_cache_size) by (instance)",
+          "expr": "sum (pgdog_query_cache_size{job=~\"$pooler\"}) by (instance)",
           "legendFormat": "__auto",
           "range": true,
           "refId": "A"
@@ -2069,7 +2069,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "sum (rate(pgdog_query_cache_hits[$__rate_interval])) by (instance)",
+          "expr": "sum (rate(pgdog_query_cache_hits{job=~\"$pooler\"}[$__rate_interval])) by (instance)",
           "legendFormat": "HIT {{instance}}",
           "range": true,
           "refId": "A"
@@ -2080,7 +2080,7 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "sum (rate(pgdog_query_cache_misses[$__rate_interval])) by (instance)",
+          "expr": "sum (rate(pgdog_query_cache_misses{job=~\"$pooler\"}[$__rate_interval])) by (instance)",
           "hide": false,
           "legendFormat": "MISS {{instance}}",
           "range": true,
@@ -2092,7 +2092,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "sum (rate(pgdog_query_cache_direct[$__rate_interval])) by (instance)",
+          "expr": "sum (rate(pgdog_query_cache_direct{job=~\"$pooler\"}[$__rate_interval])) by (instance)",
           "hide": false,
           "legendFormat": "DIRECT {{instance}}",
           "range": true,
@@ -2104,7 +2104,7 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "sum (rate(pgdog_query_cache_cross[$__rate_interval])) by (instance)",
+          "expr": "sum (rate(pgdog_query_cache_cross{job=~\"$pooler\"}[$__rate_interval])) by (instance)",
           "hide": false,
           "legendFormat": "CROSS {{instance}}",
           "range": true,
@@ -2216,7 +2216,7 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "sum (rate(pgdog_total_received{host=~\"$host\", port=~\"$port\", shard=\"$shard\", role=~\"$role\", database=~\"$database\", user=~\"$user\"}[$__rate_interval])) by (host, port, shard, role, database, user)",
+          "expr": "sum (rate(pgdog_total_received{job=~\"$pooler\", host=~\"$host\", port=~\"$port\", shard=\"$shard\", role=~\"$role\", database=~\"$database\", user=~\"$user\"}[$__rate_interval])) by (host, port, shard, role, database, user)",
           "legendFormat": "{{host}}:{{port}} shard:{{shard}} role:{{role}} db:{{database}} user:{{user}}",
           "range": true,
           "refId": "A"
@@ -2314,7 +2314,7 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "sum (rate(pgdog_total_sent{host=~\"$host\", port=~\"$port\", shard=\"$shard\", role=~\"$role\", database=~\"$database\", user=~\"$user\"}[$__rate_interval])) by (host, port, shard, role, database, user)",
+          "expr": "sum (rate(pgdog_total_sent{job=~\"$pooler\", host=~\"$host\", port=~\"$port\", shard=\"$shard\", role=~\"$role\", database=~\"$database\", user=~\"$user\"}[$__rate_interval])) by (host, port, shard, role, database, user)",
           "legendFormat": "{{host}}:{{port}} shard:{{shard}} role:{{role}} db:{{database}} user:{{user}}",
           "range": true,
           "refId": "A"
@@ -2412,7 +2412,7 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "sum (pgdog_avg_received{host=~\"$host\", port=~\"$port\", shard=\"$shard\", role=~\"$role\", database=~\"$database\", user=~\"$user\"}) by (host, port, shard, role, database, user)",
+          "expr": "sum (pgdog_avg_received{job=~\"$pooler\", host=~\"$host\", port=~\"$port\", shard=\"$shard\", role=~\"$role\", database=~\"$database\", user=~\"$user\"}) by (host, port, shard, role, database, user)",
           "legendFormat": "{{host}}:{{port}} shard:{{shard}} role:{{role}} db:{{database}} user:{{user}}",
           "range": true,
           "refId": "A"
@@ -2510,7 +2510,7 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "sum (pgdog_avg_sent{host=~\"$host\", port=~\"$port\", shard=\"$shard\", role=~\"$role\", database=~\"$database\", user=~\"$user\"}) by (host, port, shard, role, database, user)",
+          "expr": "sum (pgdog_avg_sent{job=~\"$pooler\", host=~\"$host\", port=~\"$port\", shard=\"$shard\", role=~\"$role\", database=~\"$database\", user=~\"$user\"}) by (host, port, shard, role, database, user)",
           "legendFormat": "{{host}}:{{port}} shard:{{shard}} role:{{role}} db:{{database}} user:{{user}}",
           "range": true,
           "refId": "A"
@@ -2621,7 +2621,7 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "sum (pgdog_prepared_statements_memory_used) by (instance)",
+          "expr": "sum (pgdog_prepared_statements_memory_used{job=~\"$pooler\"}) by (instance)",
           "legendFormat": "__auto",
           "range": true,
           "refId": "A"
@@ -2719,7 +2719,7 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "sum (rate(pgdog_total_prepared_evictions{host=~\"$host\", port=~\"$port\", shard=\"$shard\", role=~\"$role\", database=~\"$database\", user=~\"$user\"}[$__rate_interval])) by (host, port, shard, role, database, user)",
+          "expr": "sum (rate(pgdog_total_prepared_evictions{job=~\"$pooler\", host=~\"$host\", port=~\"$port\", shard=\"$shard\", role=~\"$role\", database=~\"$database\", user=~\"$user\"}[$__rate_interval])) by (host, port, shard, role, database, user)",
           "legendFormat": "{{host}}:{{port}} shard:{{shard}} role:{{role}} db:{{database}} user:{{user}}",
           "range": true,
           "refId": "A"
@@ -2817,7 +2817,7 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "sum (pgdog_prepared_statements) by (instance)",
+          "expr": "sum (pgdog_prepared_statements{job=~\"$pooler\"}) by (instance)",
           "legendFormat": "__auto",
           "range": true,
           "refId": "A"
@@ -2915,7 +2915,7 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "sum (pgdog_avg_prepared_evictions{host=~\"$host\", port=~\"$port\", shard=\"$shard\", role=~\"$role\", database=~\"$database\", user=~\"$user\"}) by (host, port, shard, role, database, user)",
+          "expr": "sum (pgdog_avg_prepared_evictions{job=~\"$pooler\", host=~\"$host\", port=~\"$port\", shard=\"$shard\", role=~\"$role\", database=~\"$database\", user=~\"$user\"}) by (host, port, shard, role, database, user)",
           "legendFormat": "{{host}}:{{port}} shard:{{shard}} role:{{role}} db:{{database}} user:{{user}}",
           "range": true,
           "refId": "A"
@@ -3026,7 +3026,7 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "sum (rate(pgdog_mirror_total_count{database=~\"$database\", user=~\"$user\"}[$__rate_interval])) by (instance, database, user)",
+          "expr": "sum (rate(pgdog_mirror_total_count{job=~\"$pooler\", database=~\"$database\", user=~\"$user\"}[$__rate_interval])) by (instance, database, user)",
           "legendFormat": "TOTAL {{instance}} db:{{database}} user:{{user}}",
           "range": true,
           "refId": "A"
@@ -3037,7 +3037,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "sum (rate(pgdog_mirror_mirrored_count{database=~\"$database\", user=~\"$user\"}[$__rate_interval])) by (instance, database, user)",
+          "expr": "sum (rate(pgdog_mirror_mirrored_count{job=~\"$pooler\", database=~\"$database\", user=~\"$user\"}[$__rate_interval])) by (instance, database, user)",
           "hide": false,
           "legendFormat": "MIRRORED {{instance}} db:{{database}} user:{{user}}",
           "range": true,
@@ -3049,7 +3049,7 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "sum (rate(pgdog_mirror_dropped_count{database=~\"$database\", user=~\"$user\"}[$__rate_interval])) by (instance, database, user)",
+          "expr": "sum (rate(pgdog_mirror_dropped_count{job=~\"$pooler\", database=~\"$database\", user=~\"$user\"}[$__rate_interval])) by (instance, database, user)",
           "hide": false,
           "legendFormat": "DROPPED {{instance}} db:{{database}} user:{{user}}",
           "range": true,
@@ -3061,7 +3061,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "sum (rate(pgdog_mirror_error_count{database=~\"$database\", user=~\"$user\"}[$__rate_interval])) by (instance, database, user)",
+          "expr": "sum (rate(pgdog_mirror_error_count{job=~\"$pooler\", database=~\"$database\", user=~\"$user\"}[$__rate_interval])) by (instance, database, user)",
           "hide": false,
           "legendFormat": "ERROR {{instance}} db:{{database}} user:{{user}}",
           "range": true,
@@ -3160,7 +3160,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "sum (pgdog_mirror_queue_length{database=~\"$database\", user=~\"$user\"}) by (instance, database, user)",
+          "expr": "sum (pgdog_mirror_queue_length{job=~\"$pooler\", database=~\"$database\", user=~\"$user\"}) by (instance, database, user)",
           "legendFormat": "{{instance}} db:{{database}} user:{{user}}",
           "range": true,
           "refId": "A"
@@ -3185,6 +3185,26 @@
         "type": "datasource"
       },
       {
+        "name": "pooler",
+        "type": "query",
+        "label": "Pooler",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "${datasource}"
+        },
+        "query": {
+          "query": "label_values(pgdog_total_sent, job)",
+          "refId": "A"
+        },
+        "refresh": 2,
+        "includeAll": true,
+        "multi": true,
+        "sort": 1,
+        "current": {},
+        "hide": 0,
+        "definition": "label_values(pgdog_total_sent, job)"
+      },
+      {
         "allowCustomValue": true,
         "current": {},
         "datasource": {
@@ -3198,7 +3218,7 @@
         "options": [],
         "query": {
           "qryType": 1,
-          "query": "label_values(pgdog_total_sent,host)",
+          "query": "label_values(pgdog_total_sent{job=~\"$pooler\"},host)",
           "refId": "PrometheusVariableQueryEditor-VariableQuery"
         },
         "refresh": 2,
@@ -3219,7 +3239,7 @@
         "options": [],
         "query": {
           "qryType": 1,
-          "query": "label_values(pgdog_total_sent,port)",
+          "query": "label_values(pgdog_total_sent{job=~\"$pooler\"},port)",
           "refId": "PrometheusVariableQueryEditor-VariableQuery"
         },
         "refresh": 2,
@@ -3240,7 +3260,7 @@
         "options": [],
         "query": {
           "qryType": 1,
-          "query": "label_values(pgdog_total_sent,shard)",
+          "query": "label_values(pgdog_total_sent{job=~\"$pooler\"},shard)",
           "refId": "PrometheusVariableQueryEditor-VariableQuery"
         },
         "refresh": 2,
@@ -3261,7 +3281,7 @@
         "options": [],
         "query": {
           "qryType": 1,
-          "query": "label_values(pgdog_total_sent,role)",
+          "query": "label_values(pgdog_total_sent{job=~\"$pooler\"},role)",
           "refId": "PrometheusVariableQueryEditor-VariableQuery"
         },
         "refresh": 2,
@@ -3282,7 +3302,7 @@
         "options": [],
         "query": {
           "qryType": 1,
-          "query": "label_values(pgdog_total_sent,database)",
+          "query": "label_values(pgdog_total_sent{job=~\"$pooler\"},database)",
           "refId": "PrometheusVariableQueryEditor-VariableQuery"
         },
         "refresh": 2,
@@ -3303,7 +3323,7 @@
         "options": [],
         "query": {
           "qryType": 1,
-          "query": "label_values(pgdog_total_sent,user)",
+          "query": "label_values(pgdog_total_sent{job=~\"$pooler\"},user)",
           "refId": "PrometheusVariableQueryEditor-VariableQuery"
         },
         "refresh": 2,
