@@ -15,9 +15,11 @@ permissions:
 
 env:
   OCI_IMAGE: ghcr.io/duynhlab/grafana-dashboards-as-code
+  OCI_DASHBOARDS: ghcr.io/duynhlab/grafana-dashboards
   GO_VERSION: "1.26"
   FLUX_VERSION: "2.6.0"
   KIND_VERSION: "v0.30.0"
+  ORAS_VERSION: "1.3.0"
 
 jobs:
   validate:
@@ -55,6 +57,7 @@ jobs:
           grep -q "kind: GrafanaFolder" /tmp/rendered.yaml
           grep -q "kind: GrafanaDashboard" /tmp/rendered.yaml
           grep -q "kind: GrafanaAlertRuleGroup" /tmp/rendered.yaml
+          grep -q "path: kubernetes-cluster-overview.spec.json" /tmp/rendered.yaml
 
   publish-oci:
     needs: validate
@@ -70,24 +73,42 @@ jobs:
       - name: Generate dashboards
         run: go run ./cmd/generate
 
+      - name: Install oras
+        run: |
+          curl -fsSL "https://github.com/oras-project/oras/releases/download/v${ORAS_VERSION}/oras_${ORAS_VERSION}_linux_amd64.tar.gz" | tar xz
+          sudo mv oras /usr/local/bin/oras
+          oras version
+
       - name: Install Flux CLI
         run: |
           curl -fsSL "https://github.com/fluxcd/flux2/releases/download/v${FLUX_VERSION}/flux_${FLUX_VERSION}_linux_amd64.tar.gz" | tar xz
           sudo mv flux /usr/local/bin/flux
           flux version --client
 
-      - name: Push OCI artifact
+      - name: Push dashboard JSON and deploy artifacts
+        env:
+          GHCR_USER: ${{ github.actor }}
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          SHORT_SHA="${GITHUB_SHA::7}"
+          echo "${GHCR_TOKEN}" | oras login ghcr.io -u "${GHCR_USER}" --password-stdin
+          (
+            cd generated/dashboards
+            oras push "${OCI_DASHBOARDS}:latest" \
+              --artifact-type application/vnd.grafana.dashboard+json \
+              kubernetes-cluster-overview.spec.json:application/json \
+              pg-io-waits.spec.json:application/json
+            oras tag "${OCI_DASHBOARDS}:latest" "${OCI_DASHBOARDS}:sha-${SHORT_SHA}"
+          )
           flux push artifact "oci://${OCI_IMAGE}:latest" \
             --path="./deploy" \
             --source="$(git config --get remote.origin.url)" \
             --revision="as-code@sha1:${{ github.sha }}" \
             --reproducible \
-            --creds="${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}"
-          SHORT_SHA="${GITHUB_SHA::7}"
+            --creds="${GHCR_USER}:${GHCR_TOKEN}"
           flux tag artifact "oci://${OCI_IMAGE}:latest" \
             --tag "sha-${SHORT_SHA}" \
-            --creds="${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}"
+            --creds="${GHCR_USER}:${GHCR_TOKEN}"
 
   e2e-kind:
     needs: validate
@@ -108,6 +129,12 @@ jobs:
           chmod +x /tmp/kind
           sudo mv /tmp/kind /usr/local/bin/kind
           kind version
+
+      - name: Install oras
+        run: |
+          curl -fsSL "https://github.com/oras-project/oras/releases/download/v${ORAS_VERSION}/oras_${ORAS_VERSION}_linux_amd64.tar.gz" | tar xz
+          sudo mv oras /usr/local/bin/oras
+          oras version
 
       - name: E2E on Kind 1.36
         run: ./test/e2e/kind/run.sh

@@ -47,7 +47,7 @@ Grafana folders:
 Dashboards:
 
 - `kubernetes-cluster-overview`
-- `pg-io-waits`
+- `pg-io-waits` — tested on PostgreSQL 18 (`pg_stat_io`)
 
 Alert rules:
 
@@ -170,8 +170,11 @@ kubectl kustomize deploy/
 The bundle contains:
 
 - one `GrafanaFolder` per domain
-- one `GrafanaDashboard` per dashboard
+- one `GrafanaDashboard` per dashboard (`spec.oci`, JSON is not stored in etcd)
 - one `GrafanaAlertRuleGroup` per alert domain
+
+Grafana Operator 5.24+ fetches dashboard JSON from an OCI artifact. This
+repository pins Helm chart **5.25.0** in e2e.
 
 Run the local end-to-end smoke test:
 
@@ -179,17 +182,32 @@ Run the local end-to-end smoke test:
 make e2e-kind
 ```
 
-The test creates a Kind cluster, installs the Grafana Operator, deploys
-Grafana 12, applies the generated bundle, and verifies the resources.
+The test creates a Kind cluster, installs Grafana Operator 5.25.0, deploys
+Grafana 12, pushes generated `*.spec.json` into an in-cluster registry, applies
+CRs that reference `spec.oci`, and verifies the resources.
 
 ## OCI publishing
 
-GitHub Actions publishes:
+GitHub Actions publishes two artifacts:
 
 ```text
+# Dashboard JSON for GrafanaDashboard.spec.oci (oras)
+ghcr.io/duynhlab/grafana-dashboards:latest
+ghcr.io/duynhlab/grafana-dashboards:sha-<commit>
+
+# Kustomize CRs for GitOps (flux)
 ghcr.io/duynhlab/grafana-dashboards-as-code:latest
 ghcr.io/duynhlab/grafana-dashboards-as-code:sha-<commit>
 ```
+
+Generate CRs against a tag or digest:
+
+```bash
+OCI_REFERENCE=ghcr.io/duynhlab/grafana-dashboards:latest go run ./cmd/generate
+```
+
+For a private registry, also set `OCI_PULL_SECRET=ghcr-pull` and create a
+`kubernetes.io/dockerconfigjson` Secret in the Grafana Operator namespace.
 
 The `latest` tag follows the `as-code` branch. Commit tags provide immutable
 references for GitOps consumers.
@@ -203,6 +221,7 @@ Pull requests run:
 - repository-wide test coverage with a minimum of 90%
 - deterministic artifact generation and diff verification
 - Kustomize rendering checks for folders, dashboards, and alert groups
-- Kind end-to-end smoke tests
+- Kind end-to-end smoke tests (operator fetch via `spec.oci`)
 
-Pushes to `as-code` additionally publish the Flux OCI artifact to GHCR.
+Pushes to `as-code` additionally publish dashboard JSON (oras) and the Flux
+deploy bundle to GHCR.
