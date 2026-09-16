@@ -6,7 +6,9 @@ CLUSTER_NAME="grafana-as-code-e2e"
 KIND_CONFIG="${ROOT}/test/e2e/kind/kind-config.yaml"
 OPERATOR_CHART_VERSION="5.25.0"
 GRAFANA_VERSION="12.0.0"
-REGISTRY_HOST="registry.grafana-operator.svc.cluster.local:5000"
+# The GrafanaDashboard CRD rejects a port in spec.oci.reference, so the
+# in-cluster registry is exposed on port 80.
+REGISTRY_HOST="registry.grafana-operator.svc.cluster.local"
 OCI_TAG="e2e"
 PF_PID=""
 
@@ -99,7 +101,7 @@ spec:
   selector:
     app: registry
   ports:
-    - port: 5000
+    - port: 80
       targetPort: 5000
 EOF
 
@@ -128,11 +130,23 @@ log "waiting for Grafana status.stage=complete"
 kubectl wait --for=jsonpath='{.status.stage}'=complete \
   grafana/grafana -n grafana-operator --timeout=300s
 
+# stage=complete only means the operator finished reconciling; the dashboard and
+# folder controllers skip any instance whose pod is not serving yet.
+log "waiting for the Grafana deployment to become available"
+for _ in $(seq 1 60); do
+  if kubectl get deploy grafana-deployment -n grafana-operator >/dev/null 2>&1; then
+    break
+  fi
+  sleep 2
+done
+kubectl wait --for=condition=Available deploy/grafana-deployment \
+  -n grafana-operator --timeout=300s
+
 log "generating dashboard JSON"
 (cd "${ROOT}" && go run ./cmd/generate)
 
 log "pushing dashboard JSON to in-cluster registry"
-kubectl port-forward -n grafana-operator svc/registry 5001:5000 >/tmp/grafana-e2e-registry.log 2>&1 &
+kubectl port-forward -n grafana-operator svc/registry 5001:80 >/tmp/grafana-e2e-registry.log 2>&1 &
 PF_PID=$!
 for _ in $(seq 1 30); do
   if curl -fsS http://127.0.0.1:5001/v2/ >/dev/null 2>&1; then
@@ -178,6 +192,26 @@ for dash in kubernetes-cluster-overview pg-io-waits; do
     echo "unexpected oci.path for ${dash}: ${path}" >&2
     exit 1
   fi
+done
+
+log "waiting for the operator to fetch the dashboards from the registry"
+for dash in kubernetes-cluster-overview pg-io-waits; do
+  synced=""
+  for _ in $(seq 1 60); do
+    conditions="$(kubectl get grafanadashboard "${dash}" -n grafana-operator \
+      -o jsonpath='{range .status.conditions[*]}{.type}={.status} {end}')"
+    if [[ "${conditions}" == *"=True"* ]]; then
+      synced="${conditions}"
+      break
+    fi
+    sleep 5
+  done
+  if [[ -z "${synced}" ]]; then
+    echo "dashboard ${dash} was never synchronized from ${REGISTRY_HOST}" >&2
+    kubectl get grafanadashboard "${dash}" -n grafana-operator -o yaml >&2
+    exit 1
+  fi
+  log "dashboard ${dash} synchronized (${synced})"
 done
 
 log "verifying GrafanaAlertRuleGroups"

@@ -79,7 +79,7 @@ func TestGeneratorProducesDeterministicBundleAndRemovesStaleFiles(t *testing.T) 
 }
 
 func TestDashboardOCIFromEnvironment(t *testing.T) {
-	t.Setenv("OCI_REFERENCE", "localhost:5000/grafana-dashboards:e2e")
+	t.Setenv("OCI_REFERENCE", "registry.grafana-operator.svc.cluster.local/grafana-dashboards:e2e")
 	t.Setenv("OCI_PULL_SECRET", "ghcr-pull")
 	t.Setenv("OCI_INSECURE_PLAIN_HTTP", "true")
 
@@ -95,7 +95,15 @@ func TestDashboardOCIFromEnvironment(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	assertDashboardOCI(t, data, "localhost:5000/grafana-dashboards:e2e", "pg-io-waits.spec.json", true, "ghcr-pull")
+	assertDashboardOCI(t, data, "registry.grafana-operator.svc.cluster.local/grafana-dashboards:e2e", "pg-io-waits.spec.json", true, "ghcr-pull")
+}
+
+func TestReferenceWithPortIsRejected(t *testing.T) {
+	t.Setenv("OCI_REFERENCE", "registry.grafana-operator.svc.cluster.local:5000/grafana-dashboards:e2e")
+
+	if _, err := New(t.TempDir(), registry.Dashboards, registry.Alerts); err == nil {
+		t.Fatal("expected a registry host carrying a port to be rejected")
+	}
 }
 
 func TestRunUsesCurrentDirectory(t *testing.T) {
