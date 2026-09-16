@@ -1,9 +1,6 @@
 package postgres
 
 const (
-	ClusterLabelValues = `label_values(cnpg_collector_up, cnpg_io_cluster)`
-	PodLabelValues     = `label_values(cnpg_collector_up{cnpg_io_cluster=~"$cluster"}, pod)`
-
 	ReadOpsByBackend  = `sum by (backend_type) (rate(cnpg_pg_stat_io_reads{cnpg_io_cluster=~"$cluster", pod=~"$pod"}[$__rate_interval]))`
 	WriteOpsByBackend = `sum by (backend_type) (rate(cnpg_pg_stat_io_writes{cnpg_io_cluster=~"$cluster", pod=~"$pod"}[$__rate_interval]))`
 
