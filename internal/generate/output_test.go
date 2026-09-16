@@ -2,7 +2,6 @@ package generate
 
 import (
 	"bytes"
-	"encoding/json"
 	"os"
 	"path/filepath"
 	"strings"
@@ -76,6 +75,35 @@ func TestGeneratorProducesDeterministicBundleAndRemovesStaleFiles(t *testing.T) 
 
 	assertManifest(t, second["deploy/manifests/grafanadashboard-kubernetes-cluster-overview.yaml"], "GrafanaDashboard", "kubernetes")
 	assertManifest(t, second["deploy/manifests/grafanaalertrulegroup-databases.yaml"], "GrafanaAlertRuleGroup", "databases")
+	assertDashboardOCI(t, second["deploy/manifests/grafanadashboard-kubernetes-cluster-overview.yaml"], defaultOCIReference, "kubernetes-cluster-overview.spec.json", false, "")
+}
+
+func TestDashboardOCIFromEnvironment(t *testing.T) {
+	t.Setenv("OCI_REFERENCE", "registry.grafana-operator.svc.cluster.local/grafana-dashboards:e2e")
+	t.Setenv("OCI_PULL_SECRET", "ghcr-pull")
+	t.Setenv("OCI_INSECURE_PLAIN_HTTP", "true")
+
+	root := t.TempDir()
+	generator, err := New(root, registry.Dashboards, registry.Alerts)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := generator.Run(); err != nil {
+		t.Fatal(err)
+	}
+	data, err := os.ReadFile(filepath.Join(root, "deploy", "manifests", "grafanadashboard-pg-io-waits.yaml"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	assertDashboardOCI(t, data, "registry.grafana-operator.svc.cluster.local/grafana-dashboards:e2e", "pg-io-waits.spec.json", true, "ghcr-pull")
+}
+
+func TestReferenceWithPortIsRejected(t *testing.T) {
+	t.Setenv("OCI_REFERENCE", "registry.grafana-operator.svc.cluster.local:5000/grafana-dashboards:e2e")
+
+	if _, err := New(t.TempDir(), registry.Dashboards, registry.Alerts); err == nil {
+		t.Fatal("expected a registry host carrying a port to be rejected")
+	}
 }
 
 func TestRunUsesCurrentDirectory(t *testing.T) {
@@ -243,9 +271,48 @@ func assertManifest(t *testing.T, data []byte, kind, folderRef string) {
 		t.Fatalf("folderRef = %v, want %s", spec["folderRef"], folderRef)
 	}
 	if kind == "GrafanaDashboard" {
-		var dashboard map[string]any
-		if err := json.Unmarshal([]byte(spec["json"].(string)), &dashboard); err != nil {
-			t.Fatalf("invalid dashboard JSON: %v", err)
+		if _, exists := spec["json"]; exists {
+			t.Fatal("GrafanaDashboard must not embed json")
 		}
+		oci, ok := spec["oci"].(map[string]any)
+		if !ok {
+			t.Fatalf("missing spec.oci: %#v", spec)
+		}
+		if oci["path"] == "" || oci["reference"] == "" {
+			t.Fatalf("incomplete spec.oci: %#v", oci)
+		}
+	}
+}
+
+func assertDashboardOCI(t *testing.T, data []byte, reference, path string, insecure bool, secret string) {
+	t.Helper()
+	var document map[string]any
+	if err := yaml.Unmarshal(data, &document); err != nil {
+		t.Fatal(err)
+	}
+	spec := document["spec"].(map[string]any)
+	oci := spec["oci"].(map[string]any)
+	if oci["reference"] != reference {
+		t.Fatalf("oci.reference = %v, want %s", oci["reference"], reference)
+	}
+	if oci["path"] != path {
+		t.Fatalf("oci.path = %v, want %s", oci["path"], path)
+	}
+	if insecure {
+		if oci["insecurePlainHTTP"] != true {
+			t.Fatalf("expected insecurePlainHTTP: %#v", oci)
+		}
+	} else if _, exists := oci["insecurePlainHTTP"]; exists {
+		t.Fatalf("unexpected insecurePlainHTTP: %#v", oci)
+	}
+	if secret == "" {
+		if _, exists := oci["pullSecretRef"]; exists {
+			t.Fatalf("unexpected pullSecretRef: %#v", oci)
+		}
+		return
+	}
+	ref := oci["pullSecretRef"].(map[string]any)
+	if ref["name"] != secret {
+		t.Fatalf("pullSecretRef.name = %v, want %s", ref["name"], secret)
 	}
 }

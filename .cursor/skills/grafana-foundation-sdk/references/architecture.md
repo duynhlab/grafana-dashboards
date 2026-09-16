@@ -27,8 +27,8 @@ Grafana folders are **domain names** (`Kubernetes`, `Databases`), not a catch-al
 
 ```text
 queries -> sections -> dashboards/alerts -> registry -> cmd/generate
-  -> generated/ + deploy/ -> GitHub Actions -> flux push artifact -> GHCR
-  -> Flux / Grafana Operator -> Grafana
+  -> generated/*.spec.json (oras) + deploy/ GrafanaDashboard spec.oci (flux)
+  -> GHCR -> Grafana Operator 5.25+ -> Grafana
 ```
 
 Generated JSON/YAML is an artifact. Never hand-edit it as the source of truth.
