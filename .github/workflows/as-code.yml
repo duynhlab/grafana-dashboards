@@ -1,0 +1,105 @@
+name: As-Code Dashboards
+
+on:
+  push:
+    branches:
+      - as-code
+  pull_request:
+    branches:
+      - as-code
+      - main
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  OCI_IMAGE: ghcr.io/duynhlab/grafana-dashboards-as-code
+  GO_VERSION: "1.24.6"
+  FLUX_VERSION: "2.6.0"
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+
+      - name: Verify formatting
+        run: |
+          gofmt -l . | tee /tmp/gofmt.out
+          test ! -s /tmp/gofmt.out
+
+      - name: Vet and test with coverage
+        run: |
+          go vet ./...
+          go test ./... -coverpkg=./... -coverprofile=/tmp/coverage.out
+          TOTAL="$(go tool cover -func=/tmp/coverage.out | awk '/^total:/ {gsub("%", "", $3); print $3}')"
+          echo "total coverage: ${TOTAL}% (required: 90.0%)"
+          awk -v actual="${TOTAL}" 'BEGIN { if ((actual + 0) < 90.0) exit 1 }'
+
+      - name: Generate dashboards
+        run: go run ./cmd/generate
+
+      - name: Check generated diff
+        run: |
+          git diff --exit-code -- generated/ deploy/
+
+      - name: Kustomize build
+        run: |
+          kubectl kustomize deploy/ > /tmp/rendered.yaml
+          grep -q "kind: GrafanaFolder" /tmp/rendered.yaml
+          grep -q "kind: GrafanaDashboard" /tmp/rendered.yaml
+          grep -q "kind: GrafanaAlertRuleGroup" /tmp/rendered.yaml
+
+  publish-oci:
+    needs: validate
+    if: github.event_name == 'push' && github.ref == 'refs/heads/as-code'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+
+      - name: Generate dashboards
+        run: go run ./cmd/generate
+
+      - name: Install Flux CLI
+        run: |
+          curl -fsSL "https://github.com/fluxcd/flux2/releases/download/v${FLUX_VERSION}/flux_${FLUX_VERSION}_linux_amd64.tar.gz" | tar xz
+          sudo mv flux /usr/local/bin/flux
+          flux version --client
+
+      - name: Push OCI artifact
+        run: |
+          flux push artifact "oci://${OCI_IMAGE}:latest" \
+            --path="./deploy" \
+            --source="$(git config --get remote.origin.url)" \
+            --revision="as-code@sha1:${{ github.sha }}" \
+            --reproducible \
+            --creds="${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}"
+          SHORT_SHA="${GITHUB_SHA::7}"
+          flux tag artifact "oci://${OCI_IMAGE}:latest" \
+            --tag "sha-${SHORT_SHA}" \
+            --creds="${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}"
+
+  e2e-kind:
+    needs: validate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+
+      - name: Generate dashboards
+        run: go run ./cmd/generate
+
+      - name: E2E on Kind 1.36
+        run: ./test/e2e/kind/run.sh

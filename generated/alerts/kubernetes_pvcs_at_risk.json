@@ -1,0 +1,19 @@
+{
+  "UID": "kubernetes_pvcs_at_risk",
+  "Title": "Kubernetes PVCs above 80% used",
+  "Folder": "Kubernetes",
+  "Group": "kubernetes",
+  "Expr": "count((1 - kubelet_volume_stats_available_bytes / kubelet_volume_stats_capacity_bytes) \u003e 0.8)",
+  "For": "15m",
+  "Threshold": 0,
+  "Labels": {
+    "component": "storage",
+    "domain": "kubernetes",
+    "severity": "warning"
+  },
+  "Annotations": {
+    "dashboard_uid": "kubernetes-cluster-overview",
+    "description": "At least one PVC is more than 80% full.",
+    "summary": "PersistentVolumeClaims at risk"
+  }
+}
