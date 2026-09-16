@@ -1,0 +1,19 @@
+{
+  "UID": "kubernetes_crashlooping_pods",
+  "Title": "Kubernetes crashlooping pods",
+  "Folder": "Kubernetes",
+  "Group": "kubernetes",
+  "Expr": "count(max_over_time(kube_pod_container_status_waiting_reason{reason=\"CrashLoopBackOff\"}[5m]) == 1)",
+  "For": "5m",
+  "Threshold": 0,
+  "Labels": {
+    "component": "workloads",
+    "domain": "kubernetes",
+    "severity": "warning"
+  },
+  "Annotations": {
+    "dashboard_uid": "kubernetes-cluster-overview",
+    "description": "At least one container has been in CrashLoopBackOff over the last 5m.",
+    "summary": "Pods are CrashLoopBackOff"
+  }
+}

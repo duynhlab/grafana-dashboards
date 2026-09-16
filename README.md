@@ -1,65 +1,208 @@
-# grafana-dashboards
+# Grafana Observability as Code
 
-> **⚠️ DEPRECATED — this repo is being retired.** The RFC-0017 platform boards
-> (microservices OTel + Business KPIs) now live in
-> [`duynhlab/helm-charts`](https://github.com/duynhlab/helm-charts) as the
-> `grafana-dashboards` chart (dashboards-as-code, consumed by homelab via
-> `GrafanaDashboard.configMapRef`). The remaining legacy boards here migrate in
-> a later wave; do not add new dashboards to this repo.
+Strongly typed Grafana dashboards and alert rules built with Go and the
+[Grafana Foundation SDK](https://github.com/grafana/grafana-foundation-sdk).
 
+The project uses the Dashboard v2 model and targets Grafana 12 or newer.
+Generated Kubernetes resources are published as an OCI artifact for GitOps
+delivery with Flux and the Grafana Operator.
 
-## Description
-This repository contains a modern set of Grafana dashboards for Kubernetes.
-They are inspired by many other dashboards from `kubernetes-mixin` and `grafana.com`.
+## Architecture
 
-You can also download more on [Grafana.com](https://grafana.com/grafana/dashboards/).
+```text
+Go source
+  internal/dashboards
+  internal/alerts
+  internal/queries
+  internal/panels
+  internal/standards
+        |
+        v
+  cmd/generate
+        |
+        +--> generated/       dashboard and alert artifacts
+        |
+        +--> deploy/          Grafana Operator resources
+                 |
+                 v
+       Flux OCI artifact on GHCR
+                 |
+                 v
+           Grafana Operator
+                 |
+                 v
+              Grafana
+```
 
-## Dashboards
+Go files under `internal/` are the source of truth. Files under `generated/`
+and `deploy/` are reproducible generator output and must not be edited by hand.
 
-Organized by category for easier navigation:
+## Current resources
 
-### Kubernetes & API Gateway (`kubernetes/`)
-| File name                       | Description         |
-|:--------------------------------|:--------------------|
-| kubernetes-cluster-overview.json | Kubernetes cluster overview: nodes, pods, CPU/memory, and workload health. |
-| kubernetes-nginx-ingress.json   | Nginx Ingress Controller metrics: request rate, latency, status codes. |
-| kong-dashboard.json             | Kong API Gateway: request rate, latency, status codes, and upstream health. |
+Grafana folders:
 
-### PostgreSQL & Databases (`postgresql/`)
-| File name                       | Description         |
-|:--------------------------------|:--------------------|
-| cloudnative-pg-cluster.json     | CloudNativePG cluster overview: connections, replication, storage, and WAL metrics. |
-| pg-monitoring.json              | PostgreSQL monitoring: throughput, cache hit ratio, connections, and bloat. |
-| pg-query-overview.json          | PostgreSQL query overview: top statements by time, calls, and rows. |
-| pg-query-drilldown.json         | PostgreSQL per-query drill-down via pg_stat_statements. |
-| pg-exporter-instance.json       | postgres_exporter per-instance metrics: sessions, transactions, locks, and I/O. |
-| pg-exporter-self.json           | postgres_exporter self-monitoring: scrape duration, errors, and collector health. |
-| postgres-replication-lag.json   | PostgreSQL streaming replication lag across replicas. |
-| pgbouncer.json                  | PgBouncer pooler: client/server connections, pool saturation, and wait times. |
-| pgdog.json                      | PgDog sharding/pooling proxy metrics. |
+- `Kubernetes`
+- `Databases`
 
-### Redis (`redis/`)
-| File name                       | Description         |
-|:--------------------------------|:--------------------|
-| redis.json                      | Redis/Valkey: memory, throughput, hit ratio, and connected clients. |
-| redis-exporter.json             | redis_exporter self-monitoring: metrics collection and exporter health. |
+Dashboards:
 
-### Messaging (`messaging/`)
-| File name                       | Description         |
-|:--------------------------------|:--------------------|
-| amazonmq/amazonmq-rabbitmq.json | AmazonMQ RabbitMQ broker and per-queue metrics via YACE. Source: CloudWatch AWS/AmazonMQ namespace. |
+- `kubernetes-cluster-overview`
+- `pg-io-waits`
 
-### Observability & Monitoring (`observability/`)
-| File name                       | Description         |
-|:--------------------------------|:--------------------|
-| high-level-sloth-slos.json      | High-level SLO dashboard using Sloth SLO framework. |
-| slo-detail.json                 | SLO detail view with error budgets and availability tracking. |
-| pyrra_list.json                 | Pyrra SLO list view: overview of all SLOs and their status. |
-| pyrra_detail.json               | Pyrra SLO detail view: drill-down into individual SLO metrics. |
-| tempo-observability-dashboard.json | Grafana Tempo observability: distributed tracing throughput, latency, and errors. |
+Alert rules:
 
-### Platform & Multi-Purpose (root)
-| File name                       | Description         |
-|:--------------------------------|:--------------------|
-| microservices-dashboard.json    | Microservices Observability Platform: RED metrics (rate/errors/duration), Go runtime, and per-service drill-down for the duynhlab platform. |
-| vault.json                      | Vault secret management and audit logging dashboard. |
+- `kubernetes_crashlooping_pods`
+- `kubernetes_pending_pods`
+- `kubernetes_pvcs_at_risk`
+- `postgres_backends_waiting`
+
+## Requirements
+
+- Go 1.26 or newer
+- Grafana 12 or newer
+- Grafana Operator for Kubernetes delivery
+- Flux CLI for OCI publishing
+- Kind, kubectl, and Helm for end-to-end tests
+
+## Quick start
+
+Generate all artifacts:
+
+```bash
+make generate
+```
+
+Run unit tests:
+
+```bash
+make test
+```
+
+Run the repository-wide 90% coverage gate:
+
+```bash
+make coverage
+```
+
+To inspect the coverage report directly:
+
+```bash
+go test ./... -coverpkg=./... -coverprofile=/tmp/grafana-dashboards-coverage.out
+go tool cover -func=/tmp/grafana-dashboards-coverage.out
+```
+
+Run formatting, vet, coverage, generation, and the generated-diff check:
+
+```bash
+make validate
+```
+
+Format Go files:
+
+```bash
+make fmt
+```
+
+## Repository layout
+
+```text
+cmd/generate/                 generation entry point
+internal/
+  alerts/                     alert rule definitions
+  dashboards/                 dashboard composition by domain
+  generate/                   deterministic artifact renderer
+  panels/                     reusable visualization builders
+  queries/prometheus/         reusable PromQL by domain
+  registry/                   dashboard and alert registration
+  standards/                  folders, labels, datasources, time settings
+generated/
+  alerts/                     generated alert definitions
+  dashboards/                 Dashboard v2 specs and manifests
+deploy/
+  manifests/                  Grafana Operator custom resources
+  kustomization.yaml          OCI bundle entry point
+test/
+  dashboards/                 cross-resource contract tests
+  e2e/kind/                   Grafana Operator smoke test
+```
+
+The project Agent Skill is located at
+[`.cursor/skills/grafana-foundation-sdk/`](.cursor/skills/grafana-foundation-sdk/SKILL.md).
+It contains the architecture, alerting, domain, testing, CI/CD, and end-to-end
+conventions used by this repository.
+
+## Development
+
+Use the following workflow to onboard resources while preserving shared
+standards, generated output, and dashboard-alert relationships.
+
+### Adding a dashboard
+
+1. Add or reuse queries under `internal/queries/`.
+2. Compose panels and rows under `internal/dashboards/<domain>/`.
+3. Register the dashboard and its domain folder in
+   `internal/registry/dashboards.go`.
+4. Add operational alert rules when appropriate.
+5. Run `make validate`.
+
+### Adding an alert rule
+
+1. Reuse the dashboard's query semantics.
+2. Define the rule under `internal/alerts/`.
+3. Apply standard labels and annotations, including `dashboard_uid`.
+4. Register it in `internal/registry/alerts.go`.
+5. Run `make validate`.
+
+### Adding a domain
+
+Define the folder in `internal/standards/folders.go`, then register resources
+with that folder. The generator discovers folders from the registries, so adding
+a domain does not require generator changes.
+
+## Kubernetes delivery
+
+Build the complete manifest bundle:
+
+```bash
+kubectl kustomize deploy/
+```
+
+The bundle contains:
+
+- one `GrafanaFolder` per domain
+- one `GrafanaDashboard` per dashboard
+- one `GrafanaAlertRuleGroup` per alert domain
+
+Run the local end-to-end smoke test:
+
+```bash
+make e2e-kind
+```
+
+The test creates a Kind cluster, installs the Grafana Operator, deploys
+Grafana 12, applies the generated bundle, and verifies the resources.
+
+## OCI publishing
+
+GitHub Actions publishes:
+
+```text
+ghcr.io/duynhlab/grafana-dashboards-as-code:latest
+ghcr.io/duynhlab/grafana-dashboards-as-code:sha-<commit>
+```
+
+The `latest` tag follows the `as-code` branch. Commit tags provide immutable
+references for GitOps consumers.
+
+## CI
+
+Pull requests run:
+
+- formatting verification
+- `go vet`
+- repository-wide test coverage with a minimum of 90%
+- deterministic artifact generation and diff verification
+- Kustomize rendering checks for folders, dashboards, and alert groups
+- Kind end-to-end smoke tests
+
+Pushes to `as-code` additionally publish the Flux OCI artifact to GHCR.
