@@ -2,10 +2,14 @@
 
 ## Pipeline (`.github/workflows/as-code.yml`)
 
-1. `go test ./...` + `go vet` + gofmt check
+Actions: `actions/checkout@v7`, `actions/setup-go@v7`, Go `1.26`.
+
+1. gofmt check, `go vet ./...`, tests with repository-wide coverage ≥ 90%
 2. `go run ./cmd/generate`
 3. Assert no unexpected diff in `generated/` and `deploy/`
-4. On push to `as-code`: `flux push artifact` → `ghcr.io/duynhlab/grafana-dashboards-as-code`
+4. Kustomize render must include GrafanaFolder, GrafanaDashboard, GrafanaAlertRuleGroup
+5. Kind e2e applies the deploy bundle against Grafana Operator
+6. On push to `as-code`: `flux push artifact` → `ghcr.io/duynhlab/grafana-dashboards-as-code`
 
 ## Tags
 

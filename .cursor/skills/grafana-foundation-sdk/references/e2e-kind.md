@@ -6,26 +6,17 @@
 
 ## Cluster
 
-- Kind with `kindest/node:v1.36.0` (or latest 1.36 patch)
-- Flux controllers installed
-- Grafana Operator + Grafana 12+
-
-## Stack
-
-| Component | Purpose |
-|-----------|---------|
-| kube-prometheus-stack or VM + ksm + node-exporter | Kubernetes dashboard metrics |
-| CNPG or metric fixtures | pg-io-waits metrics |
-| Flux OCIRepository | Pull `ghcr.io/duynhlab/grafana-dashboards-as-code:latest` |
-| Kustomization | Apply GrafanaFolder, GrafanaDashboard, GrafanaAlertRuleGroup |
+- Kind with `kindest/node:v1.36.0` (falls back to `v1.32.0` only if the 1.36 node image cannot be pulled)
+- Grafana Operator Helm chart `5.22.2`
+- Grafana `spec.version: "12.0.0"`
+- Wait on Grafana CR `status.stage=complete`, not `condition=Ready`
 
 ## Assertions
 
-1. Apply `deploy/` (or Flux reconciles the OCI artifact)
+1. Apply `deploy/`
 2. GrafanaFolders `kubernetes` and `databases` exist
 3. GrafanaDashboards `kubernetes-cluster-overview`, `pg-io-waits` exist
-4. GrafanaAlertRuleGroup CRs exist if the operator CRD is installed; if the CRD is missing, generation still succeeds and e2e logs the fallback
-5. Smoke: dashboards load without panel errors
+4. GrafanaAlertRuleGroup CRs `kubernetes` and `databases` exist (the CRD is required)
 
 ## Local run
 

@@ -58,7 +58,7 @@ Alert rules:
 
 ## Requirements
 
-- Go 1.24 or newer
+- Go 1.26 or newer
 - Grafana 12 or newer
 - Grafana Operator for Kubernetes delivery
 - Flux CLI for OCI publishing
