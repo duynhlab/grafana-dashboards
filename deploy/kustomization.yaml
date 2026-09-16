@@ -5,7 +5,13 @@ namespace: grafana-operator
 resources:
     - manifests/grafanafolder-kubernetes.yaml
     - manifests/grafanafolder-databases.yaml
+    - manifests/grafanafolder-observability.yaml
     - manifests/grafanadashboard-kubernetes-cluster-overview.yaml
     - manifests/grafanadashboard-pg-io-waits.yaml
+    - manifests/grafanadashboard-pg-maintenance.yaml
+    - manifests/grafanadashboard-pg-query-performance.yaml
+    - manifests/grafanadashboard-pg-exporter-instance.yaml
+    - manifests/grafanadashboard-pgdog.yaml
+    - manifests/grafanadashboard-temporal-worker.yaml
     - manifests/grafanaalertrulegroup-databases.yaml
     - manifests/grafanaalertrulegroup-kubernetes.yaml

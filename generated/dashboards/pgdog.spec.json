@@ -1,0 +1,2743 @@
+{
+  "annotations": [],
+  "cursorSync": "Off",
+  "description": "PGDog connection pooler metrics: clients, servers, connections, transactions, queries, traffic, prepared statements and mirroring. Ported from Grafana.com dashboard 24583.",
+  "editable": true,
+  "elements": {
+    "2pc-rate": {
+      "kind": "Panel",
+      "spec": {
+        "id": 0,
+        "title": "Two-Phase Commit Transactions Rate",
+        "description": "",
+        "links": [],
+        "data": {
+          "kind": "QueryGroup",
+          "spec": {
+            "queries": [
+              {
+                "kind": "PanelQuery",
+                "spec": {
+                  "query": {
+                    "kind": "DataQuery",
+                    "group": "prometheus",
+                    "version": "v0",
+                    "datasource": {
+                      "name": "prometheus"
+                    },
+                    "spec": {
+                      "expr": "sum (rate(pgdog_total_xact_2pc_count{job=~\"$pooler\", host=~\"$host\", port=~\"$port\", shard=\"$shard\", role=~\"$role\", database=~\"$database\", user=~\"$user\"}[$__rate_interval])) by (host, port, shard, role, database, user)",
+                      "legendFormat": "{{host}}:{{port}} shard:{{shard}} role:{{role}} db:{{database}} user:{{user}}"
+                    }
+                  },
+                  "refId": "A",
+                  "hidden": false
+                }
+              }
+            ],
+            "transformations": [],
+            "queryOptions": {}
+          }
+        },
+        "vizConfig": {
+          "kind": "VizConfig",
+          "group": "timeseries",
+          "version": "",
+          "spec": {
+            "options": {
+              "legend": {
+                "displayMode": "list",
+                "placement": "bottom",
+                "showLegend": false,
+                "calcs": []
+              },
+              "tooltip": {
+                "mode": "",
+                "sort": ""
+              }
+            },
+            "fieldConfig": {
+              "defaults": {
+                "unit": "short",
+                "custom": {}
+              },
+              "overrides": []
+            }
+          }
+        }
+      }
+    },
+    "avg-2pc": {
+      "kind": "Panel",
+      "spec": {
+        "id": 0,
+        "title": "Average Two-Phase Commit Transactions Count",
+        "description": "",
+        "links": [],
+        "data": {
+          "kind": "QueryGroup",
+          "spec": {
+            "queries": [
+              {
+                "kind": "PanelQuery",
+                "spec": {
+                  "query": {
+                    "kind": "DataQuery",
+                    "group": "prometheus",
+                    "version": "v0",
+                    "datasource": {
+                      "name": "prometheus"
+                    },
+                    "spec": {
+                      "expr": "sum (pgdog_avg_xact_2pc_count{job=~\"$pooler\", host=~\"$host\", port=~\"$port\", shard=\"$shard\", role=~\"$role\", database=~\"$database\", user=~\"$user\"}) by (host, port, shard, role, database, user)",
+                      "legendFormat": "{{host}}:{{port}} shard:{{shard}} role:{{role}} db:{{database}} user:{{user}}"
+                    }
+                  },
+                  "refId": "A",
+                  "hidden": false
+                }
+              }
+            ],
+            "transformations": [],
+            "queryOptions": {}
+          }
+        },
+        "vizConfig": {
+          "kind": "VizConfig",
+          "group": "timeseries",
+          "version": "",
+          "spec": {
+            "options": {
+              "legend": {
+                "displayMode": "list",
+                "placement": "bottom",
+                "showLegend": false,
+                "calcs": []
+              },
+              "tooltip": {
+                "mode": "",
+                "sort": ""
+              }
+            },
+            "fieldConfig": {
+              "defaults": {
+                "unit": "short",
+                "custom": {}
+              },
+              "overrides": []
+            }
+          }
+        }
+      }
+    },
+    "avg-prep-evict": {
+      "kind": "Panel",
+      "spec": {
+        "id": 0,
+        "title": "Average Prepared Statements Eviction Count",
+        "description": "",
+        "links": [],
+        "data": {
+          "kind": "QueryGroup",
+          "spec": {
+            "queries": [
+              {
+                "kind": "PanelQuery",
+                "spec": {
+                  "query": {
+                    "kind": "DataQuery",
+                    "group": "prometheus",
+                    "version": "v0",
+                    "datasource": {
+                      "name": "prometheus"
+                    },
+                    "spec": {
+                      "expr": "sum (pgdog_avg_prepared_evictions{job=~\"$pooler\", host=~\"$host\", port=~\"$port\", shard=\"$shard\", role=~\"$role\", database=~\"$database\", user=~\"$user\"}) by (host, port, shard, role, database, user)",
+                      "legendFormat": "{{host}}:{{port}} shard:{{shard}} role:{{role}} db:{{database}} user:{{user}}"
+                    }
+                  },
+                  "refId": "A",
+                  "hidden": false
+                }
+              }
+            ],
+            "transformations": [],
+            "queryOptions": {}
+          }
+        },
+        "vizConfig": {
+          "kind": "VizConfig",
+          "group": "timeseries",
+          "version": "",
+          "spec": {
+            "options": {
+              "legend": {
+                "displayMode": "list",
+                "placement": "bottom",
+                "showLegend": false,
+                "calcs": []
+              },
+              "tooltip": {
+                "mode": "",
+                "sort": ""
+              }
+            },
+            "fieldConfig": {
+              "defaults": {
+                "unit": "short",
+                "custom": {}
+              },
+              "overrides": []
+            }
+          }
+        }
+      }
+    },
+    "avg-query": {
+      "kind": "Panel",
+      "spec": {
+        "id": 0,
+        "title": "Average Query Count",
+        "description": "",
+        "links": [],
+        "data": {
+          "kind": "QueryGroup",
+          "spec": {
+            "queries": [
+              {
+                "kind": "PanelQuery",
+                "spec": {
+                  "query": {
+                    "kind": "DataQuery",
+                    "group": "prometheus",
+                    "version": "v0",
+                    "datasource": {
+                      "name": "prometheus"
+                    },
+                    "spec": {
+                      "expr": "sum (pgdog_avg_query_count{job=~\"$pooler\", host=~\"$host\", port=~\"$port\", shard=\"$shard\", role=~\"$role\", database=~\"$database\", user=~\"$user\"}) by (host, port, shard, role, database, user)",
+                      "legendFormat": "{{host}}:{{port}} shard:{{shard}} role:{{role}} db:{{database}} user:{{user}}"
+                    }
+                  },
+                  "refId": "A",
+                  "hidden": false
+                }
+              }
+            ],
+            "transformations": [],
+            "queryOptions": {}
+          }
+        },
+        "vizConfig": {
+          "kind": "VizConfig",
+          "group": "timeseries",
+          "version": "",
+          "spec": {
+            "options": {
+              "legend": {
+                "displayMode": "list",
+                "placement": "bottom",
+                "showLegend": false,
+                "calcs": []
+              },
+              "tooltip": {
+                "mode": "",
+                "sort": ""
+              }
+            },
+            "fieldConfig": {
+              "defaults": {
+                "unit": "short",
+                "custom": {}
+              },
+              "overrides": []
+            }
+          }
+        }
+      }
+    },
+    "avg-query-time": {
+      "kind": "Panel",
+      "spec": {
+        "id": 0,
+        "title": "Average Query Executing Time",
+        "description": "",
+        "links": [],
+        "data": {
+          "kind": "QueryGroup",
+          "spec": {
+            "queries": [
+              {
+                "kind": "PanelQuery",
+                "spec": {
+                  "query": {
+                    "kind": "DataQuery",
+                    "group": "prometheus",
+                    "version": "v0",
+                    "datasource": {
+                      "name": "prometheus"
+                    },
+                    "spec": {
+                      "expr": "avg (pgdog_avg_query_time{job=~\"$pooler\", host=~\"$host\", port=~\"$port\", shard=\"$shard\", role=~\"$role\", database=~\"$database\", user=~\"$user\"}) by (host, port, shard, role, database, user)",
+                      "legendFormat": "{{host}}:{{port}} shard:{{shard}} role:{{role}} db:{{database}} user:{{user}}"
+                    }
+                  },
+                  "refId": "A",
+                  "hidden": false
+                }
+              }
+            ],
+            "transformations": [],
+            "queryOptions": {}
+          }
+        },
+        "vizConfig": {
+          "kind": "VizConfig",
+          "group": "timeseries",
+          "version": "",
+          "spec": {
+            "options": {
+              "legend": {
+                "displayMode": "list",
+                "placement": "bottom",
+                "showLegend": false,
+                "calcs": []
+              },
+              "tooltip": {
+                "mode": "",
+                "sort": ""
+              }
+            },
+            "fieldConfig": {
+              "defaults": {
+                "unit": "dtdurationms",
+                "custom": {}
+              },
+              "overrides": []
+            }
+          }
+        }
+      }
+    },
+    "avg-received": {
+      "kind": "Panel",
+      "spec": {
+        "id": 0,
+        "title": "Average Traffic Received",
+        "description": "",
+        "links": [],
+        "data": {
+          "kind": "QueryGroup",
+          "spec": {
+            "queries": [
+              {
+                "kind": "PanelQuery",
+                "spec": {
+                  "query": {
+                    "kind": "DataQuery",
+                    "group": "prometheus",
+                    "version": "v0",
+                    "datasource": {
+                      "name": "prometheus"
+                    },
+                    "spec": {
+                      "expr": "sum (pgdog_avg_received{job=~\"$pooler\", host=~\"$host\", port=~\"$port\", shard=\"$shard\", role=~\"$role\", database=~\"$database\", user=~\"$user\"}) by (host, port, shard, role, database, user)",
+                      "legendFormat": "{{host}}:{{port}} shard:{{shard}} role:{{role}} db:{{database}} user:{{user}}"
+                    }
+                  },
+                  "refId": "A",
+                  "hidden": false
+                }
+              }
+            ],
+            "transformations": [],
+            "queryOptions": {}
+          }
+        },
+        "vizConfig": {
+          "kind": "VizConfig",
+          "group": "timeseries",
+          "version": "",
+          "spec": {
+            "options": {
+              "legend": {
+                "displayMode": "list",
+                "placement": "bottom",
+                "showLegend": false,
+                "calcs": []
+              },
+              "tooltip": {
+                "mode": "",
+                "sort": ""
+              }
+            },
+            "fieldConfig": {
+              "defaults": {
+                "unit": "decbytes",
+                "custom": {}
+              },
+              "overrides": []
+            }
+          }
+        }
+      }
+    },
+    "avg-sent": {
+      "kind": "Panel",
+      "spec": {
+        "id": 0,
+        "title": "Average Traffic Sent",
+        "description": "",
+        "links": [],
+        "data": {
+          "kind": "QueryGroup",
+          "spec": {
+            "queries": [
+              {
+                "kind": "PanelQuery",
+                "spec": {
+                  "query": {
+                    "kind": "DataQuery",
+                    "group": "prometheus",
+                    "version": "v0",
+                    "datasource": {
+                      "name": "prometheus"
+                    },
+                    "spec": {
+                      "expr": "sum (pgdog_avg_sent{job=~\"$pooler\", host=~\"$host\", port=~\"$port\", shard=\"$shard\", role=~\"$role\", database=~\"$database\", user=~\"$user\"}) by (host, port, shard, role, database, user)",
+                      "legendFormat": "{{host}}:{{port}} shard:{{shard}} role:{{role}} db:{{database}} user:{{user}}"
+                    }
+                  },
+                  "refId": "A",
+                  "hidden": false
+                }
+              }
+            ],
+            "transformations": [],
+            "queryOptions": {}
+          }
+        },
+        "vizConfig": {
+          "kind": "VizConfig",
+          "group": "timeseries",
+          "version": "",
+          "spec": {
+            "options": {
+              "legend": {
+                "displayMode": "list",
+                "placement": "bottom",
+                "showLegend": false,
+                "calcs": []
+              },
+              "tooltip": {
+                "mode": "",
+                "sort": ""
+              }
+            },
+            "fieldConfig": {
+              "defaults": {
+                "unit": "decbytes",
+                "custom": {}
+              },
+              "overrides": []
+            }
+          }
+        }
+      }
+    },
+    "avg-xact": {
+      "kind": "Panel",
+      "spec": {
+        "id": 0,
+        "title": "Average Transactions Count",
+        "description": "",
+        "links": [],
+        "data": {
+          "kind": "QueryGroup",
+          "spec": {
+            "queries": [
+              {
+                "kind": "PanelQuery",
+                "spec": {
+                  "query": {
+                    "kind": "DataQuery",
+                    "group": "prometheus",
+                    "version": "v0",
+                    "datasource": {
+                      "name": "prometheus"
+                    },
+                    "spec": {
+                      "expr": "sum (pgdog_avg_xact_count{job=~\"$pooler\", host=~\"$host\", port=~\"$port\", shard=\"$shard\", role=~\"$role\", database=~\"$database\", user=~\"$user\"}) by (host, port, shard, role, database, user)",
+                      "legendFormat": "{{host}}:{{port}} shard:{{shard}} role:{{role}} db:{{database}} user:{{user}}"
+                    }
+                  },
+                  "refId": "A",
+                  "hidden": false
+                }
+              }
+            ],
+            "transformations": [],
+            "queryOptions": {}
+          }
+        },
+        "vizConfig": {
+          "kind": "VizConfig",
+          "group": "timeseries",
+          "version": "",
+          "spec": {
+            "options": {
+              "legend": {
+                "displayMode": "list",
+                "placement": "bottom",
+                "showLegend": false,
+                "calcs": []
+              },
+              "tooltip": {
+                "mode": "",
+                "sort": ""
+              }
+            },
+            "fieldConfig": {
+              "defaults": {
+                "unit": "short",
+                "custom": {}
+              },
+              "overrides": []
+            }
+          }
+        }
+      }
+    },
+    "avg-xact-time": {
+      "kind": "Panel",
+      "spec": {
+        "id": 0,
+        "title": "Average Time Spent Executing Transactions",
+        "description": "",
+        "links": [],
+        "data": {
+          "kind": "QueryGroup",
+          "spec": {
+            "queries": [
+              {
+                "kind": "PanelQuery",
+                "spec": {
+                  "query": {
+                    "kind": "DataQuery",
+                    "group": "prometheus",
+                    "version": "v0",
+                    "datasource": {
+                      "name": "prometheus"
+                    },
+                    "spec": {
+                      "expr": "avg (pgdog_avg_xact_time{job=~\"$pooler\", host=~\"$host\", port=~\"$port\", shard=\"$shard\", role=~\"$role\", database=~\"$database\", user=~\"$user\"}) by (host, port, shard, role, database, user)",
+                      "legendFormat": "{{host}}:{{port}} shard:{{shard}} role:{{role}} db:{{database}} user:{{user}}"
+                    }
+                  },
+                  "refId": "A",
+                  "hidden": false
+                }
+              }
+            ],
+            "transformations": [],
+            "queryOptions": {}
+          }
+        },
+        "vizConfig": {
+          "kind": "VizConfig",
+          "group": "timeseries",
+          "version": "",
+          "spec": {
+            "options": {
+              "legend": {
+                "displayMode": "list",
+                "placement": "bottom",
+                "showLegend": false,
+                "calcs": []
+              },
+              "tooltip": {
+                "mode": "",
+                "sort": ""
+              }
+            },
+            "fieldConfig": {
+              "defaults": {
+                "unit": "dtdurationms",
+                "custom": {}
+              },
+              "overrides": []
+            }
+          }
+        }
+      }
+    },
+    "cache-rate": {
+      "kind": "Panel",
+      "spec": {
+        "id": 0,
+        "title": "Query Cache Rate",
+        "description": "",
+        "links": [],
+        "data": {
+          "kind": "QueryGroup",
+          "spec": {
+            "queries": [
+              {
+                "kind": "PanelQuery",
+                "spec": {
+                  "query": {
+                    "kind": "DataQuery",
+                    "group": "prometheus",
+                    "version": "v0",
+                    "datasource": {
+                      "name": "prometheus"
+                    },
+                    "spec": {
+                      "expr": "sum (rate(pgdog_query_cache_hits{job=~\"$pooler\"}[$__rate_interval])) by (instance)",
+                      "legendFormat": "HIT {{instance}}"
+                    }
+                  },
+                  "refId": "A",
+                  "hidden": false
+                }
+              },
+              {
+                "kind": "PanelQuery",
+                "spec": {
+                  "query": {
+                    "kind": "DataQuery",
+                    "group": "prometheus",
+                    "version": "v0",
+                    "datasource": {
+                      "name": "prometheus"
+                    },
+                    "spec": {
+                      "expr": "sum (rate(pgdog_query_cache_misses{job=~\"$pooler\"}[$__rate_interval])) by (instance)",
+                      "legendFormat": "MISS {{instance}}",
+                      "range": true
+                    }
+                  },
+                  "refId": "B",
+                  "hidden": false
+                }
+              },
+              {
+                "kind": "PanelQuery",
+                "spec": {
+                  "query": {
+                    "kind": "DataQuery",
+                    "group": "prometheus",
+                    "version": "v0",
+                    "datasource": {
+                      "name": "prometheus"
+                    },
+                    "spec": {
+                      "expr": "sum (rate(pgdog_query_cache_direct{job=~\"$pooler\"}[$__rate_interval])) by (instance)",
+                      "legendFormat": "DIRECT {{instance}}",
+                      "range": true
+                    }
+                  },
+                  "refId": "C",
+                  "hidden": false
+                }
+              },
+              {
+                "kind": "PanelQuery",
+                "spec": {
+                  "query": {
+                    "kind": "DataQuery",
+                    "group": "prometheus",
+                    "version": "v0",
+                    "datasource": {
+                      "name": "prometheus"
+                    },
+                    "spec": {
+                      "expr": "sum (rate(pgdog_query_cache_cross{job=~\"$pooler\"}[$__rate_interval])) by (instance)",
+                      "legendFormat": "CROSS {{instance}}",
+                      "range": true
+                    }
+                  },
+                  "refId": "D",
+                  "hidden": false
+                }
+              }
+            ],
+            "transformations": [],
+            "queryOptions": {}
+          }
+        },
+        "vizConfig": {
+          "kind": "VizConfig",
+          "group": "timeseries",
+          "version": "",
+          "spec": {
+            "options": {
+              "legend": {
+                "displayMode": "list",
+                "placement": "bottom",
+                "showLegend": false,
+                "calcs": []
+              },
+              "tooltip": {
+                "mode": "",
+                "sort": ""
+              }
+            },
+            "fieldConfig": {
+              "defaults": {
+                "unit": "short",
+                "custom": {}
+              },
+              "overrides": []
+            }
+          }
+        }
+      }
+    },
+    "cache-size": {
+      "kind": "Panel",
+      "spec": {
+        "id": 0,
+        "title": "Query Cache Size",
+        "description": "",
+        "links": [],
+        "data": {
+          "kind": "QueryGroup",
+          "spec": {
+            "queries": [
+              {
+                "kind": "PanelQuery",
+                "spec": {
+                  "query": {
+                    "kind": "DataQuery",
+                    "group": "prometheus",
+                    "version": "v0",
+                    "datasource": {
+                      "name": "prometheus"
+                    },
+                    "spec": {
+                      "expr": "sum (pgdog_query_cache_size{job=~\"$pooler\"}) by (instance)"
+                    }
+                  },
+                  "refId": "A",
+                  "hidden": false
+                }
+              }
+            ],
+            "transformations": [],
+            "queryOptions": {}
+          }
+        },
+        "vizConfig": {
+          "kind": "VizConfig",
+          "group": "timeseries",
+          "version": "",
+          "spec": {
+            "options": {
+              "legend": {
+                "displayMode": "list",
+                "placement": "bottom",
+                "showLegend": false,
+                "calcs": []
+              },
+              "tooltip": {
+                "mode": "",
+                "sort": ""
+              }
+            },
+            "fieldConfig": {
+              "defaults": {
+                "unit": "short",
+                "custom": {}
+              },
+              "overrides": []
+            }
+          }
+        }
+      }
+    },
+    "clients-total": {
+      "kind": "Panel",
+      "spec": {
+        "id": 0,
+        "title": "Clients Total",
+        "description": "",
+        "links": [],
+        "data": {
+          "kind": "QueryGroup",
+          "spec": {
+            "queries": [
+              {
+                "kind": "PanelQuery",
+                "spec": {
+                  "query": {
+                    "kind": "DataQuery",
+                    "group": "prometheus",
+                    "version": "v0",
+                    "datasource": {
+                      "name": "prometheus"
+                    },
+                    "spec": {
+                      "expr": "sum (pgdog_clients{job=~\"$pooler\"}) by (instance)"
+                    }
+                  },
+                  "refId": "A",
+                  "hidden": false
+                }
+              }
+            ],
+            "transformations": [],
+            "queryOptions": {}
+          }
+        },
+        "vizConfig": {
+          "kind": "VizConfig",
+          "group": "timeseries",
+          "version": "",
+          "spec": {
+            "options": {
+              "legend": {
+                "displayMode": "list",
+                "placement": "bottom",
+                "showLegend": false,
+                "calcs": []
+              },
+              "tooltip": {
+                "mode": "",
+                "sort": ""
+              }
+            },
+            "fieldConfig": {
+              "defaults": {
+                "unit": "short",
+                "custom": {}
+              },
+              "overrides": []
+            }
+          }
+        }
+      }
+    },
+    "clients-waiting": {
+      "kind": "Panel",
+      "spec": {
+        "id": 0,
+        "title": "Clients Waiting",
+        "description": "",
+        "links": [],
+        "data": {
+          "kind": "QueryGroup",
+          "spec": {
+            "queries": [
+              {
+                "kind": "PanelQuery",
+                "spec": {
+                  "query": {
+                    "kind": "DataQuery",
+                    "group": "prometheus",
+                    "version": "v0",
+                    "datasource": {
+                      "name": "prometheus"
+                    },
+                    "spec": {
+                      "expr": "sum (pgdog_cl_waiting{job=~\"$pooler\", host=~\"$host\", port=~\"$port\", shard=\"$shard\", role=~\"$role\", database=~\"$database\", user=~\"$user\"}) by (host, port, shard, role, database, user)",
+                      "legendFormat": "{{host}}:{{port}} shard:{{shard}} role:{{role}} db:{{database}} user:{{user}}"
+                    }
+                  },
+                  "refId": "A",
+                  "hidden": false
+                }
+              }
+            ],
+            "transformations": [],
+            "queryOptions": {}
+          }
+        },
+        "vizConfig": {
+          "kind": "VizConfig",
+          "group": "timeseries",
+          "version": "",
+          "spec": {
+            "options": {
+              "legend": {
+                "displayMode": "list",
+                "placement": "bottom",
+                "showLegend": false,
+                "calcs": []
+              },
+              "tooltip": {
+                "mode": "",
+                "sort": ""
+              }
+            },
+            "fieldConfig": {
+              "defaults": {
+                "unit": "short",
+                "custom": {}
+              },
+              "overrides": []
+            }
+          }
+        }
+      }
+    },
+    "errors": {
+      "kind": "Panel",
+      "spec": {
+        "id": 0,
+        "title": "Connection Errors Rate",
+        "description": "",
+        "links": [],
+        "data": {
+          "kind": "QueryGroup",
+          "spec": {
+            "queries": [
+              {
+                "kind": "PanelQuery",
+                "spec": {
+                  "query": {
+                    "kind": "DataQuery",
+                    "group": "prometheus",
+                    "version": "v0",
+                    "datasource": {
+                      "name": "prometheus"
+                    },
+                    "spec": {
+                      "expr": "sum (rate(pgdog_errors{job=~\"$pooler\", host=~\"$host\", port=~\"$port\", shard=\"$shard\", role=~\"$role\", database=~\"$database\", user=~\"$user\"}[$__rate_interval])) by (host, port, shard, role, database, user)",
+                      "legendFormat": "{{host}}:{{port}} shard:{{shard}} role:{{role}} db:{{database}} user:{{user}}"
+                    }
+                  },
+                  "refId": "A",
+                  "hidden": false
+                }
+              }
+            ],
+            "transformations": [],
+            "queryOptions": {}
+          }
+        },
+        "vizConfig": {
+          "kind": "VizConfig",
+          "group": "timeseries",
+          "version": "",
+          "spec": {
+            "options": {
+              "legend": {
+                "displayMode": "list",
+                "placement": "bottom",
+                "showLegend": false,
+                "calcs": []
+              },
+              "tooltip": {
+                "mode": "",
+                "sort": ""
+              }
+            },
+            "fieldConfig": {
+              "defaults": {
+                "unit": "short",
+                "custom": {}
+              },
+              "overrides": []
+            }
+          }
+        }
+      }
+    },
+    "maxwait": {
+      "kind": "Panel",
+      "spec": {
+        "id": 0,
+        "title": "Connection Max Wait Time",
+        "description": "",
+        "links": [],
+        "data": {
+          "kind": "QueryGroup",
+          "spec": {
+            "queries": [
+              {
+                "kind": "PanelQuery",
+                "spec": {
+                  "query": {
+                    "kind": "DataQuery",
+                    "group": "prometheus",
+                    "version": "v0",
+                    "datasource": {
+                      "name": "prometheus"
+                    },
+                    "spec": {
+                      "expr": "max (pgdog_maxwait{job=~\"$pooler\", host=~\"$host\", port=~\"$port\", shard=\"$shard\", role=~\"$role\", database=~\"$database\", user=~\"$user\"}) by (host, port, shard, role, database, user)",
+                      "legendFormat": "{{host}}:{{port}} shard:{{shard}} role:{{role}} db:{{database}} user:{{user}}"
+                    }
+                  },
+                  "refId": "A",
+                  "hidden": false
+                }
+              }
+            ],
+            "transformations": [],
+            "queryOptions": {}
+          }
+        },
+        "vizConfig": {
+          "kind": "VizConfig",
+          "group": "timeseries",
+          "version": "",
+          "spec": {
+            "options": {
+              "legend": {
+                "displayMode": "list",
+                "placement": "bottom",
+                "showLegend": false,
+                "calcs": []
+              },
+              "tooltip": {
+                "mode": "",
+                "sort": ""
+              }
+            },
+            "fieldConfig": {
+              "defaults": {
+                "unit": "s",
+                "custom": {}
+              },
+              "overrides": []
+            }
+          }
+        }
+      }
+    },
+    "mirror-queue": {
+      "kind": "Panel",
+      "spec": {
+        "id": 0,
+        "title": "Mirror Queue Size",
+        "description": "",
+        "links": [],
+        "data": {
+          "kind": "QueryGroup",
+          "spec": {
+            "queries": [
+              {
+                "kind": "PanelQuery",
+                "spec": {
+                  "query": {
+                    "kind": "DataQuery",
+                    "group": "prometheus",
+                    "version": "v0",
+                    "datasource": {
+                      "name": "prometheus"
+                    },
+                    "spec": {
+                      "expr": "sum (pgdog_mirror_queue_length{job=~\"$pooler\", database=~\"$database\", user=~\"$user\"}) by (instance, database, user)",
+                      "legendFormat": "{{instance}} db:{{database}} user:{{user}}"
+                    }
+                  },
+                  "refId": "A",
+                  "hidden": false
+                }
+              }
+            ],
+            "transformations": [],
+            "queryOptions": {}
+          }
+        },
+        "vizConfig": {
+          "kind": "VizConfig",
+          "group": "timeseries",
+          "version": "",
+          "spec": {
+            "options": {
+              "legend": {
+                "displayMode": "list",
+                "placement": "bottom",
+                "showLegend": false,
+                "calcs": []
+              },
+              "tooltip": {
+                "mode": "",
+                "sort": ""
+              }
+            },
+            "fieldConfig": {
+              "defaults": {
+                "unit": "short",
+                "custom": {}
+              },
+              "overrides": []
+            }
+          }
+        }
+      }
+    },
+    "mirror-rate": {
+      "kind": "Panel",
+      "spec": {
+        "id": 0,
+        "title": "Mirror Rate",
+        "description": "",
+        "links": [],
+        "data": {
+          "kind": "QueryGroup",
+          "spec": {
+            "queries": [
+              {
+                "kind": "PanelQuery",
+                "spec": {
+                  "query": {
+                    "kind": "DataQuery",
+                    "group": "prometheus",
+                    "version": "v0",
+                    "datasource": {
+                      "name": "prometheus"
+                    },
+                    "spec": {
+                      "expr": "sum (rate(pgdog_mirror_total_count{job=~\"$pooler\", database=~\"$database\", user=~\"$user\"}[$__rate_interval])) by (instance, database, user)",
+                      "legendFormat": "TOTAL {{instance}} db:{{database}} user:{{user}}"
+                    }
+                  },
+                  "refId": "A",
+                  "hidden": false
+                }
+              },
+              {
+                "kind": "PanelQuery",
+                "spec": {
+                  "query": {
+                    "kind": "DataQuery",
+                    "group": "prometheus",
+                    "version": "v0",
+                    "datasource": {
+                      "name": "prometheus"
+                    },
+                    "spec": {
+                      "expr": "sum (rate(pgdog_mirror_mirrored_count{job=~\"$pooler\", database=~\"$database\", user=~\"$user\"}[$__rate_interval])) by (instance, database, user)",
+                      "legendFormat": "MIRRORED {{instance}} db:{{database}} user:{{user}}",
+                      "range": true
+                    }
+                  },
+                  "refId": "B",
+                  "hidden": false
+                }
+              },
+              {
+                "kind": "PanelQuery",
+                "spec": {
+                  "query": {
+                    "kind": "DataQuery",
+                    "group": "prometheus",
+                    "version": "v0",
+                    "datasource": {
+                      "name": "prometheus"
+                    },
+                    "spec": {
+                      "expr": "sum (rate(pgdog_mirror_dropped_count{job=~\"$pooler\", database=~\"$database\", user=~\"$user\"}[$__rate_interval])) by (instance, database, user)",
+                      "legendFormat": "DROPPED {{instance}} db:{{database}} user:{{user}}",
+                      "range": true
+                    }
+                  },
+                  "refId": "C",
+                  "hidden": false
+                }
+              },
+              {
+                "kind": "PanelQuery",
+                "spec": {
+                  "query": {
+                    "kind": "DataQuery",
+                    "group": "prometheus",
+                    "version": "v0",
+                    "datasource": {
+                      "name": "prometheus"
+                    },
+                    "spec": {
+                      "expr": "sum (rate(pgdog_mirror_error_count{job=~\"$pooler\", database=~\"$database\", user=~\"$user\"}[$__rate_interval])) by (instance, database, user)",
+                      "legendFormat": "ERROR {{instance}} db:{{database}} user:{{user}}",
+                      "range": true
+                    }
+                  },
+                  "refId": "D",
+                  "hidden": false
+                }
+              }
+            ],
+            "transformations": [],
+            "queryOptions": {}
+          }
+        },
+        "vizConfig": {
+          "kind": "VizConfig",
+          "group": "timeseries",
+          "version": "",
+          "spec": {
+            "options": {
+              "legend": {
+                "displayMode": "list",
+                "placement": "bottom",
+                "showLegend": false,
+                "calcs": []
+              },
+              "tooltip": {
+                "mode": "",
+                "sort": ""
+              }
+            },
+            "fieldConfig": {
+              "defaults": {
+                "unit": "short",
+                "custom": {}
+              },
+              "overrides": []
+            }
+          }
+        }
+      }
+    },
+    "out-of-sync": {
+      "kind": "Panel",
+      "spec": {
+        "id": 0,
+        "title": "Connection Out Of Sync Rate",
+        "description": "",
+        "links": [],
+        "data": {
+          "kind": "QueryGroup",
+          "spec": {
+            "queries": [
+              {
+                "kind": "PanelQuery",
+                "spec": {
+                  "query": {
+                    "kind": "DataQuery",
+                    "group": "prometheus",
+                    "version": "v0",
+                    "datasource": {
+                      "name": "prometheus"
+                    },
+                    "spec": {
+                      "expr": "sum (rate(pgdog_out_of_sync{job=~\"$pooler\", host=~\"$host\", port=~\"$port\", shard=\"$shard\", role=~\"$role\", database=~\"$database\", user=~\"$user\"}[$__rate_interval])) by (host, port, shard, role, database, user)",
+                      "legendFormat": "{{host}}:{{port}} shard:{{shard}} role:{{role}} db:{{database}} user:{{user}}"
+                    }
+                  },
+                  "refId": "A",
+                  "hidden": false
+                }
+              }
+            ],
+            "transformations": [],
+            "queryOptions": {}
+          }
+        },
+        "vizConfig": {
+          "kind": "VizConfig",
+          "group": "timeseries",
+          "version": "",
+          "spec": {
+            "options": {
+              "legend": {
+                "displayMode": "list",
+                "placement": "bottom",
+                "showLegend": false,
+                "calcs": []
+              },
+              "tooltip": {
+                "mode": "",
+                "sort": ""
+              }
+            },
+            "fieldConfig": {
+              "defaults": {
+                "unit": "short",
+                "custom": {}
+              },
+              "overrides": []
+            }
+          }
+        }
+      }
+    },
+    "prep-count": {
+      "kind": "Panel",
+      "spec": {
+        "id": 0,
+        "title": "Prepared Statements Count",
+        "description": "",
+        "links": [],
+        "data": {
+          "kind": "QueryGroup",
+          "spec": {
+            "queries": [
+              {
+                "kind": "PanelQuery",
+                "spec": {
+                  "query": {
+                    "kind": "DataQuery",
+                    "group": "prometheus",
+                    "version": "v0",
+                    "datasource": {
+                      "name": "prometheus"
+                    },
+                    "spec": {
+                      "expr": "sum (pgdog_prepared_statements{job=~\"$pooler\"}) by (instance)"
+                    }
+                  },
+                  "refId": "A",
+                  "hidden": false
+                }
+              }
+            ],
+            "transformations": [],
+            "queryOptions": {}
+          }
+        },
+        "vizConfig": {
+          "kind": "VizConfig",
+          "group": "timeseries",
+          "version": "",
+          "spec": {
+            "options": {
+              "legend": {
+                "displayMode": "list",
+                "placement": "bottom",
+                "showLegend": false,
+                "calcs": []
+              },
+              "tooltip": {
+                "mode": "",
+                "sort": ""
+              }
+            },
+            "fieldConfig": {
+              "defaults": {
+                "unit": "short",
+                "custom": {}
+              },
+              "overrides": []
+            }
+          }
+        }
+      }
+    },
+    "prep-evict-rate": {
+      "kind": "Panel",
+      "spec": {
+        "id": 0,
+        "title": "Prepared Statements Eviction Rate",
+        "description": "",
+        "links": [],
+        "data": {
+          "kind": "QueryGroup",
+          "spec": {
+            "queries": [
+              {
+                "kind": "PanelQuery",
+                "spec": {
+                  "query": {
+                    "kind": "DataQuery",
+                    "group": "prometheus",
+                    "version": "v0",
+                    "datasource": {
+                      "name": "prometheus"
+                    },
+                    "spec": {
+                      "expr": "sum (rate(pgdog_total_prepared_evictions{job=~\"$pooler\", host=~\"$host\", port=~\"$port\", shard=\"$shard\", role=~\"$role\", database=~\"$database\", user=~\"$user\"}[$__rate_interval])) by (host, port, shard, role, database, user)",
+                      "legendFormat": "{{host}}:{{port}} shard:{{shard}} role:{{role}} db:{{database}} user:{{user}}"
+                    }
+                  },
+                  "refId": "A",
+                  "hidden": false
+                }
+              }
+            ],
+            "transformations": [],
+            "queryOptions": {}
+          }
+        },
+        "vizConfig": {
+          "kind": "VizConfig",
+          "group": "timeseries",
+          "version": "",
+          "spec": {
+            "options": {
+              "legend": {
+                "displayMode": "list",
+                "placement": "bottom",
+                "showLegend": false,
+                "calcs": []
+              },
+              "tooltip": {
+                "mode": "",
+                "sort": ""
+              }
+            },
+            "fieldConfig": {
+              "defaults": {
+                "unit": "short",
+                "custom": {}
+              },
+              "overrides": []
+            }
+          }
+        }
+      }
+    },
+    "prep-memory": {
+      "kind": "Panel",
+      "spec": {
+        "id": 0,
+        "title": "Prepared Statements Memory Used",
+        "description": "",
+        "links": [],
+        "data": {
+          "kind": "QueryGroup",
+          "spec": {
+            "queries": [
+              {
+                "kind": "PanelQuery",
+                "spec": {
+                  "query": {
+                    "kind": "DataQuery",
+                    "group": "prometheus",
+                    "version": "v0",
+                    "datasource": {
+                      "name": "prometheus"
+                    },
+                    "spec": {
+                      "expr": "sum (pgdog_prepared_statements_memory_used{job=~\"$pooler\"}) by (instance)"
+                    }
+                  },
+                  "refId": "A",
+                  "hidden": false
+                }
+              }
+            ],
+            "transformations": [],
+            "queryOptions": {}
+          }
+        },
+        "vizConfig": {
+          "kind": "VizConfig",
+          "group": "timeseries",
+          "version": "",
+          "spec": {
+            "options": {
+              "legend": {
+                "displayMode": "list",
+                "placement": "bottom",
+                "showLegend": false,
+                "calcs": []
+              },
+              "tooltip": {
+                "mode": "",
+                "sort": ""
+              }
+            },
+            "fieldConfig": {
+              "defaults": {
+                "unit": "decbytes",
+                "custom": {}
+              },
+              "overrides": []
+            }
+          }
+        }
+      }
+    },
+    "query-rate": {
+      "kind": "Panel",
+      "spec": {
+        "id": 0,
+        "title": "Query Rate",
+        "description": "",
+        "links": [],
+        "data": {
+          "kind": "QueryGroup",
+          "spec": {
+            "queries": [
+              {
+                "kind": "PanelQuery",
+                "spec": {
+                  "query": {
+                    "kind": "DataQuery",
+                    "group": "prometheus",
+                    "version": "v0",
+                    "datasource": {
+                      "name": "prometheus"
+                    },
+                    "spec": {
+                      "expr": "sum (rate(pgdog_total_query_count{job=~\"$pooler\", host=~\"$host\", port=~\"$port\", shard=\"$shard\", role=~\"$role\", database=~\"$database\", user=~\"$user\"}[$__rate_interval])) by (host, port, shard, role, database, user)",
+                      "legendFormat": "{{host}}:{{port}} shard:{{shard}} role:{{role}} db:{{database}} user:{{user}}"
+                    }
+                  },
+                  "refId": "A",
+                  "hidden": false
+                }
+              }
+            ],
+            "transformations": [],
+            "queryOptions": {}
+          }
+        },
+        "vizConfig": {
+          "kind": "VizConfig",
+          "group": "timeseries",
+          "version": "",
+          "spec": {
+            "options": {
+              "legend": {
+                "displayMode": "list",
+                "placement": "bottom",
+                "showLegend": false,
+                "calcs": []
+              },
+              "tooltip": {
+                "mode": "",
+                "sort": ""
+              }
+            },
+            "fieldConfig": {
+              "defaults": {
+                "unit": "short",
+                "custom": {}
+              },
+              "overrides": []
+            }
+          }
+        }
+      }
+    },
+    "query-time": {
+      "kind": "Panel",
+      "spec": {
+        "id": 0,
+        "title": "Query Executing Time Rate",
+        "description": "",
+        "links": [],
+        "data": {
+          "kind": "QueryGroup",
+          "spec": {
+            "queries": [
+              {
+                "kind": "PanelQuery",
+                "spec": {
+                  "query": {
+                    "kind": "DataQuery",
+                    "group": "prometheus",
+                    "version": "v0",
+                    "datasource": {
+                      "name": "prometheus"
+                    },
+                    "spec": {
+                      "expr": "avg (rate(pgdog_total_query_time{job=~\"$pooler\", host=~\"$host\", port=~\"$port\", shard=\"$shard\", role=~\"$role\", database=~\"$database\", user=~\"$user\"}[$__rate_interval])) by (host, port, shard, role, database, user)",
+                      "legendFormat": "{{host}}:{{port}} shard:{{shard}} role:{{role}} db:{{database}} user:{{user}}"
+                    }
+                  },
+                  "refId": "A",
+                  "hidden": false
+                }
+              }
+            ],
+            "transformations": [],
+            "queryOptions": {}
+          }
+        },
+        "vizConfig": {
+          "kind": "VizConfig",
+          "group": "timeseries",
+          "version": "",
+          "spec": {
+            "options": {
+              "legend": {
+                "displayMode": "list",
+                "placement": "bottom",
+                "showLegend": false,
+                "calcs": []
+              },
+              "tooltip": {
+                "mode": "",
+                "sort": ""
+              }
+            },
+            "fieldConfig": {
+              "defaults": {
+                "unit": "dtdurationms",
+                "custom": {}
+              },
+              "overrides": []
+            }
+          }
+        }
+      }
+    },
+    "received-rate": {
+      "kind": "Panel",
+      "spec": {
+        "id": 0,
+        "title": "Traffic Received Rate",
+        "description": "",
+        "links": [],
+        "data": {
+          "kind": "QueryGroup",
+          "spec": {
+            "queries": [
+              {
+                "kind": "PanelQuery",
+                "spec": {
+                  "query": {
+                    "kind": "DataQuery",
+                    "group": "prometheus",
+                    "version": "v0",
+                    "datasource": {
+                      "name": "prometheus"
+                    },
+                    "spec": {
+                      "expr": "sum (rate(pgdog_total_received{job=~\"$pooler\", host=~\"$host\", port=~\"$port\", shard=\"$shard\", role=~\"$role\", database=~\"$database\", user=~\"$user\"}[$__rate_interval])) by (host, port, shard, role, database, user)",
+                      "legendFormat": "{{host}}:{{port}} shard:{{shard}} role:{{role}} db:{{database}} user:{{user}}"
+                    }
+                  },
+                  "refId": "A",
+                  "hidden": false
+                }
+              }
+            ],
+            "transformations": [],
+            "queryOptions": {}
+          }
+        },
+        "vizConfig": {
+          "kind": "VizConfig",
+          "group": "timeseries",
+          "version": "",
+          "spec": {
+            "options": {
+              "legend": {
+                "displayMode": "list",
+                "placement": "bottom",
+                "showLegend": false,
+                "calcs": []
+              },
+              "tooltip": {
+                "mode": "",
+                "sort": ""
+              }
+            },
+            "fieldConfig": {
+              "defaults": {
+                "unit": "decbytes",
+                "custom": {}
+              },
+              "overrides": []
+            }
+          }
+        }
+      }
+    },
+    "sent-rate": {
+      "kind": "Panel",
+      "spec": {
+        "id": 0,
+        "title": "Traffic Sent Rate",
+        "description": "",
+        "links": [],
+        "data": {
+          "kind": "QueryGroup",
+          "spec": {
+            "queries": [
+              {
+                "kind": "PanelQuery",
+                "spec": {
+                  "query": {
+                    "kind": "DataQuery",
+                    "group": "prometheus",
+                    "version": "v0",
+                    "datasource": {
+                      "name": "prometheus"
+                    },
+                    "spec": {
+                      "expr": "sum (rate(pgdog_total_sent{job=~\"$pooler\", host=~\"$host\", port=~\"$port\", shard=\"$shard\", role=~\"$role\", database=~\"$database\", user=~\"$user\"}[$__rate_interval])) by (host, port, shard, role, database, user)",
+                      "legendFormat": "{{host}}:{{port}} shard:{{shard}} role:{{role}} db:{{database}} user:{{user}}"
+                    }
+                  },
+                  "refId": "A",
+                  "hidden": false
+                }
+              }
+            ],
+            "transformations": [],
+            "queryOptions": {}
+          }
+        },
+        "vizConfig": {
+          "kind": "VizConfig",
+          "group": "timeseries",
+          "version": "",
+          "spec": {
+            "options": {
+              "legend": {
+                "displayMode": "list",
+                "placement": "bottom",
+                "showLegend": false,
+                "calcs": []
+              },
+              "tooltip": {
+                "mode": "",
+                "sort": ""
+              }
+            },
+            "fieldConfig": {
+              "defaults": {
+                "unit": "decbytes",
+                "custom": {}
+              },
+              "overrides": []
+            }
+          }
+        }
+      }
+    },
+    "sv-active": {
+      "kind": "Panel",
+      "spec": {
+        "id": 0,
+        "title": "Servers Active",
+        "description": "",
+        "links": [],
+        "data": {
+          "kind": "QueryGroup",
+          "spec": {
+            "queries": [
+              {
+                "kind": "PanelQuery",
+                "spec": {
+                  "query": {
+                    "kind": "DataQuery",
+                    "group": "prometheus",
+                    "version": "v0",
+                    "datasource": {
+                      "name": "prometheus"
+                    },
+                    "spec": {
+                      "expr": "sum (pgdog_sv_active{job=~\"$pooler\", host=~\"$host\", port=~\"$port\", shard=\"$shard\", role=~\"$role\", database=~\"$database\", user=~\"$user\"}) by (host, port, shard, role, database, user)",
+                      "legendFormat": "{{host}}:{{port}} shard:{{shard}} role:{{role}} db:{{database}} user:{{user}}"
+                    }
+                  },
+                  "refId": "A",
+                  "hidden": false
+                }
+              }
+            ],
+            "transformations": [],
+            "queryOptions": {}
+          }
+        },
+        "vizConfig": {
+          "kind": "VizConfig",
+          "group": "timeseries",
+          "version": "",
+          "spec": {
+            "options": {
+              "legend": {
+                "displayMode": "list",
+                "placement": "bottom",
+                "showLegend": false,
+                "calcs": []
+              },
+              "tooltip": {
+                "mode": "",
+                "sort": ""
+              }
+            },
+            "fieldConfig": {
+              "defaults": {
+                "unit": "short",
+                "custom": {}
+              },
+              "overrides": []
+            }
+          }
+        }
+      }
+    },
+    "sv-idle": {
+      "kind": "Panel",
+      "spec": {
+        "id": 0,
+        "title": "Servers Idle",
+        "description": "",
+        "links": [],
+        "data": {
+          "kind": "QueryGroup",
+          "spec": {
+            "queries": [
+              {
+                "kind": "PanelQuery",
+                "spec": {
+                  "query": {
+                    "kind": "DataQuery",
+                    "group": "prometheus",
+                    "version": "v0",
+                    "datasource": {
+                      "name": "prometheus"
+                    },
+                    "spec": {
+                      "expr": "sum (pgdog_sv_idle{job=~\"$pooler\", host=~\"$host\", port=~\"$port\", shard=\"$shard\", role=~\"$role\", database=~\"$database\", user=~\"$user\"}) by (host, port, shard, role, database, user)",
+                      "legendFormat": "{{host}}:{{port}} shard:{{shard}} role:{{role}} db:{{database}} user:{{user}}"
+                    }
+                  },
+                  "refId": "A",
+                  "hidden": false
+                }
+              }
+            ],
+            "transformations": [],
+            "queryOptions": {}
+          }
+        },
+        "vizConfig": {
+          "kind": "VizConfig",
+          "group": "timeseries",
+          "version": "",
+          "spec": {
+            "options": {
+              "legend": {
+                "displayMode": "list",
+                "placement": "bottom",
+                "showLegend": false,
+                "calcs": []
+              },
+              "tooltip": {
+                "mode": "",
+                "sort": ""
+              }
+            },
+            "fieldConfig": {
+              "defaults": {
+                "unit": "short",
+                "custom": {}
+              },
+              "overrides": []
+            }
+          }
+        }
+      }
+    },
+    "sv-idle-xact": {
+      "kind": "Panel",
+      "spec": {
+        "id": 0,
+        "title": "Servers Idle In Transaction",
+        "description": "",
+        "links": [],
+        "data": {
+          "kind": "QueryGroup",
+          "spec": {
+            "queries": [
+              {
+                "kind": "PanelQuery",
+                "spec": {
+                  "query": {
+                    "kind": "DataQuery",
+                    "group": "prometheus",
+                    "version": "v0",
+                    "datasource": {
+                      "name": "prometheus"
+                    },
+                    "spec": {
+                      "expr": "sum (pgdog_sv_idle_xact{job=~\"$pooler\", host=~\"$host\", port=~\"$port\", shard=\"$shard\", role=~\"$role\", database=~\"$database\", user=~\"$user\"}) by (host, port, shard, role, database, user)",
+                      "legendFormat": "{{host}}:{{port}} shard:{{shard}} role:{{role}} db:{{database}} user:{{user}}"
+                    }
+                  },
+                  "refId": "A",
+                  "hidden": false
+                }
+              }
+            ],
+            "transformations": [],
+            "queryOptions": {}
+          }
+        },
+        "vizConfig": {
+          "kind": "VizConfig",
+          "group": "timeseries",
+          "version": "",
+          "spec": {
+            "options": {
+              "legend": {
+                "displayMode": "list",
+                "placement": "bottom",
+                "showLegend": false,
+                "calcs": []
+              },
+              "tooltip": {
+                "mode": "",
+                "sort": ""
+              }
+            },
+            "fieldConfig": {
+              "defaults": {
+                "unit": "short",
+                "custom": {}
+              },
+              "overrides": []
+            }
+          }
+        }
+      }
+    },
+    "xact-rate": {
+      "kind": "Panel",
+      "spec": {
+        "id": 0,
+        "title": "Transactions Rate",
+        "description": "",
+        "links": [],
+        "data": {
+          "kind": "QueryGroup",
+          "spec": {
+            "queries": [
+              {
+                "kind": "PanelQuery",
+                "spec": {
+                  "query": {
+                    "kind": "DataQuery",
+                    "group": "prometheus",
+                    "version": "v0",
+                    "datasource": {
+                      "name": "prometheus"
+                    },
+                    "spec": {
+                      "expr": "sum (rate(pgdog_total_xact_count{job=~\"$pooler\", host=~\"$host\", port=~\"$port\", shard=\"$shard\", role=~\"$role\", database=~\"$database\", user=~\"$user\"}[$__rate_interval])) by (host, port, shard, role, database, user)",
+                      "legendFormat": "{{host}}:{{port}} shard:{{shard}} role:{{role}} db:{{database}} user:{{user}}"
+                    }
+                  },
+                  "refId": "A",
+                  "hidden": false
+                }
+              }
+            ],
+            "transformations": [],
+            "queryOptions": {}
+          }
+        },
+        "vizConfig": {
+          "kind": "VizConfig",
+          "group": "timeseries",
+          "version": "",
+          "spec": {
+            "options": {
+              "legend": {
+                "displayMode": "list",
+                "placement": "bottom",
+                "showLegend": false,
+                "calcs": []
+              },
+              "tooltip": {
+                "mode": "",
+                "sort": ""
+              }
+            },
+            "fieldConfig": {
+              "defaults": {
+                "unit": "short",
+                "custom": {}
+              },
+              "overrides": []
+            }
+          }
+        }
+      }
+    },
+    "xact-time": {
+      "kind": "Panel",
+      "spec": {
+        "id": 0,
+        "title": "Transactions Executing Time Rate",
+        "description": "",
+        "links": [],
+        "data": {
+          "kind": "QueryGroup",
+          "spec": {
+            "queries": [
+              {
+                "kind": "PanelQuery",
+                "spec": {
+                  "query": {
+                    "kind": "DataQuery",
+                    "group": "prometheus",
+                    "version": "v0",
+                    "datasource": {
+                      "name": "prometheus"
+                    },
+                    "spec": {
+                      "expr": "avg (rate(pgdog_total_xact_time{job=~\"$pooler\", host=~\"$host\", port=~\"$port\", shard=\"$shard\", role=~\"$role\", database=~\"$database\", user=~\"$user\"}[$__rate_interval])) by (host, port, shard, role, database, user)",
+                      "legendFormat": "{{host}}:{{port}} shard:{{shard}} role:{{role}} db:{{database}} user:{{user}}"
+                    }
+                  },
+                  "refId": "A",
+                  "hidden": false
+                }
+              }
+            ],
+            "transformations": [],
+            "queryOptions": {}
+          }
+        },
+        "vizConfig": {
+          "kind": "VizConfig",
+          "group": "timeseries",
+          "version": "",
+          "spec": {
+            "options": {
+              "legend": {
+                "displayMode": "list",
+                "placement": "bottom",
+                "showLegend": false,
+                "calcs": []
+              },
+              "tooltip": {
+                "mode": "",
+                "sort": ""
+              }
+            },
+            "fieldConfig": {
+              "defaults": {
+                "unit": "dtdurationms",
+                "custom": {}
+              },
+              "overrides": []
+            }
+          }
+        }
+      }
+    }
+  },
+  "layout": {
+    "kind": "RowsLayout",
+    "spec": {
+      "rows": [
+        {
+          "kind": "RowsLayoutRow",
+          "spec": {
+            "title": "Client",
+            "layout": {
+              "kind": "GridLayout",
+              "spec": {
+                "items": [
+                  {
+                    "kind": "GridLayoutItem",
+                    "spec": {
+                      "x": 0,
+                      "y": 0,
+                      "width": 12,
+                      "height": 8,
+                      "element": {
+                        "kind": "ElementReference",
+                        "name": "clients-total"
+                      }
+                    }
+                  },
+                  {
+                    "kind": "GridLayoutItem",
+                    "spec": {
+                      "x": 12,
+                      "y": 0,
+                      "width": 12,
+                      "height": 8,
+                      "element": {
+                        "kind": "ElementReference",
+                        "name": "clients-waiting"
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "kind": "RowsLayoutRow",
+          "spec": {
+            "title": "Server",
+            "layout": {
+              "kind": "GridLayout",
+              "spec": {
+                "items": [
+                  {
+                    "kind": "GridLayoutItem",
+                    "spec": {
+                      "x": 0,
+                      "y": 0,
+                      "width": 8,
+                      "height": 9,
+                      "element": {
+                        "kind": "ElementReference",
+                        "name": "sv-active"
+                      }
+                    }
+                  },
+                  {
+                    "kind": "GridLayoutItem",
+                    "spec": {
+                      "x": 8,
+                      "y": 0,
+                      "width": 8,
+                      "height": 9,
+                      "element": {
+                        "kind": "ElementReference",
+                        "name": "sv-idle"
+                      }
+                    }
+                  },
+                  {
+                    "kind": "GridLayoutItem",
+                    "spec": {
+                      "x": 16,
+                      "y": 0,
+                      "width": 8,
+                      "height": 9,
+                      "element": {
+                        "kind": "ElementReference",
+                        "name": "sv-idle-xact"
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "kind": "RowsLayoutRow",
+          "spec": {
+            "title": "Connection",
+            "layout": {
+              "kind": "GridLayout",
+              "spec": {
+                "items": [
+                  {
+                    "kind": "GridLayoutItem",
+                    "spec": {
+                      "x": 0,
+                      "y": 0,
+                      "width": 8,
+                      "height": 9,
+                      "element": {
+                        "kind": "ElementReference",
+                        "name": "maxwait"
+                      }
+                    }
+                  },
+                  {
+                    "kind": "GridLayoutItem",
+                    "spec": {
+                      "x": 8,
+                      "y": 0,
+                      "width": 8,
+                      "height": 9,
+                      "element": {
+                        "kind": "ElementReference",
+                        "name": "errors"
+                      }
+                    }
+                  },
+                  {
+                    "kind": "GridLayoutItem",
+                    "spec": {
+                      "x": 16,
+                      "y": 0,
+                      "width": 8,
+                      "height": 9,
+                      "element": {
+                        "kind": "ElementReference",
+                        "name": "out-of-sync"
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "kind": "RowsLayoutRow",
+          "spec": {
+            "title": "Transaction",
+            "layout": {
+              "kind": "GridLayout",
+              "spec": {
+                "items": [
+                  {
+                    "kind": "GridLayoutItem",
+                    "spec": {
+                      "x": 0,
+                      "y": 0,
+                      "width": 8,
+                      "height": 9,
+                      "element": {
+                        "kind": "ElementReference",
+                        "name": "xact-rate"
+                      }
+                    }
+                  },
+                  {
+                    "kind": "GridLayoutItem",
+                    "spec": {
+                      "x": 8,
+                      "y": 0,
+                      "width": 8,
+                      "height": 9,
+                      "element": {
+                        "kind": "ElementReference",
+                        "name": "2pc-rate"
+                      }
+                    }
+                  },
+                  {
+                    "kind": "GridLayoutItem",
+                    "spec": {
+                      "x": 16,
+                      "y": 0,
+                      "width": 8,
+                      "height": 9,
+                      "element": {
+                        "kind": "ElementReference",
+                        "name": "xact-time"
+                      }
+                    }
+                  },
+                  {
+                    "kind": "GridLayoutItem",
+                    "spec": {
+                      "x": 0,
+                      "y": 9,
+                      "width": 8,
+                      "height": 9,
+                      "element": {
+                        "kind": "ElementReference",
+                        "name": "avg-xact"
+                      }
+                    }
+                  },
+                  {
+                    "kind": "GridLayoutItem",
+                    "spec": {
+                      "x": 8,
+                      "y": 9,
+                      "width": 8,
+                      "height": 9,
+                      "element": {
+                        "kind": "ElementReference",
+                        "name": "avg-2pc"
+                      }
+                    }
+                  },
+                  {
+                    "kind": "GridLayoutItem",
+                    "spec": {
+                      "x": 16,
+                      "y": 9,
+                      "width": 8,
+                      "height": 9,
+                      "element": {
+                        "kind": "ElementReference",
+                        "name": "avg-xact-time"
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "kind": "RowsLayoutRow",
+          "spec": {
+            "title": "Query",
+            "layout": {
+              "kind": "GridLayout",
+              "spec": {
+                "items": [
+                  {
+                    "kind": "GridLayoutItem",
+                    "spec": {
+                      "x": 0,
+                      "y": 0,
+                      "width": 12,
+                      "height": 8,
+                      "element": {
+                        "kind": "ElementReference",
+                        "name": "query-rate"
+                      }
+                    }
+                  },
+                  {
+                    "kind": "GridLayoutItem",
+                    "spec": {
+                      "x": 12,
+                      "y": 0,
+                      "width": 12,
+                      "height": 8,
+                      "element": {
+                        "kind": "ElementReference",
+                        "name": "query-time"
+                      }
+                    }
+                  },
+                  {
+                    "kind": "GridLayoutItem",
+                    "spec": {
+                      "x": 0,
+                      "y": 8,
+                      "width": 12,
+                      "height": 8,
+                      "element": {
+                        "kind": "ElementReference",
+                        "name": "avg-query"
+                      }
+                    }
+                  },
+                  {
+                    "kind": "GridLayoutItem",
+                    "spec": {
+                      "x": 12,
+                      "y": 8,
+                      "width": 12,
+                      "height": 8,
+                      "element": {
+                        "kind": "ElementReference",
+                        "name": "avg-query-time"
+                      }
+                    }
+                  },
+                  {
+                    "kind": "GridLayoutItem",
+                    "spec": {
+                      "x": 0,
+                      "y": 16,
+                      "width": 12,
+                      "height": 8,
+                      "element": {
+                        "kind": "ElementReference",
+                        "name": "cache-size"
+                      }
+                    }
+                  },
+                  {
+                    "kind": "GridLayoutItem",
+                    "spec": {
+                      "x": 12,
+                      "y": 16,
+                      "width": 12,
+                      "height": 8,
+                      "element": {
+                        "kind": "ElementReference",
+                        "name": "cache-rate"
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "kind": "RowsLayoutRow",
+          "spec": {
+            "title": "Traffic",
+            "layout": {
+              "kind": "GridLayout",
+              "spec": {
+                "items": [
+                  {
+                    "kind": "GridLayoutItem",
+                    "spec": {
+                      "x": 0,
+                      "y": 0,
+                      "width": 12,
+                      "height": 9,
+                      "element": {
+                        "kind": "ElementReference",
+                        "name": "received-rate"
+                      }
+                    }
+                  },
+                  {
+                    "kind": "GridLayoutItem",
+                    "spec": {
+                      "x": 12,
+                      "y": 0,
+                      "width": 12,
+                      "height": 9,
+                      "element": {
+                        "kind": "ElementReference",
+                        "name": "sent-rate"
+                      }
+                    }
+                  },
+                  {
+                    "kind": "GridLayoutItem",
+                    "spec": {
+                      "x": 0,
+                      "y": 9,
+                      "width": 12,
+                      "height": 9,
+                      "element": {
+                        "kind": "ElementReference",
+                        "name": "avg-received"
+                      }
+                    }
+                  },
+                  {
+                    "kind": "GridLayoutItem",
+                    "spec": {
+                      "x": 12,
+                      "y": 9,
+                      "width": 12,
+                      "height": 9,
+                      "element": {
+                        "kind": "ElementReference",
+                        "name": "avg-sent"
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "kind": "RowsLayoutRow",
+          "spec": {
+            "title": "Prepared Statement",
+            "layout": {
+              "kind": "GridLayout",
+              "spec": {
+                "items": [
+                  {
+                    "kind": "GridLayoutItem",
+                    "spec": {
+                      "x": 0,
+                      "y": 0,
+                      "width": 12,
+                      "height": 8,
+                      "element": {
+                        "kind": "ElementReference",
+                        "name": "prep-memory"
+                      }
+                    }
+                  },
+                  {
+                    "kind": "GridLayoutItem",
+                    "spec": {
+                      "x": 12,
+                      "y": 0,
+                      "width": 12,
+                      "height": 8,
+                      "element": {
+                        "kind": "ElementReference",
+                        "name": "prep-evict-rate"
+                      }
+                    }
+                  },
+                  {
+                    "kind": "GridLayoutItem",
+                    "spec": {
+                      "x": 0,
+                      "y": 8,
+                      "width": 12,
+                      "height": 8,
+                      "element": {
+                        "kind": "ElementReference",
+                        "name": "prep-count"
+                      }
+                    }
+                  },
+                  {
+                    "kind": "GridLayoutItem",
+                    "spec": {
+                      "x": 12,
+                      "y": 8,
+                      "width": 12,
+                      "height": 8,
+                      "element": {
+                        "kind": "ElementReference",
+                        "name": "avg-prep-evict"
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "kind": "RowsLayoutRow",
+          "spec": {
+            "title": "Mirror",
+            "layout": {
+              "kind": "GridLayout",
+              "spec": {
+                "items": [
+                  {
+                    "kind": "GridLayoutItem",
+                    "spec": {
+                      "x": 0,
+                      "y": 0,
+                      "width": 12,
+                      "height": 8,
+                      "element": {
+                        "kind": "ElementReference",
+                        "name": "mirror-rate"
+                      }
+                    }
+                  },
+                  {
+                    "kind": "GridLayoutItem",
+                    "spec": {
+                      "x": 12,
+                      "y": 0,
+                      "width": 12,
+                      "height": 8,
+                      "element": {
+                        "kind": "ElementReference",
+                        "name": "mirror-queue"
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "links": [],
+  "preload": false,
+  "tags": [
+    "postgresql",
+    "pgdog",
+    "pooler",
+    "generated",
+    "foundation-sdk"
+  ],
+  "timeSettings": {
+    "timezone": "browser",
+    "from": "now-1h",
+    "to": "now",
+    "autoRefresh": "1m",
+    "autoRefreshIntervals": [
+      "5s",
+      "10s",
+      "30s",
+      "1m",
+      "5m",
+      "15m",
+      "30m",
+      "1h",
+      "2h",
+      "1d"
+    ],
+    "hideTimepicker": false,
+    "fiscalYearStartMonth": 0
+  },
+  "title": "PGDog",
+  "variables": [
+    {
+      "kind": "QueryVariable",
+      "spec": {
+        "name": "pooler",
+        "current": {
+          "text": "",
+          "value": ""
+        },
+        "label": "Pooler",
+        "hide": "dontHide",
+        "refresh": "onDashboardLoad",
+        "skipUrlSync": false,
+        "query": {
+          "kind": "DataQuery",
+          "group": "",
+          "version": "v0",
+          "spec": null
+        },
+        "regex": "",
+        "regexApplyTo": "value",
+        "sort": "alphabeticalAsc",
+        "definition": "label_values(pgdog_total_sent, job)",
+        "options": [],
+        "multi": true,
+        "includeAll": true,
+        "allowCustomValue": true
+      }
+    },
+    {
+      "kind": "QueryVariable",
+      "spec": {
+        "name": "host",
+        "current": {
+          "text": "",
+          "value": ""
+        },
+        "label": "host",
+        "hide": "dontHide",
+        "refresh": "onDashboardLoad",
+        "skipUrlSync": false,
+        "query": {
+          "kind": "DataQuery",
+          "group": "",
+          "version": "v0",
+          "spec": null
+        },
+        "regex": "",
+        "regexApplyTo": "value",
+        "sort": "alphabeticalAsc",
+        "definition": "label_values(pgdog_total_sent{job=~\"$pooler\"}, host)",
+        "options": [],
+        "multi": true,
+        "includeAll": true,
+        "allowCustomValue": true
+      }
+    },
+    {
+      "kind": "QueryVariable",
+      "spec": {
+        "name": "port",
+        "current": {
+          "text": "",
+          "value": ""
+        },
+        "label": "port",
+        "hide": "dontHide",
+        "refresh": "onDashboardLoad",
+        "skipUrlSync": false,
+        "query": {
+          "kind": "DataQuery",
+          "group": "",
+          "version": "v0",
+          "spec": null
+        },
+        "regex": "",
+        "regexApplyTo": "value",
+        "sort": "alphabeticalAsc",
+        "definition": "label_values(pgdog_total_sent{job=~\"$pooler\"}, port)",
+        "options": [],
+        "multi": true,
+        "includeAll": true,
+        "allowCustomValue": true
+      }
+    },
+    {
+      "kind": "QueryVariable",
+      "spec": {
+        "name": "shard",
+        "current": {
+          "text": "",
+          "value": ""
+        },
+        "label": "shard",
+        "hide": "dontHide",
+        "refresh": "onDashboardLoad",
+        "skipUrlSync": false,
+        "query": {
+          "kind": "DataQuery",
+          "group": "",
+          "version": "v0",
+          "spec": null
+        },
+        "regex": "",
+        "regexApplyTo": "value",
+        "sort": "alphabeticalAsc",
+        "definition": "label_values(pgdog_total_sent{job=~\"$pooler\"}, shard)",
+        "options": [],
+        "multi": true,
+        "includeAll": true,
+        "allowCustomValue": true
+      }
+    },
+    {
+      "kind": "QueryVariable",
+      "spec": {
+        "name": "role",
+        "current": {
+          "text": "",
+          "value": ""
+        },
+        "label": "role",
+        "hide": "dontHide",
+        "refresh": "onDashboardLoad",
+        "skipUrlSync": false,
+        "query": {
+          "kind": "DataQuery",
+          "group": "",
+          "version": "v0",
+          "spec": null
+        },
+        "regex": "",
+        "regexApplyTo": "value",
+        "sort": "alphabeticalAsc",
+        "definition": "label_values(pgdog_total_sent{job=~\"$pooler\"}, role)",
+        "options": [],
+        "multi": true,
+        "includeAll": true,
+        "allowCustomValue": true
+      }
+    },
+    {
+      "kind": "QueryVariable",
+      "spec": {
+        "name": "database",
+        "current": {
+          "text": "",
+          "value": ""
+        },
+        "label": "database",
+        "hide": "dontHide",
+        "refresh": "onDashboardLoad",
+        "skipUrlSync": false,
+        "query": {
+          "kind": "DataQuery",
+          "group": "",
+          "version": "v0",
+          "spec": null
+        },
+        "regex": "",
+        "regexApplyTo": "value",
+        "sort": "alphabeticalAsc",
+        "definition": "label_values(pgdog_total_sent{job=~\"$pooler\"}, database)",
+        "options": [],
+        "multi": true,
+        "includeAll": true,
+        "allowCustomValue": true
+      }
+    },
+    {
+      "kind": "QueryVariable",
+      "spec": {
+        "name": "user",
+        "current": {
+          "text": "",
+          "value": ""
+        },
+        "label": "user",
+        "hide": "dontHide",
+        "refresh": "onDashboardLoad",
+        "skipUrlSync": false,
+        "query": {
+          "kind": "DataQuery",
+          "group": "",
+          "version": "v0",
+          "spec": null
+        },
+        "regex": "",
+        "regexApplyTo": "value",
+        "sort": "alphabeticalAsc",
+        "definition": "label_values(pgdog_total_sent{job=~\"$pooler\"}, user)",
+        "options": [],
+        "multi": true,
+        "includeAll": true,
+        "allowCustomValue": true
+      }
+    }
+  ]
+}

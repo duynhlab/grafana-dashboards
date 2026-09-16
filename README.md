@@ -43,11 +43,21 @@ Grafana folders:
 
 - `Kubernetes`
 - `Databases`
+- `Observability`
 
 Dashboards:
 
 - `kubernetes-cluster-overview`
 - `pg-io-waits` — tested on PostgreSQL 18 (`pg_stat_io`)
+- `pg-maintenance` — CNPG locks, checkpointer, autovacuum/bloat, long transactions
+- `pg-query-performance` — CNPG `pg_stat_statements` throughput, latency, top statements
+- `pg-exporter-instance` — Pigsty PGRDS instance board (uses the Pigsty
+  `postgres_exporter` metric model: `pg_*` metrics and `pg:*` recording rules
+  with `ins`/`cls` labels, not `cnpg_*`)
+- `pgdog` — PGDog connection pooler (ported from Grafana.com dashboard 24583)
+- `temporal-worker` — Temporal workflow/activity RED metrics
+
+The PostgreSQL dashboards are tested on **PostgreSQL 18**.
 
 Alert rules:
 
