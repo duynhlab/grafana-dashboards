@@ -1,0 +1,59 @@
+{
+  "skill_name": "grafana-foundation-sdk",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Port dashboard/redis/redis.json to Go dashboardv2 as UID redis in the Databases folder. Do not edit the legacy JSON.",
+      "expected_output": "internal/queries/prometheus/redis/*.go with PromQL constants, internal/dashboards/redis/redis.go exporting a builder, test/dashboards/redis_test.go, a registry entry, regenerated generated/ and deploy/ output, make validate green",
+      "files": ["dashboard/redis/redis.json"],
+      "expectations": [
+        "dashboard/redis/redis.json is unchanged",
+        "queries live in internal/queries/prometheus/<domain>/ and are imported by the dashboard, not inlined",
+        "the board uses panels.* helpers (SeriesExpr, Stat, RowsLayout, Row, GridItem) rather than raw dashboardv2 layout calls",
+        "the registry entry uses a standards.Folder* constant",
+        "a contract test asserts title, panel count, variable count, manifest name and key metric fragments",
+        "generated/dashboards/redis.spec.json and deploy/manifests/grafanadashboard-redis.yaml exist after make generate",
+        "the agent reports the make validate result"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Add a Network section to the kubernetes cluster overview dashboard using queries from internal/queries/prometheus/kubernetes/.",
+      "expected_output": "cluster_overview.go gains a panels.Row(\"Network\", ...) with new panels backed by shared query constants; kubernetes_cluster_overview_test.go panel count updated; no other dashboard changed",
+      "files": [],
+      "expectations": [
+        "new PromQL is added as constants in internal/queries/prometheus/kubernetes/cluster.go, not as string literals in the dashboard",
+        "the panel-count assertion in the test is updated to the new value",
+        "no file outside internal/queries/prometheus/kubernetes, internal/dashboards/kubernetes, test/dashboards, generated, deploy is modified",
+        "make validate passes"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Add a warning alert when Temporal activity failures exceed 5% of executions for 10 minutes, linked to the temporal-worker dashboard.",
+      "expected_output": "an alerts.Rule in internal/alerts/observability.go with Group observability, registered in internal/registry/alerts.go, generating grafanaalertrulegroup-observability.yaml",
+      "files": [],
+      "expectations": [
+        "the rule reuses or adds a constant under internal/queries/prometheus/observability/",
+        "UID follows <domain>_<resource>_<condition>",
+        "labels severity, domain, component and annotations summary, description, dashboard_uid=temporal-worker are set via standards.* keys",
+        "TestAlertRegistry passes without modification",
+        "a new GrafanaAlertRuleGroup manifest appears in deploy/ and deploy/kustomization.yaml lists it"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "Port dashboard/postgresql/pgbouncer.json and dashboard/redis/redis-exporter.json in parallel using subagents, then register both and validate.",
+      "expected_output": "two worker slices following references/multi-agent.md, one orchestrator edit to the registry, one make generate, one make validate",
+      "files": ["dashboard/postgresql/pgbouncer.json", "dashboard/redis/redis-exporter.json"],
+      "expectations": [
+        "the orchestrator reads references/multi-agent.md and briefs each worker with the slice template",
+        "each worker touches only its own query, dashboard and test files",
+        "workers do not edit internal/registry, internal/standards, internal/panels, generated or deploy",
+        "internal/registry/dashboards.go is edited once by the orchestrator with both entries",
+        "make generate and make validate are run once each, by the orchestrator, after registration",
+        "the final report lists both UIDs, panel counts and the make validate result"
+      ]
+    }
+  ]
+}

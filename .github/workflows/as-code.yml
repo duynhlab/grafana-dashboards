@@ -59,6 +59,13 @@ jobs:
           grep -q "kind: GrafanaAlertRuleGroup" /tmp/rendered.yaml
           grep -q "path: kubernetes-cluster-overview.spec.json" /tmp/rendered.yaml
 
+      - name: Every generated dashboard has a CR
+        run: |
+          specs="$(ls generated/dashboards/*.spec.json | wc -l)"
+          crs="$(ls deploy/manifests/grafanadashboard-*.yaml | wc -l)"
+          echo "spec files: ${specs}, GrafanaDashboard CRs: ${crs}"
+          test "${specs}" -eq "${crs}"
+
   publish-oci:
     needs: validate
     if: github.event_name == 'push' && github.ref == 'refs/heads/as-code'
@@ -94,10 +101,15 @@ jobs:
           echo "${GHCR_TOKEN}" | oras login ghcr.io -u "${GHCR_USER}" --password-stdin
           (
             cd generated/dashboards
+            # Every generated spec ships; never list dashboards by name here.
+            spec_files=()
+            for spec in *.spec.json; do
+              spec_files+=("${spec}:application/json")
+            done
+            echo "pushing ${#spec_files[@]} dashboard spec files"
             oras push "${OCI_DASHBOARDS}:latest" \
               --artifact-type application/vnd.grafana.dashboard+json \
-              kubernetes-cluster-overview.spec.json:application/json \
-              pg-io-waits.spec.json:application/json
+              "${spec_files[@]}"
             oras tag "${OCI_DASHBOARDS}:latest" "${OCI_DASHBOARDS}:sha-${SHORT_SHA}"
           )
           flux push artifact "oci://${OCI_IMAGE}:latest" \

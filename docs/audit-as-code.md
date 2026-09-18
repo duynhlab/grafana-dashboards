@@ -1,7 +1,7 @@
 # As-Code Audit Report
 
 Audit date: 2026-03-16  
-Scope: Grafana Foundation SDK docs (Context7 + Grafana docs MCP) packaged into [`.cursor/skills/grafana-foundation-sdk/`](../.cursor/skills/grafana-foundation-sdk/SKILL.md)
+Scope: Grafana Foundation SDK docs (Context7 + Grafana docs MCP) packaged into [`.agents/skills/grafana-foundation-sdk/`](../.agents/skills/grafana-foundation-sdk/SKILL.md)
 
 ## Executive summary
 
@@ -11,12 +11,12 @@ The repository has a parallel **as-code** track. Legacy JSON under `dashboard/` 
 
 See skill references — do not keep a root architecture markdown file:
 
-- [architecture.md](../.cursor/skills/grafana-foundation-sdk/references/architecture.md)
-- [alerts.md](../.cursor/skills/grafana-foundation-sdk/references/alerts.md)
-- [domains.md](../.cursor/skills/grafana-foundation-sdk/references/domains.md)
-- [testing.md](../.cursor/skills/grafana-foundation-sdk/references/testing.md)
-- [cicd.md](../.cursor/skills/grafana-foundation-sdk/references/cicd.md)
-- [e2e-kind.md](../.cursor/skills/grafana-foundation-sdk/references/e2e-kind.md)
+- [architecture.md](../.agents/skills/grafana-foundation-sdk/references/architecture.md)
+- [alerts.md](../.agents/skills/grafana-foundation-sdk/references/alerts.md)
+- [domains.md](../.agents/skills/grafana-foundation-sdk/references/domains.md)
+- [testing.md](../.agents/skills/grafana-foundation-sdk/references/testing.md)
+- [cicd.md](../.agents/skills/grafana-foundation-sdk/references/cicd.md)
+- [e2e-kind.md](../.agents/skills/grafana-foundation-sdk/references/e2e-kind.md)
 
 ### Gaps addressed
 
