@@ -136,10 +136,20 @@ test/
   e2e/kind/                   Grafana Operator smoke test
 ```
 
+## Agent configuration
+
 The project Agent Skill is located at
-[`.cursor/skills/grafana-foundation-sdk/`](.cursor/skills/grafana-foundation-sdk/SKILL.md).
-It contains the architecture, alerting, domain, testing, CI/CD, and end-to-end
+[`.agents/skills/grafana-foundation-sdk/`](.agents/skills/grafana-foundation-sdk/SKILL.md).
+It follows the [Agent Skills](https://agentskills.io) format and contains the
+architecture, domain, alerting, testing, CI/CD, end-to-end, and multi-agent
 conventions used by this repository.
+
+`.agents/skills/` is the canonical location, which OpenAI Codex discovers natively.
+`.claude/skills/grafana-foundation-sdk` and `.cursor/skills/grafana-foundation-sdk`
+are symlinks to it, so Claude Code and Cursor load the same files.
+
+[`AGENTS.md`](AGENTS.md) holds the repository-wide agent instructions; `CLAUDE.md`
+imports it.
 
 ## Development
 
@@ -193,8 +203,10 @@ make e2e-kind
 ```
 
 The test creates a Kind cluster, installs Grafana Operator 5.25.0, deploys
-Grafana 12, pushes generated `*.spec.json` into an in-cluster registry, applies
-CRs that reference `spec.oci`, and verifies the resources.
+Grafana 12, pushes every generated `*.spec.json` into an in-cluster registry,
+applies CRs that reference `spec.oci`, and waits for each folder and dashboard
+to report a synchronized condition. The expected resource set is read from
+`deploy/manifests/`, so a newly registered dashboard is covered automatically.
 
 ## OCI publishing
 
@@ -231,6 +243,7 @@ Pull requests run:
 - repository-wide test coverage with a minimum of 90%
 - deterministic artifact generation and diff verification
 - Kustomize rendering checks for folders, dashboards, and alert groups
+- a guard that every generated `*.spec.json` has a matching `GrafanaDashboard` CR
 - Kind end-to-end smoke tests (operator fetch via `spec.oci`)
 
 Pushes to `as-code` additionally publish dashboard JSON (oras) and the Flux

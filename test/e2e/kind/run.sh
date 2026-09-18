@@ -158,10 +158,14 @@ curl -fsS http://127.0.0.1:5001/v2/ >/dev/null
 
 (
   cd "${ROOT}/generated/dashboards"
+  spec_files=()
+  for spec in *.spec.json; do
+    spec_files+=("${spec}:application/json")
+  done
+  log "pushing ${#spec_files[@]} dashboard spec files"
   oras push --plain-http "localhost:5001/grafana-dashboards:${OCI_TAG}" \
     --artifact-type application/vnd.grafana.dashboard+json \
-    kubernetes-cluster-overview.spec.json:application/json \
-    pg-io-waits.spec.json:application/json
+    "${spec_files[@]}"
 )
 
 log "generating GrafanaDashboard CRs that fetch spec.oci"
@@ -176,11 +180,52 @@ log "generating GrafanaDashboard CRs that fetch spec.oci"
 log "applying generated dashboard manifests"
 kubectl apply -k "${ROOT}/deploy"
 
+# The expected resource set is derived from the generated manifests so a newly
+# registered dashboard, folder, or alert group is covered without editing this script.
+manifest_names() {
+  local kind="$1"
+  local file
+  shopt -s nullglob
+  for file in "${ROOT}"/deploy/manifests/"${kind}"-*.yaml; do
+    basename "${file}" .yaml | sed "s/^${kind}-//"
+  done
+}
+mapfile -t FOLDERS < <(manifest_names grafanafolder)
+mapfile -t DASHBOARDS < <(manifest_names grafanadashboard)
+mapfile -t ALERT_GROUPS < <(manifest_names grafanaalertrulegroup)
+if [[ ${#DASHBOARDS[@]} -eq 0 || ${#FOLDERS[@]} -eq 0 ]]; then
+  echo "no generated GrafanaDashboard or GrafanaFolder manifests found under deploy/manifests" >&2
+  exit 1
+fi
+log "expecting ${#FOLDERS[@]} folders, ${#DASHBOARDS[@]} dashboards, ${#ALERT_GROUPS[@]} alert groups"
+
+# wait_condition <kind> <name> <condition type> waits until the named condition is
+# True. NoMatchingInstance=True means the operator has not paired the resource with the
+# Grafana instance yet; it is transient right after apply and must not count as success.
+wait_condition() {
+  local kind="$1" name="$2" want="$3"
+  local conditions
+  for _ in $(seq 1 60); do
+    conditions="$(kubectl get "${kind}" "${name}" -n grafana-operator \
+      -o jsonpath='{range .status.conditions[*]}{.type}={.status} {end}')"
+    if [[ "${conditions}" == *"${want}=True"* ]]; then
+      log "${kind}/${name} ready (${conditions})"
+      return 0
+    fi
+    sleep 5
+  done
+  echo "${kind}/${name} never reached ${want}=True (last: ${conditions})" >&2
+  kubectl get "${kind}" "${name}" -n grafana-operator -o yaml >&2
+  return 1
+}
+
 log "verifying GrafanaFolders"
-kubectl get grafanafolder kubernetes databases -n grafana-operator
+for folder in "${FOLDERS[@]}"; do
+  kubectl get grafanafolder "${folder}" -n grafana-operator
+done
 
 log "verifying GrafanaDashboards use spec.oci"
-for dash in kubernetes-cluster-overview pg-io-waits; do
+for dash in "${DASHBOARDS[@]}"; do
   kubectl get grafanadashboard "${dash}" -n grafana-operator
   ref="$(kubectl get grafanadashboard "${dash}" -n grafana-operator -o jsonpath='{.spec.oci.reference}')"
   path="$(kubectl get grafanadashboard "${dash}" -n grafana-operator -o jsonpath='{.spec.oci.path}')"
@@ -194,24 +239,14 @@ for dash in kubernetes-cluster-overview pg-io-waits; do
   fi
 done
 
+log "waiting for the operator to create the folders in Grafana"
+for folder in "${FOLDERS[@]}"; do
+  wait_condition grafanafolder "${folder}" FolderSynchronized
+done
+
 log "waiting for the operator to fetch the dashboards from the registry"
-for dash in kubernetes-cluster-overview pg-io-waits; do
-  synced=""
-  for _ in $(seq 1 60); do
-    conditions="$(kubectl get grafanadashboard "${dash}" -n grafana-operator \
-      -o jsonpath='{range .status.conditions[*]}{.type}={.status} {end}')"
-    if [[ "${conditions}" == *"=True"* ]]; then
-      synced="${conditions}"
-      break
-    fi
-    sleep 5
-  done
-  if [[ -z "${synced}" ]]; then
-    echo "dashboard ${dash} was never synchronized from ${REGISTRY_HOST}" >&2
-    kubectl get grafanadashboard "${dash}" -n grafana-operator -o yaml >&2
-    exit 1
-  fi
-  log "dashboard ${dash} synchronized (${synced})"
+for dash in "${DASHBOARDS[@]}"; do
+  wait_condition grafanadashboard "${dash}" DashboardSynchronized
 done
 
 log "verifying GrafanaAlertRuleGroups"
@@ -219,6 +254,8 @@ if ! kubectl get crd grafanaalertrulegroups.grafana.integreatly.org >/dev/null 2
   echo "GrafanaAlertRuleGroup CRD is required but was not installed" >&2
   exit 1
 fi
-kubectl get grafanaalertrulegroup kubernetes databases -n grafana-operator
+for group in "${ALERT_GROUPS[@]}"; do
+  kubectl get grafanaalertrulegroup "${group}" -n grafana-operator
+done
 
 log "e2e smoke checks passed"
