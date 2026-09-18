@@ -46,8 +46,10 @@ func TestAlertRegistry(t *testing.T) {
 
 func TestDomainFolders(t *testing.T) {
 	want := map[string]struct{}{
-		standards.FolderKubernetes: {},
-		standards.FolderDatabases:  {},
+		standards.FolderKubernetes:    {},
+		standards.FolderDatabases:     {},
+		standards.FolderObservability: {},
+		standards.FolderMicroservices: {},
 	}
 	for _, folder := range registry.Folders() {
 		delete(want, folder)

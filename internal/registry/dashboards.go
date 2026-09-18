@@ -2,6 +2,7 @@ package registry
 
 import (
 	"github.com/duynhlab/grafana-dashboards/internal/dashboards/kubernetes"
+	"github.com/duynhlab/grafana-dashboards/internal/dashboards/microservices"
 	"github.com/duynhlab/grafana-dashboards/internal/dashboards/observability"
 	"github.com/duynhlab/grafana-dashboards/internal/dashboards/postgres"
 	"github.com/duynhlab/grafana-dashboards/internal/standards"
@@ -42,5 +43,15 @@ var Dashboards = []DashboardDefinition{
 		UID:    "temporal-worker",
 		Folder: standards.FolderObservability,
 		Build:  observability.TemporalWorker,
+	},
+	{
+		UID:    "microservices-monitoring-001-otel",
+		Folder: standards.FolderMicroservices,
+		Build:  microservices.MicroservicesOTel,
+	},
+	{
+		UID:    "business-otel",
+		Folder: standards.FolderMicroservices,
+		Build:  microservices.BusinessOTel,
 	},
 }

@@ -44,6 +44,7 @@ Grafana folders:
 - `Kubernetes`
 - `Databases`
 - `Observability`
+- `Microservices`
 
 Dashboards:
 
@@ -56,6 +57,14 @@ Dashboards:
   with `ins`/`cls` labels, not `cnpg_*`)
 - `pgdog` — PGDog connection pooler (ported from Grafana.com dashboard 24583)
 - `temporal-worker` — Temporal workflow/activity RED metrics
+- `microservices-monitoring-001-otel` — Go services RED, runtime, gRPC east-west and
+  otelpgx pool metrics, using the OpenTelemetry semantic conventions
+  (`http_server_*`, `rpc_*`, `go_*`, `db_client_*`) keyed on `service_name`
+- `business-otel` — per-domain business KPIs (payments, orders and saga, auth, product,
+  cart, shipping, user, review, notification, checkout)
+
+The last two were ported from the `duynhlab/helm-charts` `grafana-dashboards` chart,
+which still serves its own copies through ConfigMaps. See the cutover note below.
 
 The PostgreSQL dashboards are tested on **PostgreSQL 18**.
 
@@ -233,6 +242,21 @@ For a private registry, also set `OCI_PULL_SECRET=ghcr-pull` and create a
 
 The `latest` tag follows the `as-code` branch. Commit tags provide immutable
 references for GitOps consumers.
+
+### Microservices boards: two delivery paths
+
+`microservices-monitoring-001-otel` and `business-otel` are also served by the
+`duynhlab/helm-charts` `grafana-dashboards` chart, which renders them as ConfigMaps
+that homelab consumes through `GrafanaDashboard.configMapRef`. Nothing consumes the
+as-code copies yet, so the two paths coexist safely today.
+
+They must never both be active against the same Grafana: the UIDs collide. A cutover
+means pointing a Flux `OCIRepository` at the `deploy/` bundle, removing the boards from
+the chart values, and deleting the two `configMapRef` CRs. Two differences to expect:
+the as-code copies land in the `Microservices` folder rather than
+"Microservices / Golden Signals" and "Business & Product", and they resolve a datasource
+named `prometheus` instead of the chart's `DS_PROMETHEUS` input mapped to
+`VictoriaMetrics`.
 
 ## CI
 
