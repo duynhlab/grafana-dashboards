@@ -6,6 +6,7 @@ resources:
     - manifests/grafanafolder-kubernetes.yaml
     - manifests/grafanafolder-databases.yaml
     - manifests/grafanafolder-observability.yaml
+    - manifests/grafanafolder-microservices.yaml
     - manifests/grafanadashboard-kubernetes-cluster-overview.yaml
     - manifests/grafanadashboard-pg-io-waits.yaml
     - manifests/grafanadashboard-pg-maintenance.yaml
@@ -13,5 +14,7 @@ resources:
     - manifests/grafanadashboard-pg-exporter-instance.yaml
     - manifests/grafanadashboard-pgdog.yaml
     - manifests/grafanadashboard-temporal-worker.yaml
+    - manifests/grafanadashboard-microservices-monitoring-001-otel.yaml
+    - manifests/grafanadashboard-business-otel.yaml
     - manifests/grafanaalertrulegroup-databases.yaml
     - manifests/grafanaalertrulegroup-kubernetes.yaml

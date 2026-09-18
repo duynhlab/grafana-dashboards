@@ -4,4 +4,5 @@ const (
 	FolderKubernetes    = "Kubernetes"
 	FolderDatabases     = "Databases"
 	FolderObservability = "Observability"
+	FolderMicroservices = "Microservices"
 )
