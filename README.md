@@ -135,8 +135,8 @@ internal/
   registry/                   dashboard and alert registration
   standards/                  folders, labels, datasources, time settings
 generated/
-  alerts/                     generated alert definitions
-  dashboards/                 Dashboard v2 specs and manifests
+  alerts/<domain>/            generated alert definitions, grouped by Go package
+  dashboards/<domain>/        Dashboard v2 specs and manifests, grouped by Go package
 deploy/
   manifests/                  Grafana Operator custom resources
   kustomization.yaml          OCI bundle entry point
@@ -212,7 +212,7 @@ make e2e-kind
 ```
 
 The test creates a Kind cluster, installs Grafana Operator 5.25.0, deploys
-Grafana 12, pushes every generated `*.spec.json` into an in-cluster registry,
+Grafana 12, pushes every generated `<domain>/*.spec.json` into an in-cluster registry,
 applies CRs that reference `spec.oci`, and waits for each folder and dashboard
 to report a synchronized condition. The expected resource set is read from
 `deploy/manifests/`, so a newly registered dashboard is covered automatically.
@@ -220,6 +220,10 @@ to report a synchronized condition. The expected resource set is read from
 ## OCI publishing
 
 GitHub Actions publishes two artifacts:
+
+Inside the dashboard artifact each spec keeps its domain prefix, so
+`spec.oci.path` reads `postgres/pg-io-waits.spec.json`. The operator matches that
+string against the OCI layer title, so the two must stay identical.
 
 ```text
 # Dashboard JSON for GrafanaDashboard.spec.oci (oras)

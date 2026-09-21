@@ -21,8 +21,8 @@ internal/
   alerts/rule.go + <domain>.go       Rule struct and one flat file per domain
   registry/dashboards.go, alerts.go  the registration lists; Folders() is derived from them
   generate/                          deterministic renderer: spec.json, manifest.json, CRs, kustomization
-generated/dashboards/<uid>.spec.json, <uid>.manifest.json
-generated/alerts/<uid>.json
+generated/dashboards/<domain>/<uid>.spec.json, <uid>.manifest.json
+generated/alerts/<domain>/<uid>.json
 deploy/manifests/                    GrafanaFolder, GrafanaDashboard (spec.oci), GrafanaAlertRuleGroup
 deploy/kustomization.yaml            generated, lists every manifest
 test/dashboards/                     contract tests per dashboard + alerts_test.go (registry-wide)
@@ -31,19 +31,24 @@ dashboard/                           LEGACY JSON, read-only
 ```
 
 Domains today: `kubernetes` (folder `Kubernetes`), `postgres` (folder `Databases`),
-`observability` (folder `Observability`). Folder constants live in `internal/standards/folders.go`.
+`observability` (folder `Observability`), `microservices` (folder `Microservices`).
+A domain is the owning Go package and the directory segment under `generated/`; a
+folder is the Grafana folder. They differ for Postgres, so both are declared:
+`standards.Domain*` in `domains.go` and `standards.Folder*` in `folders.go`, and every
+registry entry and alert rule sets both.
 
 ## Pipeline
 
 ```text
 queries -> panels -> dashboards / alerts -> registry -> go run ./cmd/generate
-  -> generated/dashboards/*.spec.json     (oras push -> ghcr.io/duynhlab/grafana-dashboards)
+  -> generated/dashboards/<domain>/*.spec.json  (oras push -> ghcr.io/duynhlab/grafana-dashboards)
   -> deploy/                              (flux push artifact -> ghcr.io/duynhlab/grafana-dashboards-as-code)
   -> Grafana Operator >= 5.24 pulls spec.oci -> Grafana 12
 ```
 
 The generator writes `GrafanaDashboard` CRs with `spec.oci.reference` and
-`spec.oci.path: <uid>.spec.json`; JSON is never inlined into the CR. `OCI_REFERENCE`,
+`spec.oci.path: <domain>/<uid>.spec.json`, which must match the OCI layer title that
+`oras push` records; JSON is never inlined into the CR. `OCI_REFERENCE`,
 `OCI_PULL_SECRET`, and `OCI_INSECURE_PLAIN_HTTP` change the CRs at generation time.
 
 Adding a dashboard, alert, or domain must not require a generator change. If it does,

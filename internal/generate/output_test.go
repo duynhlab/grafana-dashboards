@@ -65,8 +65,11 @@ func TestGeneratorProducesDeterministicBundleAndRemovesStaleFiles(t *testing.T) 
 		"deploy/manifests/grafanadashboard-temporal-worker.yaml",
 		"deploy/manifests/grafanaalertrulegroup-kubernetes.yaml",
 		"deploy/manifests/grafanaalertrulegroup-databases.yaml",
-		"generated/alerts/kubernetes_crashlooping_pods.json",
-		"generated/alerts/postgres_backends_waiting.json",
+		"generated/alerts/kubernetes/kubernetes_crashlooping_pods.json",
+		"generated/alerts/postgres/postgres_backends_waiting.json",
+		"generated/dashboards/kubernetes/kubernetes-cluster-overview.spec.json",
+		"generated/dashboards/postgres/pg-io-waits.manifest.json",
+		"generated/dashboards/microservices/business-otel.spec.json",
 	}
 	for _, name := range wantFiles {
 		data, ok := second[name]
@@ -81,7 +84,7 @@ func TestGeneratorProducesDeterministicBundleAndRemovesStaleFiles(t *testing.T) 
 
 	assertManifest(t, second["deploy/manifests/grafanadashboard-kubernetes-cluster-overview.yaml"], "GrafanaDashboard", "kubernetes")
 	assertManifest(t, second["deploy/manifests/grafanaalertrulegroup-databases.yaml"], "GrafanaAlertRuleGroup", "databases")
-	assertDashboardOCI(t, second["deploy/manifests/grafanadashboard-kubernetes-cluster-overview.yaml"], defaultOCIReference, "kubernetes-cluster-overview.spec.json", false, "")
+	assertDashboardOCI(t, second["deploy/manifests/grafanadashboard-kubernetes-cluster-overview.yaml"], defaultOCIReference, "kubernetes/kubernetes-cluster-overview.spec.json", false, "")
 }
 
 func TestDashboardOCIFromEnvironment(t *testing.T) {
@@ -101,7 +104,7 @@ func TestDashboardOCIFromEnvironment(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	assertDashboardOCI(t, data, "registry.grafana-operator.svc.cluster.local/grafana-dashboards:e2e", "pg-io-waits.spec.json", true, "ghcr-pull")
+	assertDashboardOCI(t, data, "registry.grafana-operator.svc.cluster.local/grafana-dashboards:e2e", "postgres/pg-io-waits.spec.json", true, "ghcr-pull")
 }
 
 func TestReferenceWithPortIsRejected(t *testing.T) {
@@ -132,6 +135,55 @@ func TestRunUsesCurrentDirectory(t *testing.T) {
 	}
 	if _, err := os.Stat(filepath.Join(root, "deploy", "kustomization.yaml")); err != nil {
 		t.Fatal(err)
+	}
+}
+
+// A dashboard or alert without a domain would silently collapse its path back
+// to the flat layout, so the generator refuses it.
+func TestGeneratorRejectsMissingDomain(t *testing.T) {
+	dashboard := registry.Dashboards[0]
+	dashboard.Domain = ""
+	generator, err := New(t.TempDir(), []registry.DashboardDefinition{dashboard}, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := generator.Run(); err == nil {
+		t.Fatal("expected an error for a dashboard with no domain")
+	}
+
+	rule := registry.Alerts[0]
+	rule.Domain = ""
+	generator, err = New(t.TempDir(), nil, []alerts.Rule{rule})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := generator.Run(); err == nil {
+		t.Fatal("expected an error for an alert with no domain")
+	}
+}
+
+// prepareOutput removes the whole generated tree, so a file left over inside a
+// domain directory must not survive a regeneration either.
+func TestGeneratorRemovesStaleDomainFiles(t *testing.T) {
+	root := t.TempDir()
+	generator, err := New(root, registry.Dashboards, registry.Alerts)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	stale := filepath.Join(root, "generated", "dashboards", "kubernetes", "retired.spec.json")
+	if err := os.MkdirAll(filepath.Dir(stale), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(stale, []byte("{}"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	if err := generator.Run(); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := os.Stat(stale); !os.IsNotExist(err) {
+		t.Fatalf("stale nested artifact was not removed: %v", err)
 	}
 }
 

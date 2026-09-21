@@ -7,7 +7,7 @@ changing a rule.
 internal/alerts/rule.go            Rule struct
 internal/alerts/<domain>.go        one flat file per domain (kubernetes.go, postgres.go)
 internal/registry/alerts.go        []alerts.Rule registration
-generated/alerts/<uid>.json
+generated/alerts/<domain>/<uid>.json
 deploy/manifests/grafanaalertrulegroup-<group>.yaml
 test/dashboards/alerts_test.go     registry-wide contract test
 ```
@@ -52,4 +52,4 @@ The generator groups rules by `Group` into one `GrafanaAlertRuleGroup` CR whose
 4. `make validate`. `TestAlertRegistry` checks UID uniqueness, required labels and
    annotations, and that `dashboard_uid` resolves. Add a specific test only when the
    rule has logic worth pinning (threshold, `for`).
-5. Inspect `generated/alerts/<uid>.json` and the changed `grafanaalertrulegroup-*.yaml`.
+5. Inspect `generated/alerts/<domain>/<uid>.json` and the changed `grafanaalertrulegroup-*.yaml`.

@@ -11,5 +11,5 @@ spec:
         matchLabels:
             dashboards: grafana
     oci:
-        path: pgdog.spec.json
+        path: postgres/pgdog.spec.json
         reference: ghcr.io/duynhlab/grafana-dashboards:latest

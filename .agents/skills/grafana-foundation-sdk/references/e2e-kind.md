@@ -13,13 +13,15 @@ Location: `test/e2e/kind/run.sh`, `test/e2e/kind/kind-config.yaml`. Run with
 4. Applies a `Grafana` CR (`spec.version: 12.0.0`), waits for `status.stage=complete`
    and for the Grafana Deployment to be Available. The dashboard and folder controllers
    skip an instance whose pod is not serving yet.
-5. `oras push --plain-http` of every `generated/dashboards/*.spec.json` into the registry.
+5. `oras push --plain-http` of every `generated/dashboards/<domain>/*.spec.json` into the
+   registry, pushed from `generated/dashboards` so each layer title keeps its domain prefix.
 6. Regenerates `deploy/` with `OCI_REFERENCE=<in-cluster registry>/grafana-dashboards:e2e`,
    `OCI_INSECURE_PLAIN_HTTP=true`, `OCI_PULL_SECRET=` and applies `deploy/`.
 7. Asserts, deriving the expected set from `deploy/manifests/`:
    - every `GrafanaFolder` manifest exists in the cluster
-   - every `GrafanaDashboard` exists with the expected `spec.oci.reference` and
-     `spec.oci.path: <uid>.spec.json`
+   - every `GrafanaDashboard` exists with the expected `spec.oci.reference` and a
+     `spec.oci.path` of the form `<domain>/<uid>.spec.json` that names a file which was
+     actually generated
    - every `GrafanaDashboard` reaches a `status.conditions` entry with `status=True`,
      which proves the operator pulled the JSON out of the registry
    - the `GrafanaAlertRuleGroup` CRD is installed and every alert-group manifest exists

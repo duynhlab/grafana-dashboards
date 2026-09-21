@@ -6,7 +6,11 @@ import (
 )
 
 type DashboardDefinition struct {
-	UID    string
+	UID string
+	// Domain is the owning Go package, a standards.Domain* constant. It is the
+	// directory segment under generated/dashboards and the prefix of the
+	// dashboard's spec.oci.path, so it is required.
+	Domain string
 	Folder string
 	Build  func() cog.Builder[dashboardv2.Dashboard]
 }

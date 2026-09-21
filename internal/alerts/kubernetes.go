@@ -9,6 +9,7 @@ func CrashLoopingPods() Rule {
 	return Rule{
 		UID:       "kubernetes_crashlooping_pods",
 		Title:     "Kubernetes crashlooping pods",
+		Domain:    standards.DomainKubernetes,
 		Folder:    standards.FolderKubernetes,
 		Group:     "kubernetes",
 		Expr:      k8squeries.CrashLoopingPods,
@@ -31,6 +32,7 @@ func PendingPods() Rule {
 	return Rule{
 		UID:       "kubernetes_pending_pods",
 		Title:     "Kubernetes pending pods",
+		Domain:    standards.DomainKubernetes,
 		Folder:    standards.FolderKubernetes,
 		Group:     "kubernetes",
 		Expr:      k8squeries.PendingPods,
@@ -53,6 +55,7 @@ func PVCsAtRisk() Rule {
 	return Rule{
 		UID:       "kubernetes_pvcs_at_risk",
 		Title:     "Kubernetes PVCs above 80% used",
+		Domain:    standards.DomainKubernetes,
 		Folder:    standards.FolderKubernetes,
 		Group:     "kubernetes",
 		Expr:      k8squeries.PVCsAtRisk,
