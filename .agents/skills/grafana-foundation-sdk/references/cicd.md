@@ -11,18 +11,20 @@ Workflow: `.github/workflows/as-code.yml`. Actions `actions/checkout@v7`,
 3. `git diff --exit-code -- generated/ deploy/`
 4. `kubectl kustomize deploy/` must contain GrafanaFolder, GrafanaDashboard, GrafanaAlertRuleGroup
 5. the number of `deploy/manifests/grafanadashboard-*.yaml` files equals the number of
-   `generated/dashboards/*.spec.json` files
+   `generated/dashboards/**/*.spec.json` files
 
 `e2e-kind` (needs `validate`): runs `test/e2e/kind/run.sh`, see [e2e-kind.md](e2e-kind.md).
 
 `publish-oci` (push to `as-code` only, needs `validate`):
-- `oras push` of **every** `generated/dashboards/*.spec.json` to
+- `oras push` of **every** `generated/dashboards/<domain>/*.spec.json` to
   `ghcr.io/duynhlab/grafana-dashboards` with artifact type
   `application/vnd.grafana.dashboard+json`
 - `flux push artifact` of `deploy/` to `ghcr.io/duynhlab/grafana-dashboards-as-code`
 
-Never list spec files by name in the workflow. The file set is derived from the
-generated directory so a newly registered dashboard ships without a workflow change.
+Never list spec files by name in the workflow, and never glob one level deep. The file
+set comes from `find . -name '*.spec.json' -printf '%P\n'` inside `generated/dashboards`,
+so a newly registered dashboard ships without a workflow change and each entry keeps its
+domain prefix.
 
 ## Tags
 
@@ -33,8 +35,10 @@ Both tags are applied to both artifacts.
 
 ## Artifact contents
 
-Dashboard JSON (oras): `generated/dashboards/<uid>.spec.json`, one layer per file, the
-`GrafanaDashboard.spec.oci.path` value equals the file name.
+Dashboard JSON (oras): `generated/dashboards/<domain>/<uid>.spec.json`, one layer per
+file. oras records the domain-relative path as the layer's title annotation, and
+`GrafanaDashboard.spec.oci.path` must equal it exactly, prefix included. The operator
+matches the two literally.
 
 Deploy bundle (Flux): the `deploy/` kustomization with one `GrafanaFolder` per domain,
 one `GrafanaDashboard` per dashboard (`spec.oci`, no inline JSON), one

@@ -11,5 +11,5 @@ spec:
         matchLabels:
             dashboards: grafana
     oci:
-        path: temporal-worker.spec.json
+        path: observability/temporal-worker.spec.json
         reference: ghcr.io/duynhlab/grafana-dashboards:latest

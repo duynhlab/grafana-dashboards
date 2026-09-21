@@ -11,5 +11,5 @@ spec:
         matchLabels:
             dashboards: grafana
     oci:
-        path: pg-exporter-instance.spec.json
+        path: postgres/pg-exporter-instance.spec.json
         reference: ghcr.io/duynhlab/grafana-dashboards:latest

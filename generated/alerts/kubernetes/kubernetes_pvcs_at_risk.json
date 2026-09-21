@@ -1,6 +1,7 @@
 {
   "UID": "kubernetes_pvcs_at_risk",
   "Title": "Kubernetes PVCs above 80% used",
+  "Domain": "kubernetes",
   "Folder": "Kubernetes",
   "Group": "kubernetes",
   "Expr": "count((1 - kubelet_volume_stats_available_bytes / kubelet_volume_stats_capacity_bytes) \u003e 0.8)",

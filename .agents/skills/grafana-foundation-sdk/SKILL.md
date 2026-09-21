@@ -24,8 +24,11 @@ artifacts and the Grafana Operator. Go under `internal/` is the only source of t
 - Never hand-edit `generated/` or `deploy/`. Run `make generate`; commit the output.
 - Use `dashboardv2` (`dashboard.grafana.app/v2`), not `dashboard` v1 or `dashboardv2beta1`.
 - Dashboard UID equals the K8s manifest name passed to `dashboardv2.Manifest(uid, builder)`.
-- Grafana folders are domain names from `internal/standards/folders.go`
-  (`Kubernetes`, `Databases`, `Observability`).
+- Grafana folders come from `internal/standards/folders.go` (`Kubernetes`, `Databases`,
+  `Observability`, `Microservices`). A resource also declares a **domain**, its owning Go
+  package, from `internal/standards/domains.go` (`kubernetes`, `postgres`,
+  `observability`, `microservices`). The two differ for Postgres, and the domain is the
+  directory segment under `generated/` and the prefix of `spec.oci.path`.
 - `make validate` must pass before any change is done (fmt, vet, coverage >= 90%,
   generate, clean diff on `generated/` and `deploy/`).
 
@@ -53,6 +56,9 @@ internal/dashboards/<domain>/           one Go file per dashboard, returns a bui
 internal/alerts/<domain>.go             alert rules, flat, one file per domain
 internal/registry/dashboards.go|alerts.go   the only place resources are registered
 internal/generate/                      renderer; do not touch for new resources
+generated/dashboards/<domain>/          spec.json + manifest.json, mirrors the packages
+generated/alerts/<domain>/              one JSON per rule
+deploy/manifests/                       CRs, flat; filenames carry the UID
 test/dashboards/                        one contract test per dashboard + alerts_test.go
 ```
 
@@ -111,7 +117,8 @@ Register it in `internal/registry/dashboards.go` with `UID`, `Folder`, `Build`.
    exporter exposes before writing PromQL.
 2. Add PromQL constants under `internal/queries/prometheus/<domain>/`. Reuse existing ones.
 3. Compose the board in `internal/dashboards/<domain>/<name>.go` using the helpers above.
-4. Register in `internal/registry/dashboards.go`.
+4. Register in `internal/registry/dashboards.go` with `UID`, `Domain`, `Folder`, `Build`.
+   The generator refuses an empty `Domain`.
 5. Add `test/dashboards/<name>_test.go` (title, variable count, panel count, manifest
    name, key PromQL fragments). Add alerts if the board has operational thresholds.
 6. `make validate`. Inspect the diff in `generated/` and `deploy/`.

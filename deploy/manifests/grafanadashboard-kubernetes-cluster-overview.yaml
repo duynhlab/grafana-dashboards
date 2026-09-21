@@ -11,5 +11,5 @@ spec:
         matchLabels:
             dashboards: grafana
     oci:
-        path: kubernetes-cluster-overview.spec.json
+        path: kubernetes/kubernetes-cluster-overview.spec.json
         reference: ghcr.io/duynhlab/grafana-dashboards:latest

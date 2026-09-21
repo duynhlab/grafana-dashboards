@@ -9,6 +9,7 @@ func BackendsWaiting() Rule {
 	return Rule{
 		UID:       "postgres_backends_waiting",
 		Title:     "PostgreSQL backends waiting",
+		Domain:    standards.DomainPostgres,
 		Folder:    standards.FolderDatabases,
 		Group:     "databases",
 		Expr:      pgqueries.BackendsWaiting,

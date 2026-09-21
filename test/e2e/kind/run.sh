@@ -158,10 +158,16 @@ curl -fsS http://127.0.0.1:5001/v2/ >/dev/null
 
 (
   cd "${ROOT}/generated/dashboards"
+  # Paths stay domain-relative (kubernetes/foo.spec.json): oras records them as
+  # the layer title, which is what spec.oci.path must equal.
   spec_files=()
-  for spec in *.spec.json; do
+  while IFS= read -r spec; do
     spec_files+=("${spec}:application/json")
-  done
+  done < <(find . -name '*.spec.json' -printf '%P\n' | sort)
+  if [[ ${#spec_files[@]} -eq 0 ]]; then
+    echo "no dashboard spec files found under generated/dashboards" >&2
+    exit 1
+  fi
   log "pushing ${#spec_files[@]} dashboard spec files"
   oras push --plain-http "localhost:5001/grafana-dashboards:${OCI_TAG}" \
     --artifact-type application/vnd.grafana.dashboard+json \
@@ -233,8 +239,15 @@ for dash in "${DASHBOARDS[@]}"; do
     echo "unexpected oci.reference for ${dash}: ${ref}" >&2
     exit 1
   fi
-  if [[ "${path}" != "${dash}.spec.json" ]]; then
+  # The path is <domain>/<uid>.spec.json. The domain cannot be derived from the
+  # CR name, so assert the shape and that the file the CR points at is one the
+  # push actually shipped.
+  if [[ ! "${path}" =~ ^[a-z0-9-]+/${dash}\.spec\.json$ ]]; then
     echo "unexpected oci.path for ${dash}: ${path}" >&2
+    exit 1
+  fi
+  if [[ ! -f "${ROOT}/generated/dashboards/${path}" ]]; then
+    echo "oci.path for ${dash} points at a file that was not generated: ${path}" >&2
     exit 1
   fi
 done

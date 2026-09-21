@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"path"
 	"path/filepath"
 	"regexp"
 	"sort"
@@ -102,18 +103,34 @@ func (g *Generator) prepareOutput() error {
 }
 
 func (g *Generator) writeDashboard(definition registry.DashboardDefinition) error {
+	if strings.TrimSpace(definition.Domain) == "" {
+		return errors.New("domain must not be empty: it is the directory segment under generated/dashboards and the prefix of spec.oci.path")
+	}
+
 	manifest, err := dashboardv2.Manifest(definition.UID, definition.Build()).Build()
 	if err != nil {
 		return err
 	}
 
-	if err := writeJSON(g.path("generated", "dashboards", definition.UID+".manifest.json"), manifest); err != nil {
+	directory := g.path("generated", "dashboards", definition.Domain)
+	if err := os.MkdirAll(directory, 0o755); err != nil {
+		return fmt.Errorf("create %s: %w", directory, err)
+	}
+	if err := writeJSON(filepath.Join(directory, definition.UID+".manifest.json"), manifest); err != nil {
 		return err
 	}
-	if err := writeJSON(g.path("generated", "dashboards", definition.UID+".spec.json"), manifest.Spec); err != nil {
+	if err := writeJSON(filepath.Join(directory, definition.UID+".spec.json"), manifest.Spec); err != nil {
 		return err
 	}
 	return g.writeGrafanaDashboardCR(definition)
+}
+
+// dashboardSpecPath is the artifact-relative location of a dashboard's spec
+// JSON. It is both the path inside the OCI artifact, as recorded in the layer's
+// title annotation by oras, and the value of spec.oci.path that the Grafana
+// Operator matches against it. Always slash-separated, never filepath.Join.
+func dashboardSpecPath(definition registry.DashboardDefinition) string {
+	return path.Join(definition.Domain, definition.UID+".spec.json")
 }
 
 func writeJSON(path string, value any) error {
@@ -135,7 +152,7 @@ func writeYAML(path string, value any) error {
 func (g *Generator) writeGrafanaDashboardCR(definition registry.DashboardDefinition) error {
 	oci := map[string]any{
 		"reference": g.ociReference,
-		"path":      definition.UID + ".spec.json",
+		"path":      dashboardSpecPath(definition),
 	}
 	if g.ociInsecureHTTP {
 		oci["insecurePlainHTTP"] = true
@@ -179,7 +196,14 @@ func (g *Generator) writeGrafanaFolders() error {
 func (g *Generator) writeAlertGroups() error {
 	groups := map[string][]alerts.Rule{}
 	for _, rule := range g.alerts {
-		if err := writeJSON(g.path("generated", "alerts", rule.UID+".json"), rule); err != nil {
+		if strings.TrimSpace(rule.Domain) == "" {
+			return fmt.Errorf("alert %s: domain must not be empty: it is the directory segment under generated/alerts", rule.UID)
+		}
+		directory := g.path("generated", "alerts", rule.Domain)
+		if err := os.MkdirAll(directory, 0o755); err != nil {
+			return fmt.Errorf("create %s: %w", directory, err)
+		}
+		if err := writeJSON(filepath.Join(directory, rule.UID+".json"), rule); err != nil {
 			return err
 		}
 		groups[rule.Group] = append(groups[rule.Group], rule)

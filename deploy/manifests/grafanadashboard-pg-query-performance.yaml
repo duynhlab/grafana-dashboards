@@ -11,5 +11,5 @@ spec:
         matchLabels:
             dashboards: grafana
     oci:
-        path: pg-query-performance.spec.json
+        path: postgres/pg-query-performance.spec.json
         reference: ghcr.io/duynhlab/grafana-dashboards:latest

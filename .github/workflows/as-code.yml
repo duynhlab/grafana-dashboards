@@ -57,11 +57,11 @@ jobs:
           grep -q "kind: GrafanaFolder" /tmp/rendered.yaml
           grep -q "kind: GrafanaDashboard" /tmp/rendered.yaml
           grep -q "kind: GrafanaAlertRuleGroup" /tmp/rendered.yaml
-          grep -q "path: kubernetes-cluster-overview.spec.json" /tmp/rendered.yaml
+          grep -q "path: kubernetes/kubernetes-cluster-overview.spec.json" /tmp/rendered.yaml
 
       - name: Every generated dashboard has a CR
         run: |
-          specs="$(ls generated/dashboards/*.spec.json | wc -l)"
+          specs="$(find generated/dashboards -name '*.spec.json' | wc -l)"
           crs="$(ls deploy/manifests/grafanadashboard-*.yaml | wc -l)"
           echo "spec files: ${specs}, GrafanaDashboard CRs: ${crs}"
           test "${specs}" -eq "${crs}"
@@ -102,10 +102,17 @@ jobs:
           (
             cd generated/dashboards
             # Every generated spec ships; never list dashboards by name here.
+            # Paths stay domain-relative (kubernetes/foo.spec.json) because oras
+            # records them as the layer title, which is what spec.oci.path must
+            # equal for the operator to find the file.
             spec_files=()
-            for spec in *.spec.json; do
+            while IFS= read -r spec; do
               spec_files+=("${spec}:application/json")
-            done
+            done < <(find . -name '*.spec.json' -printf '%P\n' | sort)
+            if [[ ${#spec_files[@]} -eq 0 ]]; then
+              echo "no dashboard spec files found under generated/dashboards" >&2
+              exit 1
+            fi
             echo "pushing ${#spec_files[@]} dashboard spec files"
             oras push "${OCI_DASHBOARDS}:latest" \
               --artifact-type application/vnd.grafana.dashboard+json \

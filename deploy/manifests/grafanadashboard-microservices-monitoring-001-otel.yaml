@@ -11,5 +11,5 @@ spec:
         matchLabels:
             dashboards: grafana
     oci:
-        path: microservices-monitoring-001-otel.spec.json
+        path: microservices/microservices-monitoring-001-otel.spec.json
         reference: ghcr.io/duynhlab/grafana-dashboards:latest

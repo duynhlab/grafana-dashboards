@@ -10,9 +10,9 @@
         "dashboard/redis/redis.json is unchanged",
         "queries live in internal/queries/prometheus/<domain>/ and are imported by the dashboard, not inlined",
         "the board uses panels.* helpers (SeriesExpr, Stat, RowsLayout, Row, GridItem) rather than raw dashboardv2 layout calls",
-        "the registry entry uses a standards.Folder* constant",
+        "the registry entry sets both a standards.Domain* and a standards.Folder* constant",
         "a contract test asserts title, panel count, variable count, manifest name and key metric fragments",
-        "generated/dashboards/redis.spec.json and deploy/manifests/grafanadashboard-redis.yaml exist after make generate",
+        "generated/dashboards/redis/redis.spec.json and deploy/manifests/grafanadashboard-redis.yaml exist after make generate, and the CR spec.oci.path is redis/redis.spec.json",
         "the agent reports the make validate result"
       ]
     },
