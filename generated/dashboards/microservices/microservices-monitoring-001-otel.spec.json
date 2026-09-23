@@ -2586,8 +2586,8 @@
       "spec": {
         "name": "app",
         "current": {
-          "text": "",
-          "value": ""
+          "text": "All",
+          "value": "$__all"
         },
         "label": "App",
         "hide": "dontHide",
@@ -2595,9 +2595,16 @@
         "skipUrlSync": false,
         "query": {
           "kind": "DataQuery",
-          "group": "",
+          "group": "prometheus",
           "version": "v0",
-          "spec": null
+          "datasource": {
+            "name": "prometheus"
+          },
+          "spec": {
+            "qryType": 1,
+            "query": "label_values(go_goroutine_count, service_name)",
+            "refId": "PrometheusVariableQueryEditor-VariableQuery"
+          }
         },
         "regex": "",
         "regexApplyTo": "value",
@@ -2606,7 +2613,7 @@
         "options": [],
         "multi": true,
         "includeAll": true,
-        "allowCustomValue": true
+        "allowCustomValue": false
       }
     }
   ]

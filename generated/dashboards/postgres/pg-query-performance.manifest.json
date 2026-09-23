@@ -1431,8 +1431,8 @@
         "spec": {
           "name": "cluster",
           "current": {
-            "text": "",
-            "value": ""
+            "text": "All",
+            "value": "$__all"
           },
           "label": "Cluster",
           "hide": "dontHide",
@@ -1440,9 +1440,16 @@
           "skipUrlSync": false,
           "query": {
             "kind": "DataQuery",
-            "group": "",
+            "group": "prometheus",
             "version": "v0",
-            "spec": null
+            "datasource": {
+              "name": "prometheus"
+            },
+            "spec": {
+              "qryType": 1,
+              "query": "label_values(cnpg_collector_up, cnpg_io_cluster)",
+              "refId": "PrometheusVariableQueryEditor-VariableQuery"
+            }
           },
           "regex": "",
           "regexApplyTo": "value",
@@ -1451,7 +1458,7 @@
           "options": [],
           "multi": true,
           "includeAll": true,
-          "allowCustomValue": true
+          "allowCustomValue": false
         }
       },
       {
@@ -1459,8 +1466,8 @@
         "spec": {
           "name": "datname",
           "current": {
-            "text": "",
-            "value": ""
+            "text": "All",
+            "value": "$__all"
           },
           "label": "Database",
           "hide": "dontHide",
@@ -1468,9 +1475,16 @@
           "skipUrlSync": false,
           "query": {
             "kind": "DataQuery",
-            "group": "",
+            "group": "prometheus",
             "version": "v0",
-            "spec": null
+            "datasource": {
+              "name": "prometheus"
+            },
+            "spec": {
+              "qryType": 1,
+              "query": "label_values(cnpg_pg_stat_statements_calls{cnpg_io_cluster=~\"$cluster\"}, datname)",
+              "refId": "PrometheusVariableQueryEditor-VariableQuery"
+            }
           },
           "regex": "",
           "regexApplyTo": "value",
@@ -1479,7 +1493,7 @@
           "options": [],
           "multi": true,
           "includeAll": true,
-          "allowCustomValue": true
+          "allowCustomValue": false
         }
       }
     ]
