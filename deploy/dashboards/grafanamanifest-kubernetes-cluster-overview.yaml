@@ -24,6 +24,51 @@ spec:
             description: Kubernetes cluster overview using the USE method. Covers node/pod counts, workload health, resource utilization, and persistent volume storage.
             editable: true
             elements:
+                cpu-req-alloc-node:
+                    kind: Panel
+                    spec:
+                        data:
+                            kind: QueryGroup
+                            spec:
+                                queries:
+                                    - kind: PanelQuery
+                                      spec:
+                                        hidden: false
+                                        query:
+                                            datasource:
+                                                name: prometheus
+                                            group: prometheus
+                                            kind: DataQuery
+                                            spec:
+                                                expr: sum by (node) (kube_pod_container_resource_requests{resource="cpu"} * on (namespace, pod) group_left () (max by (namespace, pod) (kube_pod_status_phase{phase="Running"}) == 1)) / (sum by (node) (kube_node_status_allocatable{resource="cpu"}) > 0)
+                                                legendFormat: '{{node}}'
+                                            version: v0
+                                        refId: A
+                                queryOptions: {}
+                                transformations: []
+                        description: ""
+                        id: 0
+                        links: []
+                        title: CPU Requests vs Allocatable by Node
+                        vizConfig:
+                            group: timeseries
+                            kind: VizConfig
+                            spec:
+                                fieldConfig:
+                                    defaults:
+                                        custom: {}
+                                        unit: percentunit
+                                    overrides: []
+                                options:
+                                    legend:
+                                        calcs: []
+                                        displayMode: list
+                                        placement: bottom
+                                        showLegend: false
+                                    tooltip:
+                                        mode: ""
+                                        sort: ""
+                            version: ""
                 cpu-req-cap:
                     kind: Panel
                     spec:
@@ -83,7 +128,7 @@ spec:
                                             group: prometheus
                                             kind: DataQuery
                                             spec:
-                                                expr: sum by (namespace, pod) (increase(container_cpu_cfs_throttled_periods_total{container!=""}[5m])) / sum by (namespace, pod) (increase(container_cpu_cfs_periods_total{container!=""}[5m])) > 0
+                                                expr: sum by (namespace, pod) (increase(container_cpu_cfs_throttled_periods_total{container!="", namespace=~"$namespace"}[$__rate_interval])) / sum by (namespace, pod) (increase(container_cpu_cfs_periods_total{container!="", namespace=~"$namespace"}[$__rate_interval])) > 0
                                                 legendFormat: '{{namespace}}/{{pod}}'
                                             version: v0
                                         refId: A
@@ -127,7 +172,7 @@ spec:
                                             group: prometheus
                                             kind: DataQuery
                                             spec:
-                                                expr: sum by (namespace) (rate(container_cpu_usage_seconds_total{container!="", image!=""}[5m]))
+                                                expr: sum by (namespace) (rate(container_cpu_usage_seconds_total{container!="", image!="", namespace=~"$namespace"}[$__rate_interval]))
                                                 legendFormat: '{{namespace}}'
                                             version: v0
                                         refId: A
@@ -171,7 +216,7 @@ spec:
                                             group: prometheus
                                             kind: DataQuery
                                             spec:
-                                                expr: count(max_over_time(kube_pod_container_status_waiting_reason{reason="CrashLoopBackOff"}[5m]) == 1)
+                                                expr: count(max_over_time(kube_pod_container_status_waiting_reason{reason="CrashLoopBackOff"}[$__rate_interval]) == 1)
                                             version: v0
                                         refId: A
                                 queryOptions: {}
@@ -288,6 +333,51 @@ spec:
                                     textMode: auto
                                     wideLayout: true
                             version: ""
+                mem-req-alloc-node:
+                    kind: Panel
+                    spec:
+                        data:
+                            kind: QueryGroup
+                            spec:
+                                queries:
+                                    - kind: PanelQuery
+                                      spec:
+                                        hidden: false
+                                        query:
+                                            datasource:
+                                                name: prometheus
+                                            group: prometheus
+                                            kind: DataQuery
+                                            spec:
+                                                expr: sum by (node) (kube_pod_container_resource_requests{resource="memory"} * on (namespace, pod) group_left () (max by (namespace, pod) (kube_pod_status_phase{phase="Running"}) == 1)) / (sum by (node) (kube_node_status_allocatable{resource="memory"}) > 0)
+                                                legendFormat: '{{node}}'
+                                            version: v0
+                                        refId: A
+                                queryOptions: {}
+                                transformations: []
+                        description: ""
+                        id: 0
+                        links: []
+                        title: Memory Requests vs Allocatable by Node
+                        vizConfig:
+                            group: timeseries
+                            kind: VizConfig
+                            spec:
+                                fieldConfig:
+                                    defaults:
+                                        custom: {}
+                                        unit: percentunit
+                                    overrides: []
+                                options:
+                                    legend:
+                                        calcs: []
+                                        displayMode: list
+                                        placement: bottom
+                                        showLegend: false
+                                    tooltip:
+                                        mode: ""
+                                        sort: ""
+                            version: ""
                 mem-req-cap:
                     kind: Panel
                     spec:
@@ -347,7 +437,7 @@ spec:
                                             group: prometheus
                                             kind: DataQuery
                                             spec:
-                                                expr: sum by (namespace) (container_memory_working_set_bytes{container!="", image!=""})
+                                                expr: sum by (namespace) (container_memory_working_set_bytes{container!="", image!="", namespace=~"$namespace"})
                                                 legendFormat: '{{namespace}}'
                                             version: v0
                                         refId: A
@@ -391,7 +481,7 @@ spec:
                                             group: prometheus
                                             kind: DataQuery
                                             spec:
-                                                expr: sum by (namespace) (rate(container_network_receive_bytes_total{image!=""}[5m]))
+                                                expr: sum by (namespace) (rate(container_network_receive_bytes_total{image!="", namespace=~"$namespace"}[$__rate_interval]))
                                                 legendFormat: rx {{namespace}}
                                             version: v0
                                         refId: A
@@ -404,7 +494,7 @@ spec:
                                             group: prometheus
                                             kind: DataQuery
                                             spec:
-                                                expr: sum by (namespace) (rate(container_network_transmit_bytes_total{image!=""}[5m]))
+                                                expr: sum by (namespace) (rate(container_network_transmit_bytes_total{image!="", namespace=~"$namespace"}[$__rate_interval]))
                                                 legendFormat: tx {{namespace}}
                                             version: v0
                                         refId: A
@@ -421,6 +511,79 @@ spec:
                                 fieldConfig:
                                     defaults:
                                         custom: {}
+                                    overrides: []
+                                options:
+                                    legend:
+                                        calcs: []
+                                        displayMode: list
+                                        placement: bottom
+                                        showLegend: false
+                                    tooltip:
+                                        mode: ""
+                                        sort: ""
+                            version: ""
+                node-pressure:
+                    kind: Panel
+                    spec:
+                        data:
+                            kind: QueryGroup
+                            spec:
+                                queries:
+                                    - kind: PanelQuery
+                                      spec:
+                                        hidden: false
+                                        query:
+                                            datasource:
+                                                name: prometheus
+                                            group: prometheus
+                                            kind: DataQuery
+                                            spec:
+                                                expr: sum by (node) (kube_node_status_condition{condition="MemoryPressure", status="true"})
+                                                legendFormat: '{{node}} MemoryPressure'
+                                            version: v0
+                                        refId: A
+                                    - kind: PanelQuery
+                                      spec:
+                                        hidden: false
+                                        query:
+                                            datasource:
+                                                name: prometheus
+                                            group: prometheus
+                                            kind: DataQuery
+                                            spec:
+                                                expr: sum by (node) (kube_node_status_condition{condition="DiskPressure", status="true"})
+                                                legendFormat: '{{node}} DiskPressure'
+                                                range: true
+                                            version: v0
+                                        refId: B
+                                    - kind: PanelQuery
+                                      spec:
+                                        hidden: false
+                                        query:
+                                            datasource:
+                                                name: prometheus
+                                            group: prometheus
+                                            kind: DataQuery
+                                            spec:
+                                                expr: sum by (node) (kube_node_status_condition{condition="PIDPressure", status="true"})
+                                                legendFormat: '{{node}} PIDPressure'
+                                                range: true
+                                            version: v0
+                                        refId: C
+                                queryOptions: {}
+                                transformations: []
+                        description: ""
+                        id: 0
+                        links: []
+                        title: Node Pressure Conditions
+                        vizConfig:
+                            group: timeseries
+                            kind: VizConfig
+                            spec:
+                                fieldConfig:
+                                    defaults:
+                                        custom: {}
+                                        unit: short
                                     overrides: []
                                 options:
                                     legend:
@@ -521,6 +684,65 @@ spec:
                                     textMode: auto
                                     wideLayout: true
                             version: ""
+                packets-dropped:
+                    kind: Panel
+                    spec:
+                        data:
+                            kind: QueryGroup
+                            spec:
+                                queries:
+                                    - kind: PanelQuery
+                                      spec:
+                                        hidden: false
+                                        query:
+                                            datasource:
+                                                name: prometheus
+                                            group: prometheus
+                                            kind: DataQuery
+                                            spec:
+                                                expr: sum by (namespace) (rate(container_network_receive_packets_dropped_total{namespace=~"$namespace", namespace!=""}[$__rate_interval]))
+                                                legendFormat: RX {{namespace}}
+                                            version: v0
+                                        refId: A
+                                    - kind: PanelQuery
+                                      spec:
+                                        hidden: false
+                                        query:
+                                            datasource:
+                                                name: prometheus
+                                            group: prometheus
+                                            kind: DataQuery
+                                            spec:
+                                                expr: sum by (namespace) (rate(container_network_transmit_packets_dropped_total{namespace=~"$namespace", namespace!=""}[$__rate_interval]))
+                                                legendFormat: TX {{namespace}}
+                                                range: true
+                                            version: v0
+                                        refId: B
+                                queryOptions: {}
+                                transformations: []
+                        description: ""
+                        id: 0
+                        links: []
+                        title: Packets Dropped by Namespace
+                        vizConfig:
+                            group: timeseries
+                            kind: VizConfig
+                            spec:
+                                fieldConfig:
+                                    defaults:
+                                        custom: {}
+                                        unit: short
+                                    overrides: []
+                                options:
+                                    legend:
+                                        calcs: []
+                                        displayMode: list
+                                        placement: bottom
+                                        showLegend: false
+                                    tooltip:
+                                        mode: ""
+                                        sort: ""
+                            version: ""
                 pending-pods:
                     kind: Panel
                     spec:
@@ -582,7 +804,7 @@ spec:
                                             group: prometheus
                                             kind: DataQuery
                                             spec:
-                                                expr: sum by (namespace) (increase(kube_pod_container_status_restarts_total[1h]))
+                                                expr: sum by (namespace) (increase(kube_pod_container_status_restarts_total{namespace=~"$namespace"}[1h]))
                                                 legendFormat: '{{namespace}}'
                                             version: v0
                                         refId: A
@@ -626,7 +848,7 @@ spec:
                                             group: prometheus
                                             kind: DataQuery
                                             spec:
-                                                expr: count by (namespace, phase) (kube_pod_status_phase == 1)
+                                                expr: count by (namespace, phase) (kube_pod_status_phase{namespace=~"$namespace"} == 1)
                                                 legendFormat: '{{namespace}} {{phase}}'
                                             version: v0
                                         refId: A
@@ -643,6 +865,65 @@ spec:
                                 fieldConfig:
                                     defaults:
                                         custom: {}
+                                    overrides: []
+                                options:
+                                    legend:
+                                        calcs: []
+                                        displayMode: list
+                                        placement: bottom
+                                        showLegend: false
+                                    tooltip:
+                                        mode: ""
+                                        sort: ""
+                            version: ""
+                pods-per-node:
+                    kind: Panel
+                    spec:
+                        data:
+                            kind: QueryGroup
+                            spec:
+                                queries:
+                                    - kind: PanelQuery
+                                      spec:
+                                        hidden: false
+                                        query:
+                                            datasource:
+                                                name: prometheus
+                                            group: prometheus
+                                            kind: DataQuery
+                                            spec:
+                                                expr: count by (node) (kube_pod_info)
+                                                legendFormat: '{{node}}'
+                                            version: v0
+                                        refId: A
+                                    - kind: PanelQuery
+                                      spec:
+                                        hidden: false
+                                        query:
+                                            datasource:
+                                                name: prometheus
+                                            group: prometheus
+                                            kind: DataQuery
+                                            spec:
+                                                expr: sum by (node) (kube_node_status_allocatable{resource="pods"})
+                                                legendFormat: capacity {{node}}
+                                                range: true
+                                            version: v0
+                                        refId: B
+                                queryOptions: {}
+                                transformations: []
+                        description: ""
+                        id: 0
+                        links: []
+                        title: Pods per Node
+                        vizConfig:
+                            group: timeseries
+                            kind: VizConfig
+                            spec:
+                                fieldConfig:
+                                    defaults:
+                                        custom: {}
+                                        unit: short
                                     overrides: []
                                 options:
                                     legend:
@@ -1013,6 +1294,15 @@ spec:
                                             width: 12
                                             x: 12
                                             "y": 4
+                                        - kind: GridLayoutItem
+                                          spec:
+                                            element:
+                                                kind: ElementReference
+                                                name: node-pressure
+                                            height: 8
+                                            width: 24
+                                            x: 0
+                                            "y": 12
                             title: Workload Health
                         - kind: RowsLayoutRow
                           spec:
@@ -1056,6 +1346,42 @@ spec:
                                             width: 12
                                             x: 12
                                             "y": 8
+                                        - kind: GridLayoutItem
+                                          spec:
+                                            element:
+                                                kind: ElementReference
+                                                name: cpu-req-alloc-node
+                                            height: 8
+                                            width: 12
+                                            x: 0
+                                            "y": 16
+                                        - kind: GridLayoutItem
+                                          spec:
+                                            element:
+                                                kind: ElementReference
+                                                name: mem-req-alloc-node
+                                            height: 8
+                                            width: 12
+                                            x: 12
+                                            "y": 16
+                                        - kind: GridLayoutItem
+                                          spec:
+                                            element:
+                                                kind: ElementReference
+                                                name: packets-dropped
+                                            height: 8
+                                            width: 12
+                                            x: 0
+                                            "y": 24
+                                        - kind: GridLayoutItem
+                                          spec:
+                                            element:
+                                                kind: ElementReference
+                                                name: pods-per-node
+                                            height: 8
+                                            width: 12
+                                            x: 12
+                                            "y": 24
                             title: Resource Utilization
                         - kind: RowsLayoutRow
                           spec:
@@ -1117,4 +1443,32 @@ spec:
                 timezone: browser
                 to: now
             title: Kubernetes Cluster Overview
-            variables: []
+            variables:
+                - kind: QueryVariable
+                  spec:
+                    allowCustomValue: false
+                    current:
+                        text: All
+                        value: $__all
+                    definition: label_values(kube_pod_info, namespace)
+                    hide: dontHide
+                    includeAll: true
+                    label: Namespace
+                    multi: true
+                    name: namespace
+                    options: []
+                    query:
+                        datasource:
+                            name: prometheus
+                        group: prometheus
+                        kind: DataQuery
+                        spec:
+                            qryType: 1
+                            query: label_values(kube_pod_info, namespace)
+                            refId: PrometheusVariableQueryEditor-VariableQuery
+                        version: v0
+                    refresh: onDashboardLoad
+                    regex: ""
+                    regexApplyTo: value
+                    skipUrlSync: false
+                    sort: alphabeticalAsc

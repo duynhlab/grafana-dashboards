@@ -4,7 +4,7 @@
   "Domain": "kubernetes",
   "Folder": "Kubernetes",
   "Group": "kubernetes",
-  "Expr": "count(max_over_time(kube_pod_container_status_waiting_reason{reason=\"CrashLoopBackOff\"}[5m]) == 1)",
+  "Expr": "count(max_over_time(kube_pod_container_status_waiting_reason{reason=\"CrashLoopBackOff\"}[$__rate_interval]) == 1)",
   "For": "5m",
   "Threshold": 0,
   "Labels": {

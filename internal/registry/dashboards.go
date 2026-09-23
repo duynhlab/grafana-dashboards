@@ -18,6 +18,12 @@ var Dashboards = []DashboardDefinition{
 		Build:  kubernetes.ClusterOverview,
 	},
 	{
+		UID:    "kubernetes-workloads",
+		Domain: standards.DomainKubernetes,
+		Folder: standards.FolderKubernetes,
+		Build:  kubernetes.Workloads,
+	},
+	{
 		UID:    "keda",
 		Domain: standards.DomainKubernetes,
 		Folder: standards.FolderKubernetes,
