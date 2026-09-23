@@ -4,7 +4,7 @@ Observability as code. Go source is the truth, the Grafana Foundation SDK is the
 technical layer, and this repository owns the domain layer: queries, panels,
 dashboards, alerts, standards.
 
-**Baseline:** Grafana 12+, `dashboardv2` (`dashboard.grafana.app/v2`). Not `dashboard`
+**Baseline:** Grafana 13+, `dashboardv2` (`dashboard.grafana.app/v2`). Not `dashboard`
 v1, not `dashboardv2beta1`. The SDK module `github.com/grafana/grafana-foundation-sdk/go`
 is pinned in `go.mod`; check the pinned version there before assuming an API exists,
 and confirm with `go doc github.com/grafana/grafana-foundation-sdk/go/dashboardv2 <Symbol>`.
@@ -23,8 +23,10 @@ internal/
   generate/                          deterministic renderer: spec.json, manifest.json, CRs, kustomization
 generated/dashboards/<domain>/<uid>.spec.json, <uid>.manifest.json
 generated/alerts/<domain>/<uid>.json
-deploy/manifests/                    GrafanaFolder, GrafanaDashboard (spec.oci), GrafanaAlertRuleGroup
-deploy/kustomization.yaml            generated, lists every manifest
+deploy/folders/                      GrafanaManifest -> folder.grafana.app/v1 Folder
+deploy/dashboards/                   GrafanaManifest -> dashboard.grafana.app/v2 Dashboard,
+                                     plus GrafanaAlertRuleGroup
+deploy/kustomization.yaml            generated, aggregates both waves
 test/dashboards/                     contract tests per dashboard + alerts_test.go (registry-wide)
 test/e2e/kind/                       operator smoke test
 dashboard/                           LEGACY JSON, read-only
@@ -41,15 +43,16 @@ registry entry and alert rule sets both.
 
 ```text
 queries -> panels -> dashboards / alerts -> registry -> go run ./cmd/generate
-  -> generated/dashboards/<domain>/*.spec.json  (oras push -> ghcr.io/duynhlab/grafana-dashboards)
-  -> deploy/                              (flux push artifact -> ghcr.io/duynhlab/grafana-dashboards-as-code)
-  -> Grafana Operator >= 5.24 pulls spec.oci -> Grafana 12
+  -> generated/dashboards/<domain>/*.spec.json   (committed; the review surface)
+  -> deploy/          (flux push artifact -> ghcr.io/duynhlab/grafana-dashboards-as-code)
+  -> Flux pulls the bundle -> Grafana Operator 5.25 -> Grafana 13
 ```
 
-The generator writes `GrafanaDashboard` CRs with `spec.oci.reference` and
-`spec.oci.path: <domain>/<uid>.spec.json`, which must match the OCI layer title that
-`oras push` records; JSON is never inlined into the CR. `OCI_REFERENCE`,
-`OCI_PULL_SECRET`, and `OCI_INSECURE_PLAIN_HTTP` change the CRs at generation time.
+The generator writes `GrafanaManifest` CRs that carry the App Platform object inline in
+`spec.template`. `GrafanaDashboard` cannot be used: it posts through the legacy
+`/api/dashboards/db` envelope and Grafana answers 400 on a v2 payload in either shape.
+`GrafanaManifest` in turn has no content sources at all, so there is no `spec.oci` and
+no OCI environment variables; the spec is inlined and bounded by the ~1 MiB etcd limit.
 
 Adding a dashboard, alert, or domain must not require a generator change. If it does,
 stop and reconsider the abstraction.

@@ -24,17 +24,9 @@ func PGExporterInstance() cog.Builder[dashboardv2.Dashboard] {
 		Editable(true).
 		Tags([]string{"postgresql", "pigsty", "pgrds", "instance", "generated", "foundation-sdk"}).
 		TimeSettings(standards.TimeSettings("now-1h", "now", "")).
-		QueryVariable(dashboardv2.NewQueryVariableBuilder("ins").
-			Label("Instance").
-			Definition(pgqueries.PigstyInsValues).
-			Refresh(dashboardv2.VariableRefreshOnDashboardLoad).
-			Sort(dashboardv2.VariableSortAlphabeticalAsc)).
-		QueryVariable(dashboardv2.NewQueryVariableBuilder("cls").
-			Label("Cluster").
-			Definition(pgqueries.PigstyClsValues).
-			Refresh(dashboardv2.VariableRefreshOnDashboardLoad).
-			Hide(dashboardv2.VariableHideHideVariable).
-			Sort(dashboardv2.VariableSortAlphabeticalAsc))
+		QueryVariable(panels.SingleQueryVar("ins", "Instance", pgqueries.PigstyInsValues)).
+		QueryVariable(panels.SingleQueryVar("cls", "Cluster", pgqueries.PigstyClsValues).
+			Hide(dashboardv2.VariableHideHideVariable))
 
 	b = exporterOverviewPanels(b)
 	b = exporterActivityPanels(b)

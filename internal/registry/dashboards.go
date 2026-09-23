@@ -1,9 +1,11 @@
 package registry
 
 import (
+	"github.com/duynhlab/grafana-dashboards/internal/dashboards/gateway"
 	"github.com/duynhlab/grafana-dashboards/internal/dashboards/kubernetes"
 	"github.com/duynhlab/grafana-dashboards/internal/dashboards/microservices"
 	"github.com/duynhlab/grafana-dashboards/internal/dashboards/observability"
+	"github.com/duynhlab/grafana-dashboards/internal/dashboards/platform"
 	"github.com/duynhlab/grafana-dashboards/internal/dashboards/postgres"
 	"github.com/duynhlab/grafana-dashboards/internal/standards"
 )
@@ -14,6 +16,12 @@ var Dashboards = []DashboardDefinition{
 		Domain: standards.DomainKubernetes,
 		Folder: standards.FolderKubernetes,
 		Build:  kubernetes.ClusterOverview,
+	},
+	{
+		UID:    "keda",
+		Domain: standards.DomainKubernetes,
+		Folder: standards.FolderKubernetes,
+		Build:  kubernetes.KEDA,
 	},
 	{
 		UID:    "pg-io-waits",
@@ -52,6 +60,12 @@ var Dashboards = []DashboardDefinition{
 		Build:  observability.TemporalWorker,
 	},
 	{
+		UID:    "otel-collector-health",
+		Domain: standards.DomainObservability,
+		Folder: standards.FolderObservability,
+		Build:  observability.OTelCollectorHealth,
+	},
+	{
 		UID:    "microservices-monitoring-001-otel",
 		Domain: standards.DomainMicroservices,
 		Folder: standards.FolderMicroservices,
@@ -62,5 +76,41 @@ var Dashboards = []DashboardDefinition{
 		Domain: standards.DomainMicroservices,
 		Folder: standards.FolderMicroservices,
 		Build:  microservices.BusinessOTel,
+	},
+	{
+		UID:    "red-spanmetrics",
+		Domain: standards.DomainMicroservices,
+		Folder: standards.FolderMicroservices,
+		Build:  microservices.RedSpanMetrics,
+	},
+	{
+		UID:    "rfc0021-baseline",
+		Domain: standards.DomainMicroservices,
+		Folder: standards.FolderMicroservices,
+		Build:  microservices.CutoverBaseline,
+	},
+	{
+		UID:    "inventory-overview",
+		Domain: standards.DomainMicroservices,
+		Folder: standards.FolderMicroservices,
+		Build:  microservices.InventoryOverview,
+	},
+	{
+		UID:    "cert-manager",
+		Domain: standards.DomainPlatform,
+		Folder: standards.FolderPlatform,
+		Build:  platform.CertManager,
+	},
+	{
+		UID:    "keycloak-identity",
+		Domain: standards.DomainPlatform,
+		Folder: standards.FolderPlatform,
+		Build:  platform.KeycloakIdentity,
+	},
+	{
+		UID:    "eg-edge",
+		Domain: standards.DomainGateway,
+		Folder: standards.FolderGateway,
+		Build:  gateway.EGEdge,
 	},
 }

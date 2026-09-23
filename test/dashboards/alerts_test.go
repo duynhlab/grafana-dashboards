@@ -50,6 +50,8 @@ func TestDomainFolders(t *testing.T) {
 		standards.FolderDatabases:     {},
 		standards.FolderObservability: {},
 		standards.FolderMicroservices: {},
+		standards.FolderPlatform:      {},
+		standards.FolderGateway:       {},
 	}
 	for _, folder := range registry.Folders() {
 		delete(want, folder)

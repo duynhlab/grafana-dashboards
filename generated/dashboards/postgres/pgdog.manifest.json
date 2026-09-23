@@ -2,7 +2,11 @@
   "apiVersion": "dashboard.grafana.app/v2",
   "kind": "Dashboard",
   "metadata": {
-    "name": "pgdog"
+    "name": "pgdog",
+    "namespace": "default",
+    "annotations": {
+      "grafana.app/folder": "databases"
+    }
   },
   "spec": {
     "annotations": [],
@@ -2554,8 +2558,8 @@
         "spec": {
           "name": "pooler",
           "current": {
-            "text": "",
-            "value": ""
+            "text": "All",
+            "value": "$__all"
           },
           "label": "Pooler",
           "hide": "dontHide",
@@ -2563,9 +2567,16 @@
           "skipUrlSync": false,
           "query": {
             "kind": "DataQuery",
-            "group": "",
+            "group": "prometheus",
             "version": "v0",
-            "spec": null
+            "datasource": {
+              "name": "prometheus"
+            },
+            "spec": {
+              "qryType": 1,
+              "query": "label_values(pgdog_total_sent, job)",
+              "refId": "PrometheusVariableQueryEditor-VariableQuery"
+            }
           },
           "regex": "",
           "regexApplyTo": "value",
@@ -2574,7 +2585,7 @@
           "options": [],
           "multi": true,
           "includeAll": true,
-          "allowCustomValue": true
+          "allowCustomValue": false
         }
       },
       {
@@ -2582,8 +2593,8 @@
         "spec": {
           "name": "host",
           "current": {
-            "text": "",
-            "value": ""
+            "text": "All",
+            "value": "$__all"
           },
           "label": "host",
           "hide": "dontHide",
@@ -2591,9 +2602,16 @@
           "skipUrlSync": false,
           "query": {
             "kind": "DataQuery",
-            "group": "",
+            "group": "prometheus",
             "version": "v0",
-            "spec": null
+            "datasource": {
+              "name": "prometheus"
+            },
+            "spec": {
+              "qryType": 1,
+              "query": "label_values(pgdog_total_sent{job=~\"$pooler\"}, host)",
+              "refId": "PrometheusVariableQueryEditor-VariableQuery"
+            }
           },
           "regex": "",
           "regexApplyTo": "value",
@@ -2602,7 +2620,7 @@
           "options": [],
           "multi": true,
           "includeAll": true,
-          "allowCustomValue": true
+          "allowCustomValue": false
         }
       },
       {
@@ -2610,8 +2628,8 @@
         "spec": {
           "name": "port",
           "current": {
-            "text": "",
-            "value": ""
+            "text": "All",
+            "value": "$__all"
           },
           "label": "port",
           "hide": "dontHide",
@@ -2619,9 +2637,16 @@
           "skipUrlSync": false,
           "query": {
             "kind": "DataQuery",
-            "group": "",
+            "group": "prometheus",
             "version": "v0",
-            "spec": null
+            "datasource": {
+              "name": "prometheus"
+            },
+            "spec": {
+              "qryType": 1,
+              "query": "label_values(pgdog_total_sent{job=~\"$pooler\"}, port)",
+              "refId": "PrometheusVariableQueryEditor-VariableQuery"
+            }
           },
           "regex": "",
           "regexApplyTo": "value",
@@ -2630,7 +2655,7 @@
           "options": [],
           "multi": true,
           "includeAll": true,
-          "allowCustomValue": true
+          "allowCustomValue": false
         }
       },
       {
@@ -2638,8 +2663,8 @@
         "spec": {
           "name": "shard",
           "current": {
-            "text": "",
-            "value": ""
+            "text": "All",
+            "value": "$__all"
           },
           "label": "shard",
           "hide": "dontHide",
@@ -2647,9 +2672,16 @@
           "skipUrlSync": false,
           "query": {
             "kind": "DataQuery",
-            "group": "",
+            "group": "prometheus",
             "version": "v0",
-            "spec": null
+            "datasource": {
+              "name": "prometheus"
+            },
+            "spec": {
+              "qryType": 1,
+              "query": "label_values(pgdog_total_sent{job=~\"$pooler\"}, shard)",
+              "refId": "PrometheusVariableQueryEditor-VariableQuery"
+            }
           },
           "regex": "",
           "regexApplyTo": "value",
@@ -2658,7 +2690,7 @@
           "options": [],
           "multi": true,
           "includeAll": true,
-          "allowCustomValue": true
+          "allowCustomValue": false
         }
       },
       {
@@ -2666,8 +2698,8 @@
         "spec": {
           "name": "role",
           "current": {
-            "text": "",
-            "value": ""
+            "text": "All",
+            "value": "$__all"
           },
           "label": "role",
           "hide": "dontHide",
@@ -2675,9 +2707,16 @@
           "skipUrlSync": false,
           "query": {
             "kind": "DataQuery",
-            "group": "",
+            "group": "prometheus",
             "version": "v0",
-            "spec": null
+            "datasource": {
+              "name": "prometheus"
+            },
+            "spec": {
+              "qryType": 1,
+              "query": "label_values(pgdog_total_sent{job=~\"$pooler\"}, role)",
+              "refId": "PrometheusVariableQueryEditor-VariableQuery"
+            }
           },
           "regex": "",
           "regexApplyTo": "value",
@@ -2686,7 +2725,7 @@
           "options": [],
           "multi": true,
           "includeAll": true,
-          "allowCustomValue": true
+          "allowCustomValue": false
         }
       },
       {
@@ -2694,8 +2733,8 @@
         "spec": {
           "name": "database",
           "current": {
-            "text": "",
-            "value": ""
+            "text": "All",
+            "value": "$__all"
           },
           "label": "database",
           "hide": "dontHide",
@@ -2703,9 +2742,16 @@
           "skipUrlSync": false,
           "query": {
             "kind": "DataQuery",
-            "group": "",
+            "group": "prometheus",
             "version": "v0",
-            "spec": null
+            "datasource": {
+              "name": "prometheus"
+            },
+            "spec": {
+              "qryType": 1,
+              "query": "label_values(pgdog_total_sent{job=~\"$pooler\"}, database)",
+              "refId": "PrometheusVariableQueryEditor-VariableQuery"
+            }
           },
           "regex": "",
           "regexApplyTo": "value",
@@ -2714,7 +2760,7 @@
           "options": [],
           "multi": true,
           "includeAll": true,
-          "allowCustomValue": true
+          "allowCustomValue": false
         }
       },
       {
@@ -2722,8 +2768,8 @@
         "spec": {
           "name": "user",
           "current": {
-            "text": "",
-            "value": ""
+            "text": "All",
+            "value": "$__all"
           },
           "label": "user",
           "hide": "dontHide",
@@ -2731,9 +2777,16 @@
           "skipUrlSync": false,
           "query": {
             "kind": "DataQuery",
-            "group": "",
+            "group": "prometheus",
             "version": "v0",
-            "spec": null
+            "datasource": {
+              "name": "prometheus"
+            },
+            "spec": {
+              "qryType": 1,
+              "query": "label_values(pgdog_total_sent{job=~\"$pooler\"}, user)",
+              "refId": "PrometheusVariableQueryEditor-VariableQuery"
+            }
           },
           "regex": "",
           "regexApplyTo": "value",
@@ -2742,7 +2795,7 @@
           "options": [],
           "multi": true,
           "includeAll": true,
-          "allowCustomValue": true
+          "allowCustomValue": false
         }
       }
     ]

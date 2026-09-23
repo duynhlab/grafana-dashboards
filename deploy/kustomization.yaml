@@ -3,18 +3,5 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 namespace: grafana-operator
 resources:
-    - manifests/grafanafolder-kubernetes.yaml
-    - manifests/grafanafolder-databases.yaml
-    - manifests/grafanafolder-observability.yaml
-    - manifests/grafanafolder-microservices.yaml
-    - manifests/grafanadashboard-kubernetes-cluster-overview.yaml
-    - manifests/grafanadashboard-pg-io-waits.yaml
-    - manifests/grafanadashboard-pg-maintenance.yaml
-    - manifests/grafanadashboard-pg-query-performance.yaml
-    - manifests/grafanadashboard-pg-exporter-instance.yaml
-    - manifests/grafanadashboard-pgdog.yaml
-    - manifests/grafanadashboard-temporal-worker.yaml
-    - manifests/grafanadashboard-microservices-monitoring-001-otel.yaml
-    - manifests/grafanadashboard-business-otel.yaml
-    - manifests/grafanaalertrulegroup-databases.yaml
-    - manifests/grafanaalertrulegroup-kubernetes.yaml
+    - folders
+    - dashboards

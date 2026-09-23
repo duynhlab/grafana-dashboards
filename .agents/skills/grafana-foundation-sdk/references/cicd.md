@@ -1,51 +1,57 @@
-# CI/CD: OCI artifacts to GHCR
+# CI/CD: the deploy bundle to GHCR
 
 Workflow: `.github/workflows/as-code.yml`. Actions `actions/checkout@v7`,
-`actions/setup-go@v7`, Go `1.26`, Flux CLI, oras, Kind.
+`actions/setup-go@v7`, Go `1.26`, Flux CLI, Kind.
 
 ## Jobs
 
-`validate` (pull requests to `main` or `as-code`, pushes to `as-code`):
+`validate` (pull requests to `main`, pushes to `main` and `v*` tags):
 1. gofmt check, `go vet ./...`, tests with repository-wide coverage >= 90%
 2. `go run ./cmd/generate`
 3. `git diff --exit-code -- generated/ deploy/`
-4. `kubectl kustomize deploy/` must contain GrafanaFolder, GrafanaDashboard, GrafanaAlertRuleGroup
-5. the number of `deploy/manifests/grafanadashboard-*.yaml` files equals the number of
+4. `kubectl kustomize` on each of `deploy/`, `deploy/folders/`, `deploy/dashboards/`.
+   The bundle must contain `GrafanaManifest` and `GrafanaAlertRuleGroup`, the folders
+   overlay must carry `folder.grafana.app/v1` and the dashboards overlay
+   `dashboard.grafana.app/v2`, and a `GrafanaDashboard` anywhere in the render is a
+   hard failure: that kind cannot carry a v2 board.
+5. the number of `deploy/dashboards/grafanamanifest-*.yaml` files equals the number of
    `generated/dashboards/**/*.spec.json` files
 
 `e2e-kind` (needs `validate`): runs `test/e2e/kind/run.sh`, see [e2e-kind.md](e2e-kind.md).
 
-`publish-oci` (push to `as-code` only, needs `validate`):
-- `oras push` of **every** `generated/dashboards/<domain>/*.spec.json` to
-  `ghcr.io/duynhlab/grafana-dashboards` with artifact type
-  `application/vnd.grafana.dashboard+json`
+`publish-oci` (any push, needs `validate`):
 - `flux push artifact` of `deploy/` to `ghcr.io/duynhlab/grafana-dashboards-as-code`
 
-Never list spec files by name in the workflow, and never glob one level deep. The file
-set comes from `find . -name '*.spec.json' -printf '%P\n'` inside `generated/dashboards`,
-so a newly registered dashboard ships without a workflow change and each entry keeps its
-domain prefix.
+There is no second artifact. `GrafanaManifest` has no content sources at all, so a
+separate dashboard-JSON artifact would have no consumer; the specs under
+`generated/dashboards/` stay committed as the review surface. Nothing in the workflow
+names a dashboard, so a newly registered board ships without a workflow change.
 
 ## Tags
 
-- `:latest` mutable, tracks the `as-code` branch head
-- `:sha-<short>` immutable per commit
-
-Both tags are applied to both artifacts.
+- `:latest` mutable, tracks `main`
+- `:sha-<short>` immutable per commit on a branch push
+- `:v<x.y.z>` on a tag push. Consumers pin this rather than chasing `:latest`
 
 ## Artifact contents
 
-Dashboard JSON (oras): `generated/dashboards/<domain>/<uid>.spec.json`, one layer per
-file. oras records the domain-relative path as the layer's title annotation, and
-`GrafanaDashboard.spec.oci.path` must equal it exactly, prefix included. The operator
-matches the two literally.
+The `deploy/` kustomization, three overlays:
 
-Deploy bundle (Flux): the `deploy/` kustomization with one `GrafanaFolder` per domain,
-one `GrafanaDashboard` per dashboard (`spec.oci`, no inline JSON), one
-`GrafanaAlertRuleGroup` per group, instance selector `dashboards: grafana`.
+```text
+deploy/folders/      GrafanaManifest -> folder.grafana.app/v1 Folder, one per domain
+deploy/dashboards/   GrafanaManifest -> dashboard.grafana.app/v2 Dashboard, one per
+                     board, plus one GrafanaAlertRuleGroup per group
+deploy/              both, for a single apply where nothing is racing
+```
 
-Private GHCR: generate with `OCI_PULL_SECRET=ghcr-pull` and create a
-`kubernetes.io/dockerconfigjson` Secret with that name in the operator namespace.
+Instance selector `dashboards: grafana` throughout. A consumer points one Flux
+`Kustomization` at `./deploy/folders` and a second at `./deploy/dashboards` with
+`dependsOn`, because a board naming a folder that does not exist yet fails outright and
+kustomize ordering is not apply ordering. The second Kustomization also needs
+`healthCheckExprs`: `GrafanaManifest` reports `ManifestSynchronized`, not `Ready`.
+
+Private GHCR is a Flux concern now, not a generator one: there is no `spec.oci` and no
+`OCI_PULL_SECRET`.
 
 ## Secrets
 
@@ -54,6 +60,6 @@ Private GHCR: generate with `OCI_PULL_SECRET=ghcr-pull` and create a
 
 ## Tools
 
-- oras: https://oras.land/
 - flux push artifact: https://fluxcd.io/flux/cmd/flux_push_artifact/
-- Grafana Operator Helm chart >= 5.24.0 (e2e pins 5.25.0)
+- Grafana Operator Helm chart 5.25.0, Grafana 13.x (12.x does not serve
+  `dashboard.grafana.app/v2`)

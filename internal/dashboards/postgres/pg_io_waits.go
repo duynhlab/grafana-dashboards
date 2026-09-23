@@ -15,22 +15,8 @@ func PGIOWaits() cog.Builder[dashboardv2.Dashboard] {
 		Editable(true).
 		Tags([]string{"postgresql", "cnpg", "database", "io", "generated", "foundation-sdk"}).
 		TimeSettings(standards.TimeSettings("now-6h", "now", "30s")).
-		QueryVariable(dashboardv2.NewQueryVariableBuilder("cluster").
-			Label("cluster").
-			Definition(pgqueries.ClusterLabelValues).
-			Refresh(dashboardv2.VariableRefreshOnDashboardLoad).
-			IncludeAll(true).
-			Multi(true).
-			Sort(dashboardv2.VariableSortAlphabeticalAsc),
-		).
-		QueryVariable(dashboardv2.NewQueryVariableBuilder("pod").
-			Label("pod").
-			Definition(pgqueries.PodLabelValues).
-			Refresh(dashboardv2.VariableRefreshOnDashboardLoad).
-			IncludeAll(true).
-			Multi(true).
-			Sort(dashboardv2.VariableSortAlphabeticalAsc),
-		)
+		QueryVariable(panels.QueryVar("cluster", "cluster", pgqueries.ClusterLabelValues)).
+		QueryVariable(panels.QueryVar("pod", "pod", pgqueries.PodLabelValues))
 
 	b = b.
 		Panel("read-ops", panels.TimeSeriesExpr("Read ops /s by backend", pgqueries.ReadOpsByBackend, "{{backend_type}}")).

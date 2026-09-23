@@ -2,7 +2,11 @@
   "apiVersion": "dashboard.grafana.app/v2",
   "kind": "Dashboard",
   "metadata": {
-    "name": "kubernetes-cluster-overview"
+    "name": "kubernetes-cluster-overview",
+    "namespace": "default",
+    "annotations": {
+      "grafana.app/folder": "kubernetes"
+    }
   },
   "spec": {
     "annotations": [],

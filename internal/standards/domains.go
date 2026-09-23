@@ -12,4 +12,6 @@ const (
 	DomainPostgres      = "postgres"
 	DomainObservability = "observability"
 	DomainMicroservices = "microservices"
+	DomainPlatform      = "platform"
+	DomainGateway       = "gateway"
 )

@@ -5,11 +5,14 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
 CLUSTER_NAME="grafana-as-code-e2e"
 KIND_CONFIG="${ROOT}/test/e2e/kind/kind-config.yaml"
 OPERATOR_CHART_VERSION="5.25.0"
-GRAFANA_VERSION="12.0.0"
-# The GrafanaDashboard CRD rejects a port in spec.oci.reference, so the
-# in-cluster registry is exposed on port 80.
-REGISTRY_HOST="registry.grafana-operator.svc.cluster.local"
-OCI_TAG="e2e"
+# Grafana 12.0.0 is not good enough to test against. Its legacy save path
+# accepts fairly arbitrary JSON, so a v2 payload posted through the classic
+# GrafanaDashboard kind reports DashboardSynchronized=True while storing
+# something that is not a usable dashboard. Any assertion on the CR condition
+# alone passes there and proves nothing. 13.x serves dashboard.grafana.app/v2,
+# which is what the generated manifests declare.
+GRAFANA_VERSION="13.2.0"
+GRAFANA_PORT="3000"
 PF_PID=""
 
 log() { echo "[e2e] $*"; }
@@ -21,15 +24,15 @@ require() {
 require kind
 require kubectl
 require helm
-require oras
 require go
 require curl
+require python3
 
 dump() {
   log "dumping cluster state"
-  kubectl get grafana,grafanadashboard,grafanafolder,grafanaalertrulegroup,deploy,pod,event -n grafana-operator || true
+  kubectl get grafana,grafanamanifest,grafanaalertrulegroup,deploy,pod,event -n grafana-operator || true
   kubectl describe grafana grafana -n grafana-operator || true
-  kubectl describe grafanadashboard -n grafana-operator || true
+  kubectl describe grafanamanifest -n grafana-operator || true
   kubectl logs -n grafana-operator -l app.kubernetes.io/name=grafana-operator --tail=200 || true
   kubectl logs -n grafana-operator -l app=grafana --tail=200 || true
 }
@@ -69,44 +72,6 @@ helm upgrade --install grafana-operator oci://ghcr.io/grafana/helm-charts/grafan
 kubectl wait --for=condition=Available deploy --all \
   -n grafana-operator --timeout=180s
 
-log "deploying in-cluster OCI registry"
-kubectl apply -f - <<'EOF'
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: registry
-  namespace: grafana-operator
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: registry
-  template:
-    metadata:
-      labels:
-        app: registry
-    spec:
-      containers:
-        - name: registry
-          image: registry:2
-          ports:
-            - containerPort: 5000
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: registry
-  namespace: grafana-operator
-spec:
-  selector:
-    app: registry
-  ports:
-    - port: 80
-      targetPort: 5000
-EOF
-
-kubectl wait --for=condition=Available deploy/registry -n grafana-operator --timeout=180s
-
 log "deploying Grafana ${GRAFANA_VERSION}"
 kubectl apply -f - <<EOF
 apiVersion: grafana.integreatly.org/v1beta1
@@ -145,62 +110,24 @@ kubectl wait --for=condition=Available deploy/grafana-deployment \
 log "generating dashboard JSON"
 (cd "${ROOT}" && go run ./cmd/generate)
 
-log "pushing dashboard JSON to in-cluster registry"
-kubectl port-forward -n grafana-operator svc/registry 5001:80 >/tmp/grafana-e2e-registry.log 2>&1 &
-PF_PID=$!
-for _ in $(seq 1 30); do
-  if curl -fsS http://127.0.0.1:5001/v2/ >/dev/null 2>&1; then
-    break
-  fi
-  sleep 1
-done
-curl -fsS http://127.0.0.1:5001/v2/ >/dev/null
-
-(
-  cd "${ROOT}/generated/dashboards"
-  # Paths stay domain-relative (kubernetes/foo.spec.json): oras records them as
-  # the layer title, which is what spec.oci.path must equal.
-  spec_files=()
-  while IFS= read -r spec; do
-    spec_files+=("${spec}:application/json")
-  done < <(find . -name '*.spec.json' -printf '%P\n' | sort)
-  if [[ ${#spec_files[@]} -eq 0 ]]; then
-    echo "no dashboard spec files found under generated/dashboards" >&2
-    exit 1
-  fi
-  log "pushing ${#spec_files[@]} dashboard spec files"
-  oras push --plain-http "localhost:5001/grafana-dashboards:${OCI_TAG}" \
-    --artifact-type application/vnd.grafana.dashboard+json \
-    "${spec_files[@]}"
-)
-
-log "generating GrafanaDashboard CRs that fetch spec.oci"
-(
-  cd "${ROOT}"
-  OCI_REFERENCE="${REGISTRY_HOST}/grafana-dashboards:${OCI_TAG}" \
-    OCI_INSECURE_PLAIN_HTTP=true \
-    OCI_PULL_SECRET= \
-    go run ./cmd/generate
-)
-
-log "applying generated dashboard manifests"
-kubectl apply -k "${ROOT}/deploy"
+log "applying the folders wave"
+kubectl apply -k "${ROOT}/deploy/folders"
 
 # The expected resource set is derived from the generated manifests so a newly
 # registered dashboard, folder, or alert group is covered without editing this script.
 manifest_names() {
-  local kind="$1"
+  local directory="$1" prefix="$2"
   local file
   shopt -s nullglob
-  for file in "${ROOT}"/deploy/manifests/"${kind}"-*.yaml; do
-    basename "${file}" .yaml | sed "s/^${kind}-//"
+  for file in "${ROOT}"/deploy/"${directory}"/"${prefix}"-*.yaml; do
+    basename "${file}" .yaml | sed "s/^${prefix}-//"
   done
 }
-mapfile -t FOLDERS < <(manifest_names grafanafolder)
-mapfile -t DASHBOARDS < <(manifest_names grafanadashboard)
-mapfile -t ALERT_GROUPS < <(manifest_names grafanaalertrulegroup)
+mapfile -t FOLDERS < <(manifest_names folders grafanamanifest)
+mapfile -t DASHBOARDS < <(manifest_names dashboards grafanamanifest)
+mapfile -t ALERT_GROUPS < <(manifest_names dashboards grafanaalertrulegroup)
 if [[ ${#DASHBOARDS[@]} -eq 0 || ${#FOLDERS[@]} -eq 0 ]]; then
-  echo "no generated GrafanaDashboard or GrafanaFolder manifests found under deploy/manifests" >&2
+  echo "no generated GrafanaManifest resources found under deploy/folders and deploy/dashboards" >&2
   exit 1
 fi
 log "expecting ${#FOLDERS[@]} folders, ${#DASHBOARDS[@]} dashboards, ${#ALERT_GROUPS[@]} alert groups"
@@ -225,41 +152,21 @@ wait_condition() {
   return 1
 }
 
-log "verifying GrafanaFolders"
+# The folders must exist before the boards. A board whose grafana.app/folder
+# names a missing folder fails outright rather than retrying inside the deadline,
+# so the two waves are applied in order here exactly as a consumer's Flux
+# Kustomizations would with dependsOn.
+log "waiting for the folders to reach ManifestSynchronized"
 for folder in "${FOLDERS[@]}"; do
-  kubectl get grafanafolder "${folder}" -n grafana-operator
+  wait_condition grafanamanifest "${folder}" ManifestSynchronized
 done
 
-log "verifying GrafanaDashboards use spec.oci"
+log "applying the dashboards wave"
+kubectl apply -k "${ROOT}/deploy/dashboards"
+
+log "waiting for the dashboards to reach ManifestSynchronized"
 for dash in "${DASHBOARDS[@]}"; do
-  kubectl get grafanadashboard "${dash}" -n grafana-operator
-  ref="$(kubectl get grafanadashboard "${dash}" -n grafana-operator -o jsonpath='{.spec.oci.reference}')"
-  path="$(kubectl get grafanadashboard "${dash}" -n grafana-operator -o jsonpath='{.spec.oci.path}')"
-  if [[ "${ref}" != "${REGISTRY_HOST}/grafana-dashboards:${OCI_TAG}" ]]; then
-    echo "unexpected oci.reference for ${dash}: ${ref}" >&2
-    exit 1
-  fi
-  # The path is <domain>/<uid>.spec.json. The domain cannot be derived from the
-  # CR name, so assert the shape and that the file the CR points at is one the
-  # push actually shipped.
-  if [[ ! "${path}" =~ ^[a-z0-9-]+/${dash}\.spec\.json$ ]]; then
-    echo "unexpected oci.path for ${dash}: ${path}" >&2
-    exit 1
-  fi
-  if [[ ! -f "${ROOT}/generated/dashboards/${path}" ]]; then
-    echo "oci.path for ${dash} points at a file that was not generated: ${path}" >&2
-    exit 1
-  fi
-done
-
-log "waiting for the operator to create the folders in Grafana"
-for folder in "${FOLDERS[@]}"; do
-  wait_condition grafanafolder "${folder}" FolderSynchronized
-done
-
-log "waiting for the operator to fetch the dashboards from the registry"
-for dash in "${DASHBOARDS[@]}"; do
-  wait_condition grafanadashboard "${dash}" DashboardSynchronized
+  wait_condition grafanamanifest "${dash}" ManifestSynchronized
 done
 
 log "verifying GrafanaAlertRuleGroups"
@@ -269,6 +176,51 @@ if ! kubectl get crd grafanaalertrulegroups.grafana.integreatly.org >/dev/null 2
 fi
 for group in "${ALERT_GROUPS[@]}"; do
   kubectl get grafanaalertrulegroup "${group}" -n grafana-operator
+done
+
+# Reading the board back is the point of this whole section. A CR condition only
+# says the operator finished its own work; on 12.x the legacy path reported
+# success for payloads Grafana could not render. Ask Grafana's own apiserver what
+# it stored, and compare it with what was generated.
+log "port-forwarding Grafana"
+kubectl port-forward -n grafana-operator svc/grafana-service "${GRAFANA_PORT}:3000" \
+  >/tmp/grafana-e2e-portforward.log 2>&1 &
+PF_PID=$!
+for _ in $(seq 1 30); do
+  if curl -fsS "http://127.0.0.1:${GRAFANA_PORT}/api/health" >/dev/null 2>&1; then
+    break
+  fi
+  sleep 2
+done
+curl -fsS "http://127.0.0.1:${GRAFANA_PORT}/api/health" >/dev/null
+
+log "checking Grafana serves dashboard.grafana.app/v2"
+if ! curl -fsS -u admin:admin "http://127.0.0.1:${GRAFANA_PORT}/apis" |
+  grep -q '"dashboard.grafana.app"'; then
+  echo "this Grafana does not serve dashboard.grafana.app; the generated manifests cannot apply" >&2
+  exit 1
+fi
+
+log "reading every dashboard back through /apis"
+for dash in "${DASHBOARDS[@]}"; do
+  domain_spec="$(find "${ROOT}/generated/dashboards" -name "${dash}.spec.json" -print -quit)"
+  if [[ -z "${domain_spec}" ]]; then
+    echo "no generated spec for ${dash}" >&2
+    exit 1
+  fi
+  want_title="$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["title"])' "${domain_spec}")"
+  want_elements="$(python3 -c 'import json,sys; print(len(json.load(open(sys.argv[1]))["elements"]))' "${domain_spec}")"
+
+  stored="$(curl -fsS -u admin:admin \
+    "http://127.0.0.1:${GRAFANA_PORT}/apis/dashboard.grafana.app/v2/namespaces/default/dashboards/${dash}")"
+  got_title="$(printf '%s' "${stored}" | python3 -c 'import json,sys; print(json.load(sys.stdin)["spec"]["title"])')"
+  got_elements="$(printf '%s' "${stored}" | python3 -c 'import json,sys; print(len(json.load(sys.stdin)["spec"]["elements"]))')"
+
+  if [[ "${got_title}" != "${want_title}" || "${got_elements}" != "${want_elements}" ]]; then
+    echo "${dash} read back as title=${got_title} elements=${got_elements}, want title=${want_title} elements=${want_elements}" >&2
+    exit 1
+  fi
+  log "${dash}: ${got_elements} elements, title ${got_title}"
 done
 
 log "e2e smoke checks passed"

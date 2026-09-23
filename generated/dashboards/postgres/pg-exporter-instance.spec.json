@@ -5107,9 +5107,16 @@
         "skipUrlSync": false,
         "query": {
           "kind": "DataQuery",
-          "group": "",
+          "group": "prometheus",
           "version": "v0",
-          "spec": null
+          "datasource": {
+            "name": "prometheus"
+          },
+          "spec": {
+            "qryType": 1,
+            "query": "label_values(pg_up, ins)",
+            "refId": "PrometheusVariableQueryEditor-VariableQuery"
+          }
         },
         "regex": "",
         "regexApplyTo": "value",
@@ -5118,7 +5125,7 @@
         "options": [],
         "multi": false,
         "includeAll": false,
-        "allowCustomValue": true
+        "allowCustomValue": false
       }
     },
     {
@@ -5135,9 +5142,16 @@
         "skipUrlSync": false,
         "query": {
           "kind": "DataQuery",
-          "group": "",
+          "group": "prometheus",
           "version": "v0",
-          "spec": null
+          "datasource": {
+            "name": "prometheus"
+          },
+          "spec": {
+            "qryType": 1,
+            "query": "label_values(pg_up{ins=\"$ins\"}, cls)",
+            "refId": "PrometheusVariableQueryEditor-VariableQuery"
+          }
         },
         "regex": "",
         "regexApplyTo": "value",
@@ -5146,7 +5160,7 @@
         "options": [],
         "multi": false,
         "includeAll": false,
-        "allowCustomValue": true
+        "allowCustomValue": false
       }
     }
   ]

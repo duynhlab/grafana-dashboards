@@ -28,7 +28,7 @@ artifacts and the Grafana Operator. Go under `internal/` is the only source of t
   `Observability`, `Microservices`). A resource also declares a **domain**, its owning Go
   package, from `internal/standards/domains.go` (`kubernetes`, `postgres`,
   `observability`, `microservices`). The two differ for Postgres, and the domain is the
-  directory segment under `generated/` and the prefix of `spec.oci.path`.
+  directory segment under `generated/`.
 - `make validate` must pass before any change is done (fmt, vet, coverage >= 90%,
   generate, clean diff on `generated/` and `deploy/`).
 
@@ -44,7 +44,7 @@ Read only what the task needs.
 | [references/testing.md](references/testing.md) | writing tests, before running `make validate` |
 | [references/multi-agent.md](references/multi-agent.md) | splitting work across several agents or subagents |
 | [references/cicd.md](references/cicd.md) | touching the GitHub Actions workflow or OCI publishing |
-| [references/e2e-kind.md](references/e2e-kind.md) | touching `deploy/`, `spec.oci`, or `test/e2e/kind/` |
+| [references/e2e-kind.md](references/e2e-kind.md) | touching `deploy/` or `test/e2e/kind/` |
 
 ## Repository shape
 
@@ -58,7 +58,7 @@ internal/registry/dashboards.go|alerts.go   the only place resources are registe
 internal/generate/                      renderer; do not touch for new resources
 generated/dashboards/<domain>/          spec.json + manifest.json, mirrors the packages
 generated/alerts/<domain>/              one JSON per rule
-deploy/manifests/                       CRs, flat; filenames carry the UID
+deploy/folders/, deploy/dashboards/     GrafanaManifest CRs, one file per UID
 test/dashboards/                        one contract test per dashboard + alerts_test.go
 ```
 
@@ -140,7 +140,7 @@ generator discovers folders from the registries; do not change `cmd/generate`.
 
 ```bash
 make validate     # gofmt check, go vet, coverage >= 90%, generate, git diff --exit-code generated/ deploy/
-make e2e-kind     # only when deploy/, spec.oci, or test/e2e/kind changed; needs Docker
+make e2e-kind     # only when deploy/ or test/e2e/kind changed; needs Docker
 ```
 
 ## Working with several agents

@@ -12,7 +12,7 @@
         "the board uses panels.* helpers (SeriesExpr, Stat, RowsLayout, Row, GridItem) rather than raw dashboardv2 layout calls",
         "the registry entry sets both a standards.Domain* and a standards.Folder* constant",
         "a contract test asserts title, panel count, variable count, manifest name and key metric fragments",
-        "generated/dashboards/redis/redis.spec.json and deploy/manifests/grafanadashboard-redis.yaml exist after make generate, and the CR spec.oci.path is redis/redis.spec.json",
+        "generated/dashboards/redis/redis.spec.json and deploy/dashboards/grafanamanifest-redis.yaml exist after make generate, and the CR template carries the dashboard.grafana.app/v2 spec inline",
         "the agent reports the make validate result"
       ]
     },
