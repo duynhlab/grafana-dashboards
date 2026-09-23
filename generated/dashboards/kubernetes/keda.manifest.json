@@ -2,23 +2,23 @@
   "apiVersion": "dashboard.grafana.app/v2",
   "kind": "Dashboard",
   "metadata": {
-    "name": "temporal-worker",
+    "name": "keda",
     "namespace": "default",
     "annotations": {
-      "grafana.app/folder": "observability"
+      "grafana.app/folder": "kubernetes"
     }
   },
   "spec": {
     "annotations": [],
     "cursorSync": "Off",
-    "description": "Temporal on the cluster, both halves: SDK/worker metrics (temporal_*) pushed over OTLP by the order-fulfillment worker (pkg/temporalx), and server metrics (service_*, persistence_*, approximate_backlog_*) scraped via the per-role ServiceMonitors the temporalio chart renders (job=~\".*temporal.*\"). See homelab RFC-0001.",
+    "description": "KEDA as the Temporal workers' autoscaler (ADR-055): what the temporal scaler computed per worker version, what the HPA it renders actually did, the server backlog and SDK schedule-to-start it is meant to drain, and KEDA's own health.",
     "editable": true,
     "elements": {
-      "act-failure": {
+      "current-vs-max-replicas": {
         "kind": "Panel",
         "spec": {
           "id": 0,
-          "title": "Activity failure ratio",
+          "title": "Current vs max replicas",
           "description": "",
           "links": [],
           "data": {
@@ -36,260 +36,8 @@
                         "name": "prometheus"
                       },
                       "spec": {
-                        "expr": "(sum(rate(temporal_activity_execution_failed_total{namespace=~\"$namespace\",service_name=~\"$service_name\"}[$__rate_interval])) or vector(0)) / clamp_min(sum(rate(temporal_activity_execution_latency_seconds_count{namespace=~\"$namespace\",service_name=~\"$service_name\"}[$__rate_interval])), 1)",
-                        "legendFormat": "failure ratio"
-                      }
-                    },
-                    "refId": "A",
-                    "hidden": false
-                  }
-                }
-              ],
-              "transformations": [],
-              "queryOptions": {}
-            }
-          },
-          "vizConfig": {
-            "kind": "VizConfig",
-            "group": "timeseries",
-            "version": "",
-            "spec": {
-              "options": {
-                "legend": {
-                  "displayMode": "list",
-                  "placement": "bottom",
-                  "showLegend": false,
-                  "calcs": []
-                },
-                "tooltip": {
-                  "mode": "",
-                  "sort": ""
-                }
-              },
-              "fieldConfig": {
-                "defaults": {
-                  "unit": "percentunit",
-                  "custom": {}
-                },
-                "overrides": []
-              }
-            }
-          }
-        }
-      },
-      "act-latency": {
-        "kind": "Panel",
-        "spec": {
-          "id": 0,
-          "title": "Activity execution latency (p95) by type",
-          "description": "",
-          "links": [],
-          "data": {
-            "kind": "QueryGroup",
-            "spec": {
-              "queries": [
-                {
-                  "kind": "PanelQuery",
-                  "spec": {
-                    "query": {
-                      "kind": "DataQuery",
-                      "group": "prometheus",
-                      "version": "v0",
-                      "datasource": {
-                        "name": "prometheus"
-                      },
-                      "spec": {
-                        "expr": "histogram_quantile(0.95, sum(rate(temporal_activity_execution_latency_seconds_bucket{namespace=~\"$namespace\",service_name=~\"$service_name\"}[$__rate_interval])) by (le, activity_type))",
-                        "legendFormat": "{{activity_type}}"
-                      }
-                    },
-                    "refId": "A",
-                    "hidden": false
-                  }
-                }
-              ],
-              "transformations": [],
-              "queryOptions": {}
-            }
-          },
-          "vizConfig": {
-            "kind": "VizConfig",
-            "group": "timeseries",
-            "version": "",
-            "spec": {
-              "options": {
-                "legend": {
-                  "displayMode": "list",
-                  "placement": "bottom",
-                  "showLegend": false,
-                  "calcs": []
-                },
-                "tooltip": {
-                  "mode": "",
-                  "sort": ""
-                }
-              },
-              "fieldConfig": {
-                "defaults": {
-                  "unit": "s",
-                  "custom": {}
-                },
-                "overrides": []
-              }
-            }
-          }
-        }
-      },
-      "act-rate": {
-        "kind": "Panel",
-        "spec": {
-          "id": 0,
-          "title": "Activity execution rate by type",
-          "description": "",
-          "links": [],
-          "data": {
-            "kind": "QueryGroup",
-            "spec": {
-              "queries": [
-                {
-                  "kind": "PanelQuery",
-                  "spec": {
-                    "query": {
-                      "kind": "DataQuery",
-                      "group": "prometheus",
-                      "version": "v0",
-                      "datasource": {
-                        "name": "prometheus"
-                      },
-                      "spec": {
-                        "expr": "sum(rate(temporal_activity_execution_latency_seconds_count{namespace=~\"$namespace\",service_name=~\"$service_name\"}[$__rate_interval])) by (activity_type)",
-                        "legendFormat": "{{activity_type}}"
-                      }
-                    },
-                    "refId": "A",
-                    "hidden": false
-                  }
-                }
-              ],
-              "transformations": [],
-              "queryOptions": {}
-            }
-          },
-          "vizConfig": {
-            "kind": "VizConfig",
-            "group": "timeseries",
-            "version": "",
-            "spec": {
-              "options": {
-                "legend": {
-                  "displayMode": "list",
-                  "placement": "bottom",
-                  "showLegend": false,
-                  "calcs": []
-                },
-                "tooltip": {
-                  "mode": "",
-                  "sort": ""
-                }
-              },
-              "fieldConfig": {
-                "defaults": {
-                  "unit": "ops",
-                  "custom": {}
-                },
-                "overrides": []
-              }
-            }
-          }
-        }
-      },
-      "act-sched-start": {
-        "kind": "Panel",
-        "spec": {
-          "id": 0,
-          "title": "Activity schedule-to-start latency (p95)",
-          "description": "",
-          "links": [],
-          "data": {
-            "kind": "QueryGroup",
-            "spec": {
-              "queries": [
-                {
-                  "kind": "PanelQuery",
-                  "spec": {
-                    "query": {
-                      "kind": "DataQuery",
-                      "group": "prometheus",
-                      "version": "v0",
-                      "datasource": {
-                        "name": "prometheus"
-                      },
-                      "spec": {
-                        "expr": "histogram_quantile(0.95, sum(rate(temporal_activity_schedule_to_start_latency_seconds_bucket{namespace=~\"$namespace\",service_name=~\"$service_name\"}[$__rate_interval])) by (le, task_queue))",
-                        "legendFormat": "{{task_queue}}"
-                      }
-                    },
-                    "refId": "A",
-                    "hidden": false
-                  }
-                }
-              ],
-              "transformations": [],
-              "queryOptions": {}
-            }
-          },
-          "vizConfig": {
-            "kind": "VizConfig",
-            "group": "timeseries",
-            "version": "",
-            "spec": {
-              "options": {
-                "legend": {
-                  "displayMode": "list",
-                  "placement": "bottom",
-                  "showLegend": false,
-                  "calcs": []
-                },
-                "tooltip": {
-                  "mode": "",
-                  "sort": ""
-                }
-              },
-              "fieldConfig": {
-                "defaults": {
-                  "unit": "s",
-                  "custom": {}
-                },
-                "overrides": []
-              }
-            }
-          }
-        }
-      },
-      "srv-backlog": {
-        "kind": "Panel",
-        "spec": {
-          "id": 0,
-          "title": "Task-queue backlog (server view)",
-          "description": "",
-          "links": [],
-          "data": {
-            "kind": "QueryGroup",
-            "spec": {
-              "queries": [
-                {
-                  "kind": "PanelQuery",
-                  "spec": {
-                    "query": {
-                      "kind": "DataQuery",
-                      "group": "prometheus",
-                      "version": "v0",
-                      "datasource": {
-                        "name": "prometheus"
-                      },
-                      "spec": {
-                        "expr": "sum by (taskqueue, task_type, worker_version) (approximate_backlog_count{job=~\".*temporal.*\"})",
-                        "legendFormat": "backlog {{taskqueue}} {{task_type}} {{worker_version}}"
+                        "expr": "sum by (horizontalpodautoscaler) (kube_horizontalpodautoscaler_status_current_replicas{namespace=~\"$namespace\", horizontalpodautoscaler=~\"keda-hpa-.*\"})",
+                        "legendFormat": "{{horizontalpodautoscaler}} current"
                       }
                     },
                     "refId": "A",
@@ -307,8 +55,8 @@
                         "name": "prometheus"
                       },
                       "spec": {
-                        "expr": "max by (taskqueue, task_type, worker_version) (approximate_backlog_age_seconds{job=~\".*temporal.*\"})",
-                        "legendFormat": "age(s) {{taskqueue}} {{task_type}} {{worker_version}}",
+                        "expr": "sum by (horizontalpodautoscaler) (kube_horizontalpodautoscaler_spec_max_replicas{namespace=~\"$namespace\", horizontalpodautoscaler=~\"keda-hpa-.*\"})",
+                        "legendFormat": "{{horizontalpodautoscaler}} max",
                         "range": true
                       }
                     },
@@ -349,11 +97,11 @@
           }
         }
       },
-      "srv-error-ratio": {
+      "desired-vs-target": {
         "kind": "Panel",
         "spec": {
           "id": 0,
-          "title": "Service error ratio",
+          "title": "Desired vs target (value ÷ targetQueueSize 5)",
           "description": "",
           "links": [],
           "data": {
@@ -371,197 +119,8 @@
                         "name": "prometheus"
                       },
                       "spec": {
-                        "expr": "(sum(rate(service_error_with_type{job=~\".*temporal.*\"}[$__rate_interval])) or vector(0)) / clamp_min(sum(rate(service_requests{job=~\".*temporal.*\"}[$__rate_interval])), 1)",
-                        "legendFormat": "error ratio"
-                      }
-                    },
-                    "refId": "A",
-                    "hidden": false
-                  }
-                }
-              ],
-              "transformations": [],
-              "queryOptions": {}
-            }
-          },
-          "vizConfig": {
-            "kind": "VizConfig",
-            "group": "timeseries",
-            "version": "",
-            "spec": {
-              "options": {
-                "legend": {
-                  "displayMode": "list",
-                  "placement": "bottom",
-                  "showLegend": false,
-                  "calcs": []
-                },
-                "tooltip": {
-                  "mode": "",
-                  "sort": ""
-                }
-              },
-              "fieldConfig": {
-                "defaults": {
-                  "unit": "percentunit",
-                  "custom": {}
-                },
-                "overrides": []
-              }
-            }
-          }
-        }
-      },
-      "srv-grpc-rate": {
-        "kind": "Panel",
-        "spec": {
-          "id": 0,
-          "title": "gRPC request rate by role",
-          "description": "",
-          "links": [],
-          "data": {
-            "kind": "QueryGroup",
-            "spec": {
-              "queries": [
-                {
-                  "kind": "PanelQuery",
-                  "spec": {
-                    "query": {
-                      "kind": "DataQuery",
-                      "group": "prometheus",
-                      "version": "v0",
-                      "datasource": {
-                        "name": "prometheus"
-                      },
-                      "spec": {
-                        "expr": "sum(rate(service_requests{job=~\".*temporal.*\"}[$__rate_interval])) by (service_name)",
-                        "legendFormat": "{{service_name}}"
-                      }
-                    },
-                    "refId": "A",
-                    "hidden": false
-                  }
-                }
-              ],
-              "transformations": [],
-              "queryOptions": {}
-            }
-          },
-          "vizConfig": {
-            "kind": "VizConfig",
-            "group": "timeseries",
-            "version": "",
-            "spec": {
-              "options": {
-                "legend": {
-                  "displayMode": "list",
-                  "placement": "bottom",
-                  "showLegend": false,
-                  "calcs": []
-                },
-                "tooltip": {
-                  "mode": "",
-                  "sort": ""
-                }
-              },
-              "fieldConfig": {
-                "defaults": {
-                  "unit": "reqps",
-                  "custom": {}
-                },
-                "overrides": []
-              }
-            }
-          }
-        }
-      },
-      "srv-latency": {
-        "kind": "Panel",
-        "spec": {
-          "id": 0,
-          "title": "Service latency (p95) by role",
-          "description": "",
-          "links": [],
-          "data": {
-            "kind": "QueryGroup",
-            "spec": {
-              "queries": [
-                {
-                  "kind": "PanelQuery",
-                  "spec": {
-                    "query": {
-                      "kind": "DataQuery",
-                      "group": "prometheus",
-                      "version": "v0",
-                      "datasource": {
-                        "name": "prometheus"
-                      },
-                      "spec": {
-                        "expr": "histogram_quantile(0.95, sum(rate(service_latency_bucket{job=~\".*temporal.*\"}[$__rate_interval])) by (le, service_name))",
-                        "legendFormat": "{{service_name}}"
-                      }
-                    },
-                    "refId": "A",
-                    "hidden": false
-                  }
-                }
-              ],
-              "transformations": [],
-              "queryOptions": {}
-            }
-          },
-          "vizConfig": {
-            "kind": "VizConfig",
-            "group": "timeseries",
-            "version": "",
-            "spec": {
-              "options": {
-                "legend": {
-                  "displayMode": "list",
-                  "placement": "bottom",
-                  "showLegend": false,
-                  "calcs": []
-                },
-                "tooltip": {
-                  "mode": "",
-                  "sort": ""
-                }
-              },
-              "fieldConfig": {
-                "defaults": {
-                  "unit": "s",
-                  "custom": {}
-                },
-                "overrides": []
-              }
-            }
-          }
-        }
-      },
-      "srv-persistence": {
-        "kind": "Panel",
-        "spec": {
-          "id": 0,
-          "title": "Persistence request rate / error ratio",
-          "description": "",
-          "links": [],
-          "data": {
-            "kind": "QueryGroup",
-            "spec": {
-              "queries": [
-                {
-                  "kind": "PanelQuery",
-                  "spec": {
-                    "query": {
-                      "kind": "DataQuery",
-                      "group": "prometheus",
-                      "version": "v0",
-                      "datasource": {
-                        "name": "prometheus"
-                      },
-                      "spec": {
-                        "expr": "sum(rate(persistence_requests{job=~\".*temporal.*\"}[$__rate_interval]))",
-                        "legendFormat": "requests/s"
+                        "expr": "sum by (scaledObject) (keda_scaler_metrics_value{exported_namespace=~\"$namespace\", scaledObject=~\"$scaledObject\"}) / 5",
+                        "legendFormat": "{{scaledObject}} desired"
                       }
                     },
                     "refId": "A",
@@ -579,8 +138,8 @@
                         "name": "prometheus"
                       },
                       "spec": {
-                        "expr": "(sum(rate(persistence_error_with_type{job=~\".*temporal.*\"}[$__rate_interval])) or vector(0)) / clamp_min(sum(rate(persistence_requests{job=~\".*temporal.*\"}[$__rate_interval])), 1)",
-                        "legendFormat": "error ratio",
+                        "expr": "sum by (horizontalpodautoscaler) (kube_horizontalpodautoscaler_status_current_replicas{namespace=~\"$namespace\", horizontalpodautoscaler=~\"keda-hpa-.*\"})",
+                        "legendFormat": "{{horizontalpodautoscaler}} current",
                         "range": true
                       }
                     },
@@ -621,11 +180,11 @@
           }
         }
       },
-      "srv-up": {
+      "keda-version": {
         "kind": "Panel",
         "spec": {
           "id": 0,
-          "title": "Server up",
+          "title": "KEDA version",
           "description": "",
           "links": [],
           "data": {
@@ -643,8 +202,80 @@
                         "name": "prometheus"
                       },
                       "spec": {
-                        "expr": "min(up{job=~\".*temporal.*\"})",
-                        "legendFormat": "up"
+                        "expr": "max(keda_build_info) by (version)"
+                      }
+                    },
+                    "refId": "A",
+                    "hidden": false
+                  }
+                }
+              ],
+              "transformations": [],
+              "queryOptions": {}
+            }
+          },
+          "vizConfig": {
+            "kind": "VizConfig",
+            "group": "stat",
+            "version": "",
+            "spec": {
+              "options": {
+                "graphMode": "area",
+                "colorMode": "value",
+                "justifyMode": "auto",
+                "textMode": "auto",
+                "wideLayout": true,
+                "showPercentChange": false,
+                "reduceOptions": {
+                  "calcs": [
+                    "lastNotNull"
+                  ]
+                },
+                "percentChangeColorMode": "standard",
+                "orientation": ""
+              },
+              "fieldConfig": {
+                "defaults": {
+                  "unit": "none",
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "value": null,
+                        "color": "green"
+                      }
+                    ]
+                  }
+                },
+                "overrides": []
+              }
+            }
+          }
+        }
+      },
+      "metrics-adapter-up": {
+        "kind": "Panel",
+        "spec": {
+          "id": 0,
+          "title": "Metrics adapter up",
+          "description": "",
+          "links": [],
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "prometheus",
+                      "version": "v0",
+                      "datasource": {
+                        "name": "prometheus"
+                      },
+                      "spec": {
+                        "expr": "min(up{job=~\".*keda-metrics-apiserver.*|.*keda-operator-metrics-apiserver.*\"})"
                       }
                     },
                     "refId": "A",
@@ -698,11 +329,11 @@
           }
         }
       },
-      "wf-completion": {
+      "operator-up": {
         "kind": "Panel",
         "spec": {
           "id": 0,
-          "title": "Workflow completion rate",
+          "title": "Operator up",
           "description": "",
           "links": [],
           "data": {
@@ -720,8 +351,7 @@
                         "name": "prometheus"
                       },
                       "spec": {
-                        "expr": "sum(rate(temporal_workflow_completed_total{namespace=~\"$namespace\",service_name=~\"$service_name\",workflow_type=~\"$workflow_type\"}[$__rate_interval])) by (workflow_type, service_name)",
-                        "legendFormat": "{{workflow_type}} ({{service_name}})"
+                        "expr": "min(up{job=~\".*keda-operator.*\"})"
                       }
                     },
                     "refId": "A",
@@ -735,25 +365,39 @@
           },
           "vizConfig": {
             "kind": "VizConfig",
-            "group": "timeseries",
+            "group": "stat",
             "version": "",
             "spec": {
               "options": {
-                "legend": {
-                  "displayMode": "list",
-                  "placement": "bottom",
-                  "showLegend": false,
-                  "calcs": []
+                "graphMode": "area",
+                "colorMode": "value",
+                "justifyMode": "auto",
+                "textMode": "auto",
+                "wideLayout": true,
+                "showPercentChange": false,
+                "reduceOptions": {
+                  "calcs": [
+                    "lastNotNull"
+                  ]
                 },
-                "tooltip": {
-                  "mode": "",
-                  "sort": ""
-                }
+                "percentChangeColorMode": "standard",
+                "orientation": ""
               },
               "fieldConfig": {
                 "defaults": {
-                  "unit": "ops",
-                  "custom": {}
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "value": null,
+                        "color": "red"
+                      },
+                      {
+                        "value": 1,
+                        "color": "green"
+                      }
+                    ]
+                  }
                 },
                 "overrides": []
               }
@@ -761,11 +405,11 @@
           }
         }
       },
-      "wf-failure": {
+      "replica-changes": {
         "kind": "Panel",
         "spec": {
           "id": 0,
-          "title": "Workflow failure ratio",
+          "title": "Replica changes",
           "description": "",
           "links": [],
           "data": {
@@ -783,383 +427,8 @@
                         "name": "prometheus"
                       },
                       "spec": {
-                        "expr": "(sum(rate(temporal_workflow_failed_total{namespace=~\"$namespace\",service_name=~\"$service_name\",workflow_type=~\"$workflow_type\"}[$__rate_interval])) or vector(0)) / clamp_min(sum(rate(temporal_workflow_completed_total{namespace=~\"$namespace\",service_name=~\"$service_name\",workflow_type=~\"$workflow_type\"}[$__rate_interval])) + (sum(rate(temporal_workflow_failed_total{namespace=~\"$namespace\",service_name=~\"$service_name\",workflow_type=~\"$workflow_type\"}[$__rate_interval])) or vector(0)), 1)",
-                        "legendFormat": "failure ratio"
-                      }
-                    },
-                    "refId": "A",
-                    "hidden": false
-                  }
-                }
-              ],
-              "transformations": [],
-              "queryOptions": {}
-            }
-          },
-          "vizConfig": {
-            "kind": "VizConfig",
-            "group": "timeseries",
-            "version": "",
-            "spec": {
-              "options": {
-                "legend": {
-                  "displayMode": "list",
-                  "placement": "bottom",
-                  "showLegend": false,
-                  "calcs": []
-                },
-                "tooltip": {
-                  "mode": "",
-                  "sort": ""
-                }
-              },
-              "fieldConfig": {
-                "defaults": {
-                  "unit": "percentunit",
-                  "custom": {}
-                },
-                "overrides": []
-              }
-            }
-          }
-        }
-      },
-      "wf-latency": {
-        "kind": "Panel",
-        "spec": {
-          "id": 0,
-          "title": "Workflow end-to-end latency",
-          "description": "",
-          "links": [],
-          "data": {
-            "kind": "QueryGroup",
-            "spec": {
-              "queries": [
-                {
-                  "kind": "PanelQuery",
-                  "spec": {
-                    "query": {
-                      "kind": "DataQuery",
-                      "group": "prometheus",
-                      "version": "v0",
-                      "datasource": {
-                        "name": "prometheus"
-                      },
-                      "spec": {
-                        "expr": "histogram_quantile(0.95, sum(rate(temporal_workflow_endtoend_latency_seconds_bucket{namespace=~\"$namespace\",service_name=~\"$service_name\",workflow_type=~\"$workflow_type\"}[$__rate_interval])) by (le))",
-                        "legendFormat": "p95"
-                      }
-                    },
-                    "refId": "A",
-                    "hidden": false
-                  }
-                },
-                {
-                  "kind": "PanelQuery",
-                  "spec": {
-                    "query": {
-                      "kind": "DataQuery",
-                      "group": "prometheus",
-                      "version": "v0",
-                      "datasource": {
-                        "name": "prometheus"
-                      },
-                      "spec": {
-                        "expr": "histogram_quantile(0.99, sum(rate(temporal_workflow_endtoend_latency_seconds_bucket{namespace=~\"$namespace\",service_name=~\"$service_name\",workflow_type=~\"$workflow_type\"}[$__rate_interval])) by (le))",
-                        "legendFormat": "p99",
-                        "range": true
-                      }
-                    },
-                    "refId": "B",
-                    "hidden": false
-                  }
-                }
-              ],
-              "transformations": [],
-              "queryOptions": {}
-            }
-          },
-          "vizConfig": {
-            "kind": "VizConfig",
-            "group": "timeseries",
-            "version": "",
-            "spec": {
-              "options": {
-                "legend": {
-                  "displayMode": "list",
-                  "placement": "bottom",
-                  "showLegend": false,
-                  "calcs": []
-                },
-                "tooltip": {
-                  "mode": "",
-                  "sort": ""
-                }
-              },
-              "fieldConfig": {
-                "defaults": {
-                  "unit": "s",
-                  "custom": {}
-                },
-                "overrides": []
-              }
-            }
-          }
-        }
-      },
-      "wf-poll": {
-        "kind": "Panel",
-        "spec": {
-          "id": 0,
-          "title": "Workflow task poll outcome rate",
-          "description": "",
-          "links": [],
-          "data": {
-            "kind": "QueryGroup",
-            "spec": {
-              "queries": [
-                {
-                  "kind": "PanelQuery",
-                  "spec": {
-                    "query": {
-                      "kind": "DataQuery",
-                      "group": "prometheus",
-                      "version": "v0",
-                      "datasource": {
-                        "name": "prometheus"
-                      },
-                      "spec": {
-                        "expr": "sum(rate(temporal_workflow_task_queue_poll_succeed_total{namespace=~\"$namespace\",service_name=~\"$service_name\"}[$__rate_interval])) by (task_queue)",
-                        "legendFormat": "succeed {{task_queue}}"
-                      }
-                    },
-                    "refId": "A",
-                    "hidden": false
-                  }
-                },
-                {
-                  "kind": "PanelQuery",
-                  "spec": {
-                    "query": {
-                      "kind": "DataQuery",
-                      "group": "prometheus",
-                      "version": "v0",
-                      "datasource": {
-                        "name": "prometheus"
-                      },
-                      "spec": {
-                        "expr": "sum(rate(temporal_workflow_task_queue_poll_empty_total{namespace=~\"$namespace\",service_name=~\"$service_name\"}[$__rate_interval])) by (task_queue)",
-                        "legendFormat": "empty {{task_queue}}",
-                        "range": true
-                      }
-                    },
-                    "refId": "B",
-                    "hidden": false
-                  }
-                }
-              ],
-              "transformations": [],
-              "queryOptions": {}
-            }
-          },
-          "vizConfig": {
-            "kind": "VizConfig",
-            "group": "timeseries",
-            "version": "",
-            "spec": {
-              "options": {
-                "legend": {
-                  "displayMode": "list",
-                  "placement": "bottom",
-                  "showLegend": false,
-                  "calcs": []
-                },
-                "tooltip": {
-                  "mode": "",
-                  "sort": ""
-                }
-              },
-              "fieldConfig": {
-                "defaults": {
-                  "unit": "ops",
-                  "custom": {}
-                },
-                "overrides": []
-              }
-            }
-          }
-        }
-      },
-      "wf-sched-start": {
-        "kind": "Panel",
-        "spec": {
-          "id": 0,
-          "title": "Workflow task schedule-to-start latency",
-          "description": "",
-          "links": [],
-          "data": {
-            "kind": "QueryGroup",
-            "spec": {
-              "queries": [
-                {
-                  "kind": "PanelQuery",
-                  "spec": {
-                    "query": {
-                      "kind": "DataQuery",
-                      "group": "prometheus",
-                      "version": "v0",
-                      "datasource": {
-                        "name": "prometheus"
-                      },
-                      "spec": {
-                        "expr": "histogram_quantile(0.95, sum(rate(temporal_workflow_task_schedule_to_start_latency_seconds_bucket{namespace=~\"$namespace\",service_name=~\"$service_name\"}[$__rate_interval])) by (le, task_queue))",
-                        "legendFormat": "p95 {{task_queue}}"
-                      }
-                    },
-                    "refId": "A",
-                    "hidden": false
-                  }
-                },
-                {
-                  "kind": "PanelQuery",
-                  "spec": {
-                    "query": {
-                      "kind": "DataQuery",
-                      "group": "prometheus",
-                      "version": "v0",
-                      "datasource": {
-                        "name": "prometheus"
-                      },
-                      "spec": {
-                        "expr": "histogram_quantile(0.99, sum(rate(temporal_workflow_task_schedule_to_start_latency_seconds_bucket{namespace=~\"$namespace\",service_name=~\"$service_name\"}[$__rate_interval])) by (le, task_queue))",
-                        "legendFormat": "p99 {{task_queue}}",
-                        "range": true
-                      }
-                    },
-                    "refId": "B",
-                    "hidden": false
-                  }
-                }
-              ],
-              "transformations": [],
-              "queryOptions": {}
-            }
-          },
-          "vizConfig": {
-            "kind": "VizConfig",
-            "group": "timeseries",
-            "version": "",
-            "spec": {
-              "options": {
-                "legend": {
-                  "displayMode": "list",
-                  "placement": "bottom",
-                  "showLegend": false,
-                  "calcs": []
-                },
-                "tooltip": {
-                  "mode": "",
-                  "sort": ""
-                }
-              },
-              "fieldConfig": {
-                "defaults": {
-                  "unit": "s",
-                  "custom": {}
-                },
-                "overrides": []
-              }
-            }
-          }
-        }
-      },
-      "wf-task-exec": {
-        "kind": "Panel",
-        "spec": {
-          "id": 0,
-          "title": "Workflow task execution latency (p95)",
-          "description": "",
-          "links": [],
-          "data": {
-            "kind": "QueryGroup",
-            "spec": {
-              "queries": [
-                {
-                  "kind": "PanelQuery",
-                  "spec": {
-                    "query": {
-                      "kind": "DataQuery",
-                      "group": "prometheus",
-                      "version": "v0",
-                      "datasource": {
-                        "name": "prometheus"
-                      },
-                      "spec": {
-                        "expr": "histogram_quantile(0.95, sum(rate(temporal_workflow_task_execution_latency_seconds_bucket{namespace=~\"$namespace\",service_name=~\"$service_name\"}[$__rate_interval])) by (le, task_queue))",
-                        "legendFormat": "{{task_queue}}"
-                      }
-                    },
-                    "refId": "A",
-                    "hidden": false
-                  }
-                }
-              ],
-              "transformations": [],
-              "queryOptions": {}
-            }
-          },
-          "vizConfig": {
-            "kind": "VizConfig",
-            "group": "timeseries",
-            "version": "",
-            "spec": {
-              "options": {
-                "legend": {
-                  "displayMode": "list",
-                  "placement": "bottom",
-                  "showLegend": false,
-                  "calcs": []
-                },
-                "tooltip": {
-                  "mode": "",
-                  "sort": ""
-                }
-              },
-              "fieldConfig": {
-                "defaults": {
-                  "unit": "s",
-                  "custom": {}
-                },
-                "overrides": []
-              }
-            }
-          }
-        }
-      },
-      "worker-pollers": {
-        "kind": "Panel",
-        "spec": {
-          "id": 0,
-          "title": "Pollers",
-          "description": "",
-          "links": [],
-          "data": {
-            "kind": "QueryGroup",
-            "spec": {
-              "queries": [
-                {
-                  "kind": "PanelQuery",
-                  "spec": {
-                    "query": {
-                      "kind": "DataQuery",
-                      "group": "prometheus",
-                      "version": "v0",
-                      "datasource": {
-                        "name": "prometheus"
-                      },
-                      "spec": {
-                        "expr": "sum(temporal_num_pollers{namespace=~\"$namespace\",service_name=~\"$service_name\"}) by (service_name, poller_type)",
-                        "legendFormat": "{{service_name}}/{{poller_type}}"
+                        "expr": "delta(kube_horizontalpodautoscaler_status_current_replicas{namespace=~\"$namespace\", horizontalpodautoscaler=~\"keda-hpa-.*\"}[$__rate_interval])",
+                        "legendFormat": "{{horizontalpodautoscaler}}"
                       }
                     },
                     "refId": "A",
@@ -1199,11 +468,11 @@
           }
         }
       },
-      "worker-req-error": {
+      "scale-loop-latency": {
         "kind": "Panel",
         "spec": {
           "id": 0,
-          "title": "Worker → server request error ratio",
+          "title": "Scale-loop latency (internal)",
           "description": "",
           "links": [],
           "data": {
@@ -1221,71 +490,8 @@
                         "name": "prometheus"
                       },
                       "spec": {
-                        "expr": "(sum(rate(temporal_request_failure_total{namespace=~\"$namespace\",service_name=~\"$service_name\"}[$__rate_interval])) or vector(0)) / clamp_min(sum(rate(temporal_request_total{namespace=~\"$namespace\",service_name=~\"$service_name\"}[$__rate_interval])), 1)",
-                        "legendFormat": "error ratio"
-                      }
-                    },
-                    "refId": "A",
-                    "hidden": false
-                  }
-                }
-              ],
-              "transformations": [],
-              "queryOptions": {}
-            }
-          },
-          "vizConfig": {
-            "kind": "VizConfig",
-            "group": "timeseries",
-            "version": "",
-            "spec": {
-              "options": {
-                "legend": {
-                  "displayMode": "list",
-                  "placement": "bottom",
-                  "showLegend": false,
-                  "calcs": []
-                },
-                "tooltip": {
-                  "mode": "",
-                  "sort": ""
-                }
-              },
-              "fieldConfig": {
-                "defaults": {
-                  "unit": "percentunit",
-                  "custom": {}
-                },
-                "overrides": []
-              }
-            }
-          }
-        }
-      },
-      "worker-req-latency": {
-        "kind": "Panel",
-        "spec": {
-          "id": 0,
-          "title": "Worker → server request latency (p95)",
-          "description": "",
-          "links": [],
-          "data": {
-            "kind": "QueryGroup",
-            "spec": {
-              "queries": [
-                {
-                  "kind": "PanelQuery",
-                  "spec": {
-                    "query": {
-                      "kind": "DataQuery",
-                      "group": "prometheus",
-                      "version": "v0",
-                      "datasource": {
-                        "name": "prometheus"
-                      },
-                      "spec": {
-                        "expr": "histogram_quantile(0.95, sum(rate(temporal_request_latency_seconds_bucket{namespace=~\"$namespace\",service_name=~\"$service_name\"}[$__rate_interval])) by (le, service_name))",
-                        "legendFormat": "{{service_name}}"
+                        "expr": "max by (scaledObject) (keda_internal_scale_loop_latency_seconds{exported_namespace=~\"$namespace\"})",
+                        "legendFormat": "{{scaledObject}}"
                       }
                     },
                     "refId": "A",
@@ -1325,11 +531,11 @@
           }
         }
       },
-      "worker-slots": {
+      "scaledobject-errors": {
         "kind": "Panel",
         "spec": {
           "id": 0,
-          "title": "Worker task slots",
+          "title": "ScaledObject errors (rate)",
           "description": "",
           "links": [],
           "data": {
@@ -1347,14 +553,58 @@
                         "name": "prometheus"
                       },
                       "spec": {
-                        "expr": "sum(temporal_worker_task_slots_available{namespace=~\"$namespace\",service_name=~\"$service_name\"}) by (service_name, worker_type)",
-                        "legendFormat": "available {{service_name}}/{{worker_type}}"
+                        "expr": "sum by (scaledObject) (rate(keda_scaled_object_errors_total{exported_namespace=~\"$namespace\", scaledObject=~\"$scaledObject\"}[$__rate_interval]))",
+                        "legendFormat": "{{scaledObject}}"
                       }
                     },
                     "refId": "A",
                     "hidden": false
                   }
+                }
+              ],
+              "transformations": [],
+              "queryOptions": {}
+            }
+          },
+          "vizConfig": {
+            "kind": "VizConfig",
+            "group": "timeseries",
+            "version": "",
+            "spec": {
+              "options": {
+                "legend": {
+                  "displayMode": "list",
+                  "placement": "bottom",
+                  "showLegend": false,
+                  "calcs": []
                 },
+                "tooltip": {
+                  "mode": "",
+                  "sort": ""
+                }
+              },
+              "fieldConfig": {
+                "defaults": {
+                  "unit": "ops",
+                  "custom": {}
+                },
+                "overrides": []
+              }
+            }
+          }
+        }
+      },
+      "scaledobjects-registered": {
+        "kind": "Panel",
+        "spec": {
+          "id": 0,
+          "title": "ScaledObjects registered",
+          "description": "",
+          "links": [],
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
                 {
                   "kind": "PanelQuery",
                   "spec": {
@@ -1366,12 +616,292 @@
                         "name": "prometheus"
                       },
                       "spec": {
-                        "expr": "sum(temporal_worker_task_slots_used{namespace=~\"$namespace\",service_name=~\"$service_name\"}) by (service_name, worker_type)",
-                        "legendFormat": "used {{service_name}}/{{worker_type}}",
-                        "range": true
+                        "expr": "sum(keda_resource_registered_total{type=\"scaled_object\"})"
                       }
                     },
-                    "refId": "B",
+                    "refId": "A",
+                    "hidden": false
+                  }
+                }
+              ],
+              "transformations": [],
+              "queryOptions": {}
+            }
+          },
+          "vizConfig": {
+            "kind": "VizConfig",
+            "group": "stat",
+            "version": "",
+            "spec": {
+              "options": {
+                "graphMode": "area",
+                "colorMode": "value",
+                "justifyMode": "auto",
+                "textMode": "auto",
+                "wideLayout": true,
+                "showPercentChange": false,
+                "reduceOptions": {
+                  "calcs": [
+                    "lastNotNull"
+                  ]
+                },
+                "percentChangeColorMode": "standard",
+                "orientation": ""
+              },
+              "fieldConfig": {
+                "defaults": {
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "value": null,
+                        "color": "green"
+                      }
+                    ]
+                  }
+                },
+                "overrides": []
+              }
+            }
+          }
+        }
+      },
+      "scaler-active": {
+        "kind": "Panel",
+        "spec": {
+          "id": 0,
+          "title": "Scaler active",
+          "description": "",
+          "links": [],
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "prometheus",
+                      "version": "v0",
+                      "datasource": {
+                        "name": "prometheus"
+                      },
+                      "spec": {
+                        "expr": "max by (scaledObject) (keda_scaler_active{exported_namespace=~\"$namespace\", scaledObject=~\"$scaledObject\"})",
+                        "legendFormat": "{{scaledObject}}"
+                      }
+                    },
+                    "refId": "A",
+                    "hidden": false
+                  }
+                }
+              ],
+              "transformations": [],
+              "queryOptions": {}
+            }
+          },
+          "vizConfig": {
+            "kind": "VizConfig",
+            "group": "state-timeline",
+            "version": "",
+            "spec": {
+              "options": {
+                "showValue": "never",
+                "rowHeight": 0.9,
+                "mergeValues": true,
+                "alignValue": "left",
+                "legend": {
+                  "displayMode": "list",
+                  "placement": "bottom",
+                  "showLegend": false,
+                  "calcs": []
+                },
+                "tooltip": {
+                  "mode": "",
+                  "sort": ""
+                },
+                "perPage": 20
+              },
+              "fieldConfig": {
+                "defaults": {
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "value": null,
+                        "color": "transparent"
+                      },
+                      {
+                        "value": 1,
+                        "color": "green"
+                      }
+                    ]
+                  },
+                  "custom": {
+                    "lineWidth": 0,
+                    "fillOpacity": 70
+                  }
+                },
+                "overrides": []
+              }
+            }
+          }
+        }
+      },
+      "scaler-errors": {
+        "kind": "Panel",
+        "spec": {
+          "id": 0,
+          "title": "Scaler errors (rate)",
+          "description": "",
+          "links": [],
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "prometheus",
+                      "version": "v0",
+                      "datasource": {
+                        "name": "prometheus"
+                      },
+                      "spec": {
+                        "expr": "sum by (scaledObject, scaler) (rate(keda_scaler_detail_errors_total{exported_namespace=~\"$namespace\", scaledObject=~\"$scaledObject\"}[$__rate_interval]))",
+                        "legendFormat": "{{scaledObject}} / {{scaler}}"
+                      }
+                    },
+                    "refId": "A",
+                    "hidden": false
+                  }
+                }
+              ],
+              "transformations": [],
+              "queryOptions": {}
+            }
+          },
+          "vizConfig": {
+            "kind": "VizConfig",
+            "group": "timeseries",
+            "version": "",
+            "spec": {
+              "options": {
+                "legend": {
+                  "displayMode": "list",
+                  "placement": "bottom",
+                  "showLegend": false,
+                  "calcs": []
+                },
+                "tooltip": {
+                  "mode": "",
+                  "sort": ""
+                }
+              },
+              "fieldConfig": {
+                "defaults": {
+                  "unit": "ops",
+                  "custom": {}
+                },
+                "overrides": []
+              }
+            }
+          }
+        }
+      },
+      "scaler-metric-latency": {
+        "kind": "Panel",
+        "spec": {
+          "id": 0,
+          "title": "Scaler metric latency (last fetch)",
+          "description": "",
+          "links": [],
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "prometheus",
+                      "version": "v0",
+                      "datasource": {
+                        "name": "prometheus"
+                      },
+                      "spec": {
+                        "expr": "max by (scaler, scaledObject) (keda_scaler_metrics_latency_seconds{exported_namespace=~\"$namespace\"})",
+                        "legendFormat": "{{scaler}}"
+                      }
+                    },
+                    "refId": "A",
+                    "hidden": false
+                  }
+                }
+              ],
+              "transformations": [],
+              "queryOptions": {}
+            }
+          },
+          "vizConfig": {
+            "kind": "VizConfig",
+            "group": "timeseries",
+            "version": "",
+            "spec": {
+              "options": {
+                "legend": {
+                  "displayMode": "list",
+                  "placement": "bottom",
+                  "showLegend": false,
+                  "calcs": []
+                },
+                "tooltip": {
+                  "mode": "",
+                  "sort": ""
+                }
+              },
+              "fieldConfig": {
+                "defaults": {
+                  "unit": "s",
+                  "custom": {}
+                },
+                "overrides": []
+              }
+            }
+          }
+        }
+      },
+      "scaler-metric-value": {
+        "kind": "Panel",
+        "spec": {
+          "id": 0,
+          "title": "Scaler metric value (backlog per worker version)",
+          "description": "",
+          "links": [],
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "prometheus",
+                      "version": "v0",
+                      "datasource": {
+                        "name": "prometheus"
+                      },
+                      "spec": {
+                        "expr": "sum by (scaledObject) (keda_scaler_metrics_value{exported_namespace=~\"$namespace\", scaledObject=~\"$scaledObject\"})",
+                        "legendFormat": "{{scaledObject}}"
+                      }
+                    },
+                    "refId": "A",
                     "hidden": false
                   }
                 }
@@ -1408,11 +938,11 @@
           }
         }
       },
-      "worker-sticky-cache": {
+      "schedule-to-start-p99": {
         "kind": "Panel",
         "spec": {
           "id": 0,
-          "title": "Sticky cache",
+          "title": "Schedule-to-start p99 by task type (SDK)",
           "description": "",
           "links": [],
           "data": {
@@ -1430,14 +960,58 @@
                         "name": "prometheus"
                       },
                       "spec": {
-                        "expr": "sum(temporal_sticky_cache_size{namespace=~\"$namespace\",service_name=~\"$service_name\"}) by (service_name)",
-                        "legendFormat": "size {{service_name}}"
+                        "expr": "label_replace(histogram_quantile(0.99, sum by (le, task_queue) (rate(temporal_workflow_task_schedule_to_start_latency_seconds_bucket[$__rate_interval]))), \"task_type\", \"Workflow\", \"\", \"\") or label_replace(histogram_quantile(0.99, sum by (le, task_queue) (rate(temporal_activity_schedule_to_start_latency_seconds_bucket[$__rate_interval]))), \"task_type\", \"Activity\", \"\", \"\")",
+                        "legendFormat": "{{task_type}} {{task_queue}}"
                       }
                     },
                     "refId": "A",
                     "hidden": false
                   }
+                }
+              ],
+              "transformations": [],
+              "queryOptions": {}
+            }
+          },
+          "vizConfig": {
+            "kind": "VizConfig",
+            "group": "timeseries",
+            "version": "",
+            "spec": {
+              "options": {
+                "legend": {
+                  "displayMode": "list",
+                  "placement": "bottom",
+                  "showLegend": false,
+                  "calcs": []
                 },
+                "tooltip": {
+                  "mode": "",
+                  "sort": ""
+                }
+              },
+              "fieldConfig": {
+                "defaults": {
+                  "unit": "s",
+                  "custom": {}
+                },
+                "overrides": []
+              }
+            }
+          }
+        }
+      },
+      "taskqueue-backlog": {
+        "kind": "Panel",
+        "spec": {
+          "id": 0,
+          "title": "Task-queue backlog (server; summed over partition only)",
+          "description": "",
+          "links": [],
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
                 {
                   "kind": "PanelQuery",
                   "spec": {
@@ -1449,15 +1023,58 @@
                         "name": "prometheus"
                       },
                       "spec": {
-                        "expr": "sum(rate(temporal_sticky_cache_hit_total{namespace=~\"$namespace\",service_name=~\"$service_name\"}[$__rate_interval])) by (service_name)",
-                        "legendFormat": "hit/s {{service_name}}",
-                        "range": true
+                        "expr": "sum by (taskqueue, task_type, worker_version) (approximate_backlog_count{job=~\".*temporal.*\"})",
+                        "legendFormat": "{{taskqueue}} {{task_type}} {{worker_version}}"
                       }
                     },
-                    "refId": "B",
+                    "refId": "A",
                     "hidden": false
                   }
+                }
+              ],
+              "transformations": [],
+              "queryOptions": {}
+            }
+          },
+          "vizConfig": {
+            "kind": "VizConfig",
+            "group": "timeseries",
+            "version": "",
+            "spec": {
+              "options": {
+                "legend": {
+                  "displayMode": "list",
+                  "placement": "bottom",
+                  "showLegend": false,
+                  "calcs": []
                 },
+                "tooltip": {
+                  "mode": "",
+                  "sort": ""
+                }
+              },
+              "fieldConfig": {
+                "defaults": {
+                  "unit": "short",
+                  "custom": {}
+                },
+                "overrides": []
+              }
+            }
+          }
+        }
+      },
+      "temporal-triggers-registered": {
+        "kind": "Panel",
+        "spec": {
+          "id": 0,
+          "title": "temporal triggers registered",
+          "description": "",
+          "links": [],
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
                 {
                   "kind": "PanelQuery",
                   "spec": {
@@ -1469,12 +1086,83 @@
                         "name": "prometheus"
                       },
                       "spec": {
-                        "expr": "sum(rate(temporal_sticky_cache_forced_eviction_total{namespace=~\"$namespace\",service_name=~\"$service_name\"}[$__rate_interval])) by (service_name)",
-                        "legendFormat": "evictions/s {{service_name}}",
-                        "range": true
+                        "expr": "sum(keda_trigger_registered_total{type=\"temporal\"})"
                       }
                     },
-                    "refId": "C",
+                    "refId": "A",
+                    "hidden": false
+                  }
+                }
+              ],
+              "transformations": [],
+              "queryOptions": {}
+            }
+          },
+          "vizConfig": {
+            "kind": "VizConfig",
+            "group": "stat",
+            "version": "",
+            "spec": {
+              "options": {
+                "graphMode": "area",
+                "colorMode": "value",
+                "justifyMode": "auto",
+                "textMode": "auto",
+                "wideLayout": true,
+                "showPercentChange": false,
+                "reduceOptions": {
+                  "calcs": [
+                    "lastNotNull"
+                  ]
+                },
+                "percentChangeColorMode": "standard",
+                "orientation": ""
+              },
+              "fieldConfig": {
+                "defaults": {
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "value": null,
+                        "color": "green"
+                      }
+                    ]
+                  }
+                },
+                "overrides": []
+              }
+            }
+          }
+        }
+      },
+      "worker-replicas": {
+        "kind": "Panel",
+        "spec": {
+          "id": 0,
+          "title": "Worker replicas (versioned Deployments)",
+          "description": "",
+          "links": [],
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "prometheus",
+                      "version": "v0",
+                      "datasource": {
+                        "name": "prometheus"
+                      },
+                      "spec": {
+                        "expr": "sum by (namespace, deployment) (kube_deployment_status_replicas{namespace=~\"$namespace\", deployment=~\"$deployment\"})",
+                        "legendFormat": "{{namespace}}/{{deployment}}"
+                      }
+                    },
+                    "refId": "A",
                     "hidden": false
                   }
                 }
@@ -1519,7 +1207,7 @@
           {
             "kind": "RowsLayoutRow",
             "spec": {
-              "title": "Workflows",
+              "title": "Scaler — what KEDA computed",
               "layout": {
                 "kind": "GridLayout",
                 "spec": {
@@ -1533,7 +1221,7 @@
                         "height": 8,
                         "element": {
                           "kind": "ElementReference",
-                          "name": "wf-completion"
+                          "name": "scaler-metric-value"
                         }
                       }
                     },
@@ -1546,7 +1234,7 @@
                         "height": 8,
                         "element": {
                           "kind": "ElementReference",
-                          "name": "wf-failure"
+                          "name": "desired-vs-target"
                         }
                       }
                     },
@@ -1556,10 +1244,10 @@
                         "x": 0,
                         "y": 8,
                         "width": 12,
-                        "height": 8,
+                        "height": 6,
                         "element": {
                           "kind": "ElementReference",
-                          "name": "wf-latency"
+                          "name": "scaler-active"
                         }
                       }
                     },
@@ -1569,10 +1257,10 @@
                         "x": 12,
                         "y": 8,
                         "width": 12,
-                        "height": 8,
+                        "height": 6,
                         "element": {
                           "kind": "ElementReference",
-                          "name": "wf-sched-start"
+                          "name": "scaler-metric-latency"
                         }
                       }
                     },
@@ -1580,12 +1268,12 @@
                       "kind": "GridLayoutItem",
                       "spec": {
                         "x": 0,
-                        "y": 16,
+                        "y": 14,
                         "width": 12,
-                        "height": 8,
+                        "height": 7,
                         "element": {
                           "kind": "ElementReference",
-                          "name": "wf-task-exec"
+                          "name": "scaler-errors"
                         }
                       }
                     },
@@ -1593,12 +1281,12 @@
                       "kind": "GridLayoutItem",
                       "spec": {
                         "x": 12,
-                        "y": 16,
+                        "y": 14,
                         "width": 12,
-                        "height": 8,
+                        "height": 7,
                         "element": {
                           "kind": "ElementReference",
-                          "name": "wf-poll"
+                          "name": "scaledobject-errors"
                         }
                       }
                     }
@@ -1610,7 +1298,7 @@
           {
             "kind": "RowsLayoutRow",
             "spec": {
-              "title": "Activities",
+              "title": "Scale target — what the HPA did",
               "layout": {
                 "kind": "GridLayout",
                 "spec": {
@@ -1624,7 +1312,7 @@
                         "height": 8,
                         "element": {
                           "kind": "ElementReference",
-                          "name": "act-rate"
+                          "name": "current-vs-max-replicas"
                         }
                       }
                     },
@@ -1637,33 +1325,7 @@
                         "height": 8,
                         "element": {
                           "kind": "ElementReference",
-                          "name": "act-failure"
-                        }
-                      }
-                    },
-                    {
-                      "kind": "GridLayoutItem",
-                      "spec": {
-                        "x": 0,
-                        "y": 8,
-                        "width": 12,
-                        "height": 8,
-                        "element": {
-                          "kind": "ElementReference",
-                          "name": "act-latency"
-                        }
-                      }
-                    },
-                    {
-                      "kind": "GridLayoutItem",
-                      "spec": {
-                        "x": 12,
-                        "y": 8,
-                        "width": 12,
-                        "height": 8,
-                        "element": {
-                          "kind": "ElementReference",
-                          "name": "act-sched-start"
+                          "name": "replica-changes"
                         }
                       }
                     }
@@ -1675,7 +1337,7 @@
           {
             "kind": "RowsLayoutRow",
             "spec": {
-              "title": "Worker / SDK",
+              "title": "Temporal — the signal being scaled on",
               "layout": {
                 "kind": "GridLayout",
                 "spec": {
@@ -1685,37 +1347,11 @@
                       "spec": {
                         "x": 0,
                         "y": 0,
-                        "width": 12,
-                        "height": 8,
-                        "element": {
-                          "kind": "ElementReference",
-                          "name": "worker-slots"
-                        }
-                      }
-                    },
-                    {
-                      "kind": "GridLayoutItem",
-                      "spec": {
-                        "x": 12,
-                        "y": 0,
-                        "width": 12,
-                        "height": 8,
-                        "element": {
-                          "kind": "ElementReference",
-                          "name": "worker-pollers"
-                        }
-                      }
-                    },
-                    {
-                      "kind": "GridLayoutItem",
-                      "spec": {
-                        "x": 0,
-                        "y": 8,
                         "width": 8,
                         "height": 8,
                         "element": {
                           "kind": "ElementReference",
-                          "name": "worker-req-error"
+                          "name": "taskqueue-backlog"
                         }
                       }
                     },
@@ -1723,12 +1359,12 @@
                       "kind": "GridLayoutItem",
                       "spec": {
                         "x": 8,
-                        "y": 8,
+                        "y": 0,
                         "width": 8,
                         "height": 8,
                         "element": {
                           "kind": "ElementReference",
-                          "name": "worker-req-latency"
+                          "name": "worker-replicas"
                         }
                       }
                     },
@@ -1736,12 +1372,12 @@
                       "kind": "GridLayoutItem",
                       "spec": {
                         "x": 16,
-                        "y": 8,
+                        "y": 0,
                         "width": 8,
                         "height": 8,
                         "element": {
                           "kind": "ElementReference",
-                          "name": "worker-sticky-cache"
+                          "name": "schedule-to-start-p99"
                         }
                       }
                     }
@@ -1753,7 +1389,7 @@
           {
             "kind": "RowsLayoutRow",
             "spec": {
-              "title": "Server",
+              "title": "KEDA health",
               "layout": {
                 "kind": "GridLayout",
                 "spec": {
@@ -1764,10 +1400,10 @@
                         "x": 0,
                         "y": 0,
                         "width": 4,
-                        "height": 8,
+                        "height": 5,
                         "element": {
                           "kind": "ElementReference",
-                          "name": "srv-up"
+                          "name": "operator-up"
                         }
                       }
                     },
@@ -1776,37 +1412,11 @@
                       "spec": {
                         "x": 4,
                         "y": 0,
-                        "width": 10,
-                        "height": 8,
+                        "width": 4,
+                        "height": 5,
                         "element": {
                           "kind": "ElementReference",
-                          "name": "srv-grpc-rate"
-                        }
-                      }
-                    },
-                    {
-                      "kind": "GridLayoutItem",
-                      "spec": {
-                        "x": 14,
-                        "y": 0,
-                        "width": 10,
-                        "height": 8,
-                        "element": {
-                          "kind": "ElementReference",
-                          "name": "srv-error-ratio"
-                        }
-                      }
-                    },
-                    {
-                      "kind": "GridLayoutItem",
-                      "spec": {
-                        "x": 0,
-                        "y": 8,
-                        "width": 8,
-                        "height": 8,
-                        "element": {
-                          "kind": "ElementReference",
-                          "name": "srv-latency"
+                          "name": "metrics-adapter-up"
                         }
                       }
                     },
@@ -1814,12 +1424,25 @@
                       "kind": "GridLayoutItem",
                       "spec": {
                         "x": 8,
-                        "y": 8,
-                        "width": 8,
-                        "height": 8,
+                        "y": 0,
+                        "width": 4,
+                        "height": 5,
                         "element": {
                           "kind": "ElementReference",
-                          "name": "srv-persistence"
+                          "name": "scaledobjects-registered"
+                        }
+                      }
+                    },
+                    {
+                      "kind": "GridLayoutItem",
+                      "spec": {
+                        "x": 12,
+                        "y": 0,
+                        "width": 4,
+                        "height": 5,
+                        "element": {
+                          "kind": "ElementReference",
+                          "name": "temporal-triggers-registered"
                         }
                       }
                     },
@@ -1827,12 +1450,25 @@
                       "kind": "GridLayoutItem",
                       "spec": {
                         "x": 16,
-                        "y": 8,
+                        "y": 0,
                         "width": 8,
-                        "height": 8,
+                        "height": 5,
                         "element": {
                           "kind": "ElementReference",
-                          "name": "srv-backlog"
+                          "name": "keda-version"
+                        }
+                      }
+                    },
+                    {
+                      "kind": "GridLayoutItem",
+                      "spec": {
+                        "x": 0,
+                        "y": 5,
+                        "width": 24,
+                        "height": 6,
+                        "element": {
+                          "kind": "ElementReference",
+                          "name": "scale-loop-latency"
                         }
                       }
                     }
@@ -1847,15 +1483,14 @@
     "links": [],
     "preload": false,
     "tags": [
+      "keda",
       "temporal",
-      "observability",
-      "workflow",
       "generated",
       "foundation-sdk"
     ],
     "timeSettings": {
       "timezone": "browser",
-      "from": "now-6h",
+      "from": "now-3h",
       "to": "now",
       "autoRefresh": "30s",
       "autoRefreshIntervals": [
@@ -1873,7 +1508,7 @@
       "hideTimepicker": false,
       "fiscalYearStartMonth": 0
     },
-    "title": "Temporal — Workflows \u0026 Activities",
+    "title": "KEDA — Worker Autoscaling",
     "variables": [
       {
         "kind": "QueryVariable",
@@ -1896,14 +1531,14 @@
             },
             "spec": {
               "qryType": 1,
-              "query": "label_values(temporal_worker_task_slots_available, namespace)",
+              "query": "label_values(keda_scaler_active, exported_namespace)",
               "refId": "PrometheusVariableQueryEditor-VariableQuery"
             }
           },
           "regex": "",
           "regexApplyTo": "value",
           "sort": "alphabeticalAsc",
-          "definition": "label_values(temporal_worker_task_slots_available, namespace)",
+          "definition": "label_values(keda_scaler_active, exported_namespace)",
           "options": [],
           "multi": true,
           "includeAll": true,
@@ -1913,12 +1548,12 @@
       {
         "kind": "QueryVariable",
         "spec": {
-          "name": "service_name",
+          "name": "scaledObject",
           "current": {
             "text": "All",
             "value": "$__all"
           },
-          "label": "Service",
+          "label": "Scaled Object",
           "hide": "dontHide",
           "refresh": "onDashboardLoad",
           "skipUrlSync": false,
@@ -1931,14 +1566,14 @@
             },
             "spec": {
               "qryType": 1,
-              "query": "label_values(temporal_worker_task_slots_available{namespace=~\"$namespace\"}, service_name)",
+              "query": "label_values(keda_scaler_active{exported_namespace=~\"$namespace\"}, scaledObject)",
               "refId": "PrometheusVariableQueryEditor-VariableQuery"
             }
           },
           "regex": "",
           "regexApplyTo": "value",
           "sort": "alphabeticalAsc",
-          "definition": "label_values(temporal_worker_task_slots_available{namespace=~\"$namespace\"}, service_name)",
+          "definition": "label_values(keda_scaler_active{exported_namespace=~\"$namespace\"}, scaledObject)",
           "options": [],
           "multi": true,
           "includeAll": true,
@@ -1948,12 +1583,12 @@
       {
         "kind": "QueryVariable",
         "spec": {
-          "name": "workflow_type",
+          "name": "deployment",
           "current": {
             "text": "All",
             "value": "$__all"
           },
-          "label": "Workflow type",
+          "label": "Deployment",
           "hide": "dontHide",
           "refresh": "onDashboardLoad",
           "skipUrlSync": false,
@@ -1966,14 +1601,14 @@
             },
             "spec": {
               "qryType": 1,
-              "query": "label_values(temporal_workflow_completed_total{namespace=~\"$namespace\"}, workflow_type)",
+              "query": "label_values(kube_deployment_status_replicas{namespace=~\"$namespace\"}, deployment)",
               "refId": "PrometheusVariableQueryEditor-VariableQuery"
             }
           },
           "regex": "",
           "regexApplyTo": "value",
           "sort": "alphabeticalAsc",
-          "definition": "label_values(temporal_workflow_completed_total{namespace=~\"$namespace\"}, workflow_type)",
+          "definition": "label_values(kube_deployment_status_replicas{namespace=~\"$namespace\"}, deployment)",
           "options": [],
           "multi": true,
           "includeAll": true,

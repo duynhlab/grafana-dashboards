@@ -4,7 +4,7 @@ kind: GrafanaManifest
 metadata:
     labels:
         app.kubernetes.io/part-of: grafana-dashboards-as-code
-    name: temporal-worker
+    name: eg-edge
 spec:
     instanceSelector:
         matchLabels:
@@ -15,16 +15,16 @@ spec:
         kind: Dashboard
         metadata:
             annotations:
-                grafana.app/folder: observability
-            name: temporal-worker
+                grafana.app/folder: api-gateway
+            name: eg-edge
             namespace: default
         spec:
             annotations: []
             cursorSync: "Off"
-            description: 'Temporal on the cluster, both halves: SDK/worker metrics (temporal_*) pushed over OTLP by the order-fulfillment worker (pkg/temporalx), and server metrics (service_*, persistence_*, approximate_backlog_*) scraped via the per-role ServiceMonitors the temporalio chart renders (job=~".*temporal.*"). See homelab RFC-0001.'
+            description: 'Edge SRE view of the Envoy Gateway install: golden signals on the data plane (job=envoy-gateway), control-plane health (job=envoy-gateway-controller), and process-level infrastructure.'
             editable: true
             elements:
-                act-failure:
+                active-connections:
                     kind: Panel
                     spec:
                         data:
@@ -40,188 +40,8 @@ spec:
                                             group: prometheus
                                             kind: DataQuery
                                             spec:
-                                                expr: (sum(rate(temporal_activity_execution_failed_total{namespace=~"$namespace",service_name=~"$service_name"}[$__rate_interval])) or vector(0)) / clamp_min(sum(rate(temporal_activity_execution_latency_seconds_count{namespace=~"$namespace",service_name=~"$service_name"}[$__rate_interval])), 1)
-                                                legendFormat: failure ratio
-                                            version: v0
-                                        refId: A
-                                queryOptions: {}
-                                transformations: []
-                        description: ""
-                        id: 0
-                        links: []
-                        title: Activity failure ratio
-                        vizConfig:
-                            group: timeseries
-                            kind: VizConfig
-                            spec:
-                                fieldConfig:
-                                    defaults:
-                                        custom: {}
-                                        unit: percentunit
-                                    overrides: []
-                                options:
-                                    legend:
-                                        calcs: []
-                                        displayMode: list
-                                        placement: bottom
-                                        showLegend: false
-                                    tooltip:
-                                        mode: ""
-                                        sort: ""
-                            version: ""
-                act-latency:
-                    kind: Panel
-                    spec:
-                        data:
-                            kind: QueryGroup
-                            spec:
-                                queries:
-                                    - kind: PanelQuery
-                                      spec:
-                                        hidden: false
-                                        query:
-                                            datasource:
-                                                name: prometheus
-                                            group: prometheus
-                                            kind: DataQuery
-                                            spec:
-                                                expr: histogram_quantile(0.95, sum(rate(temporal_activity_execution_latency_seconds_bucket{namespace=~"$namespace",service_name=~"$service_name"}[$__rate_interval])) by (le, activity_type))
-                                                legendFormat: '{{activity_type}}'
-                                            version: v0
-                                        refId: A
-                                queryOptions: {}
-                                transformations: []
-                        description: ""
-                        id: 0
-                        links: []
-                        title: Activity execution latency (p95) by type
-                        vizConfig:
-                            group: timeseries
-                            kind: VizConfig
-                            spec:
-                                fieldConfig:
-                                    defaults:
-                                        custom: {}
-                                        unit: s
-                                    overrides: []
-                                options:
-                                    legend:
-                                        calcs: []
-                                        displayMode: list
-                                        placement: bottom
-                                        showLegend: false
-                                    tooltip:
-                                        mode: ""
-                                        sort: ""
-                            version: ""
-                act-rate:
-                    kind: Panel
-                    spec:
-                        data:
-                            kind: QueryGroup
-                            spec:
-                                queries:
-                                    - kind: PanelQuery
-                                      spec:
-                                        hidden: false
-                                        query:
-                                            datasource:
-                                                name: prometheus
-                                            group: prometheus
-                                            kind: DataQuery
-                                            spec:
-                                                expr: sum(rate(temporal_activity_execution_latency_seconds_count{namespace=~"$namespace",service_name=~"$service_name"}[$__rate_interval])) by (activity_type)
-                                                legendFormat: '{{activity_type}}'
-                                            version: v0
-                                        refId: A
-                                queryOptions: {}
-                                transformations: []
-                        description: ""
-                        id: 0
-                        links: []
-                        title: Activity execution rate by type
-                        vizConfig:
-                            group: timeseries
-                            kind: VizConfig
-                            spec:
-                                fieldConfig:
-                                    defaults:
-                                        custom: {}
-                                        unit: ops
-                                    overrides: []
-                                options:
-                                    legend:
-                                        calcs: []
-                                        displayMode: list
-                                        placement: bottom
-                                        showLegend: false
-                                    tooltip:
-                                        mode: ""
-                                        sort: ""
-                            version: ""
-                act-sched-start:
-                    kind: Panel
-                    spec:
-                        data:
-                            kind: QueryGroup
-                            spec:
-                                queries:
-                                    - kind: PanelQuery
-                                      spec:
-                                        hidden: false
-                                        query:
-                                            datasource:
-                                                name: prometheus
-                                            group: prometheus
-                                            kind: DataQuery
-                                            spec:
-                                                expr: histogram_quantile(0.95, sum(rate(temporal_activity_schedule_to_start_latency_seconds_bucket{namespace=~"$namespace",service_name=~"$service_name"}[$__rate_interval])) by (le, task_queue))
-                                                legendFormat: '{{task_queue}}'
-                                            version: v0
-                                        refId: A
-                                queryOptions: {}
-                                transformations: []
-                        description: ""
-                        id: 0
-                        links: []
-                        title: Activity schedule-to-start latency (p95)
-                        vizConfig:
-                            group: timeseries
-                            kind: VizConfig
-                            spec:
-                                fieldConfig:
-                                    defaults:
-                                        custom: {}
-                                        unit: s
-                                    overrides: []
-                                options:
-                                    legend:
-                                        calcs: []
-                                        displayMode: list
-                                        placement: bottom
-                                        showLegend: false
-                                    tooltip:
-                                        mode: ""
-                                        sort: ""
-                            version: ""
-                srv-backlog:
-                    kind: Panel
-                    spec:
-                        data:
-                            kind: QueryGroup
-                            spec:
-                                queries:
-                                    - kind: PanelQuery
-                                      spec:
-                                        hidden: false
-                                        query:
-                                            datasource:
-                                                name: prometheus
-                                            group: prometheus
-                                            kind: DataQuery
-                                            spec:
-                                                expr: sum by (taskqueue, task_type, worker_version) (approximate_backlog_count{job=~".*temporal.*"})
-                                                legendFormat: backlog {{taskqueue}} {{task_type}} {{worker_version}}
+                                                expr: sum(envoy_http_downstream_cx_active{job="envoy-gateway",envoy_http_conn_manager_prefix=~"https?-.*"})
+                                                legendFormat: downstream (edge HTTP)
                                             version: v0
                                         refId: A
                                     - kind: PanelQuery
@@ -233,17 +53,31 @@ spec:
                                             group: prometheus
                                             kind: DataQuery
                                             spec:
-                                                expr: max by (taskqueue, task_type, worker_version) (approximate_backlog_age_seconds{job=~".*temporal.*"})
-                                                legendFormat: age(s) {{taskqueue}} {{task_type}} {{worker_version}}
+                                                expr: sum by (envoy_listener_address) (envoy_listener_downstream_cx_active{job="envoy-gateway",envoy_listener_address="0.0.0.0_8000"})
+                                                legendFormat: listener {{envoy_listener_address}}
                                                 range: true
                                             version: v0
                                         refId: B
+                                    - kind: PanelQuery
+                                      spec:
+                                        hidden: false
+                                        query:
+                                            datasource:
+                                                name: prometheus
+                                            group: prometheus
+                                            kind: DataQuery
+                                            spec:
+                                                expr: sum(envoy_cluster_upstream_cx_active{job="envoy-gateway",envoy_cluster_name=~"httproute/.*"})
+                                                legendFormat: upstream (routes)
+                                                range: true
+                                            version: v0
+                                        refId: C
                                 queryOptions: {}
                                 transformations: []
                         description: ""
                         id: 0
                         links: []
-                        title: Task-queue backlog (server view)
+                        title: Active connections
                         vizConfig:
                             group: timeseries
                             kind: VizConfig
@@ -263,7 +97,7 @@ spec:
                                         mode: ""
                                         sort: ""
                             version: ""
-                srv-error-ratio:
+                control-plane-cpu:
                     kind: Panel
                     spec:
                         data:
@@ -279,8 +113,8 @@ spec:
                                             group: prometheus
                                             kind: DataQuery
                                             spec:
-                                                expr: (sum(rate(service_error_with_type{job=~".*temporal.*"}[$__rate_interval])) or vector(0)) / clamp_min(sum(rate(service_requests{job=~".*temporal.*"}[$__rate_interval])), 1)
-                                                legendFormat: error ratio
+                                                expr: rate(process_cpu_seconds_total{job="envoy-gateway-controller"}[$__rate_interval])
+                                                legendFormat: EG CPU cores
                                             version: v0
                                         refId: A
                                 queryOptions: {}
@@ -288,7 +122,7 @@ spec:
                         description: ""
                         id: 0
                         links: []
-                        title: Service error ratio
+                        title: Control-plane CPU (EG process)
                         vizConfig:
                             group: timeseries
                             kind: VizConfig
@@ -296,7 +130,7 @@ spec:
                                 fieldConfig:
                                     defaults:
                                         custom: {}
-                                        unit: percentunit
+                                        unit: short
                                     overrides: []
                                 options:
                                     legend:
@@ -308,7 +142,7 @@ spec:
                                         mode: ""
                                         sort: ""
                             version: ""
-                srv-grpc-rate:
+                control-plane-panics-certwatcher:
                     kind: Panel
                     spec:
                         data:
@@ -324,8 +158,154 @@ spec:
                                             group: prometheus
                                             kind: DataQuery
                                             spec:
-                                                expr: sum(rate(service_requests{job=~".*temporal.*"}[$__rate_interval])) by (service_name)
-                                                legendFormat: '{{service_name}}'
+                                                expr: sum(increase(watchable_panics_recovered_total{job="envoy-gateway-controller"}[$__rate_interval])) or vector(0)
+                                                legendFormat: watchable panics recovered
+                                            version: v0
+                                        refId: A
+                                    - kind: PanelQuery
+                                      spec:
+                                        hidden: false
+                                        query:
+                                            datasource:
+                                                name: prometheus
+                                            group: prometheus
+                                            kind: DataQuery
+                                            spec:
+                                                expr: sum(increase(certwatcher_read_certificate_errors_total{job="envoy-gateway-controller"}[$__rate_interval]))
+                                                legendFormat: certwatcher read errors
+                                                range: true
+                                            version: v0
+                                        refId: B
+                                    - kind: PanelQuery
+                                      spec:
+                                        hidden: false
+                                        query:
+                                            datasource:
+                                                name: prometheus
+                                            group: prometheus
+                                            kind: DataQuery
+                                            spec:
+                                                expr: sum(increase(certwatcher_read_certificate_total{job="envoy-gateway-controller"}[$__rate_interval]))
+                                                legendFormat: certwatcher reads
+                                                range: true
+                                            version: v0
+                                        refId: C
+                                queryOptions: {}
+                                transformations: []
+                        description: ""
+                        id: 0
+                        links: []
+                        title: Control-plane panics & cert watcher
+                        vizConfig:
+                            group: timeseries
+                            kind: VizConfig
+                            spec:
+                                fieldConfig:
+                                    defaults:
+                                        custom: {}
+                                        unit: short
+                                    overrides: []
+                                options:
+                                    legend:
+                                        calcs: []
+                                        displayMode: list
+                                        placement: bottom
+                                        showLegend: false
+                                    tooltip:
+                                        mode: ""
+                                        sort: ""
+                            version: ""
+                downstream-latency:
+                    kind: Panel
+                    spec:
+                        data:
+                            kind: QueryGroup
+                            spec:
+                                queries:
+                                    - kind: PanelQuery
+                                      spec:
+                                        hidden: false
+                                        query:
+                                            datasource:
+                                                name: prometheus
+                                            group: prometheus
+                                            kind: DataQuery
+                                            spec:
+                                                expr: histogram_quantile(0.50, sum by (le) (rate(envoy_http_downstream_rq_time_bucket{job="envoy-gateway",envoy_http_conn_manager_prefix=~"https?-.*"}[$__rate_interval])))
+                                                legendFormat: p50
+                                            version: v0
+                                        refId: A
+                                    - kind: PanelQuery
+                                      spec:
+                                        hidden: false
+                                        query:
+                                            datasource:
+                                                name: prometheus
+                                            group: prometheus
+                                            kind: DataQuery
+                                            spec:
+                                                expr: histogram_quantile(0.95, sum by (le) (rate(envoy_http_downstream_rq_time_bucket{job="envoy-gateway",envoy_http_conn_manager_prefix=~"https?-.*"}[$__rate_interval])))
+                                                legendFormat: p95
+                                                range: true
+                                            version: v0
+                                        refId: B
+                                    - kind: PanelQuery
+                                      spec:
+                                        hidden: false
+                                        query:
+                                            datasource:
+                                                name: prometheus
+                                            group: prometheus
+                                            kind: DataQuery
+                                            spec:
+                                                expr: histogram_quantile(0.99, sum by (le) (rate(envoy_http_downstream_rq_time_bucket{job="envoy-gateway",envoy_http_conn_manager_prefix=~"https?-.*"}[$__rate_interval])))
+                                                legendFormat: p99
+                                                range: true
+                                            version: v0
+                                        refId: C
+                                queryOptions: {}
+                                transformations: []
+                        description: ""
+                        id: 0
+                        links: []
+                        title: Downstream latency p50 / p95 / p99 (edge)
+                        vizConfig:
+                            group: timeseries
+                            kind: VizConfig
+                            spec:
+                                fieldConfig:
+                                    defaults:
+                                        custom: {}
+                                        unit: ms
+                                    overrides: []
+                                options:
+                                    legend:
+                                        calcs: []
+                                        displayMode: list
+                                        placement: bottom
+                                        showLegend: false
+                                    tooltip:
+                                        mode: ""
+                                        sort: ""
+                            version: ""
+                edge-4xx-5xx:
+                    kind: Panel
+                    spec:
+                        data:
+                            kind: QueryGroup
+                            spec:
+                                queries:
+                                    - kind: PanelQuery
+                                      spec:
+                                        hidden: false
+                                        query:
+                                            datasource:
+                                                name: prometheus
+                                            group: prometheus
+                                            kind: DataQuery
+                                            spec:
+                                                expr: sum by (envoy_response_code_class) (rate(envoy_http_downstream_rq_xx{job="envoy-gateway",envoy_http_conn_manager_prefix=~"https?-.*",envoy_response_code_class=~"4|5"}[$__rate_interval]))
+                                                legendFormat: '{{envoy_response_code_class}}xx'
                                             version: v0
                                         refId: A
                                 queryOptions: {}
@@ -333,7 +313,7 @@ spec:
                         description: ""
                         id: 0
                         links: []
-                        title: gRPC request rate by role
+                        title: 4xx / 5xx response rate (edge)
                         vizConfig:
                             group: timeseries
                             kind: VizConfig
@@ -353,7 +333,7 @@ spec:
                                         mode: ""
                                         sort: ""
                             version: ""
-                srv-latency:
+                edge-availability:
                     kind: Panel
                     spec:
                         data:
@@ -369,8 +349,8 @@ spec:
                                             group: prometheus
                                             kind: DataQuery
                                             spec:
-                                                expr: histogram_quantile(0.95, sum(rate(service_latency_bucket{job=~".*temporal.*"}[$__rate_interval])) by (le, service_name))
-                                                legendFormat: '{{service_name}}'
+                                                expr: 1 - (sum(increase(envoy_http_downstream_rq_xx{job="envoy-gateway",envoy_http_conn_manager_prefix=~"https?-.*",envoy_response_code_class="5"}[$__range])) / sum(increase(envoy_http_downstream_rq_xx{job="envoy-gateway",envoy_http_conn_manager_prefix=~"https?-.*"}[$__range])))
+                                                legendFormat: availability
                                             version: v0
                                         refId: A
                                 queryOptions: {}
@@ -378,111 +358,7 @@ spec:
                         description: ""
                         id: 0
                         links: []
-                        title: Service latency (p95) by role
-                        vizConfig:
-                            group: timeseries
-                            kind: VizConfig
-                            spec:
-                                fieldConfig:
-                                    defaults:
-                                        custom: {}
-                                        unit: s
-                                    overrides: []
-                                options:
-                                    legend:
-                                        calcs: []
-                                        displayMode: list
-                                        placement: bottom
-                                        showLegend: false
-                                    tooltip:
-                                        mode: ""
-                                        sort: ""
-                            version: ""
-                srv-persistence:
-                    kind: Panel
-                    spec:
-                        data:
-                            kind: QueryGroup
-                            spec:
-                                queries:
-                                    - kind: PanelQuery
-                                      spec:
-                                        hidden: false
-                                        query:
-                                            datasource:
-                                                name: prometheus
-                                            group: prometheus
-                                            kind: DataQuery
-                                            spec:
-                                                expr: sum(rate(persistence_requests{job=~".*temporal.*"}[$__rate_interval]))
-                                                legendFormat: requests/s
-                                            version: v0
-                                        refId: A
-                                    - kind: PanelQuery
-                                      spec:
-                                        hidden: false
-                                        query:
-                                            datasource:
-                                                name: prometheus
-                                            group: prometheus
-                                            kind: DataQuery
-                                            spec:
-                                                expr: (sum(rate(persistence_error_with_type{job=~".*temporal.*"}[$__rate_interval])) or vector(0)) / clamp_min(sum(rate(persistence_requests{job=~".*temporal.*"}[$__rate_interval])), 1)
-                                                legendFormat: error ratio
-                                                range: true
-                                            version: v0
-                                        refId: B
-                                queryOptions: {}
-                                transformations: []
-                        description: ""
-                        id: 0
-                        links: []
-                        title: Persistence request rate / error ratio
-                        vizConfig:
-                            group: timeseries
-                            kind: VizConfig
-                            spec:
-                                fieldConfig:
-                                    defaults:
-                                        custom: {}
-                                        unit: short
-                                    overrides: []
-                                options:
-                                    legend:
-                                        calcs: []
-                                        displayMode: list
-                                        placement: bottom
-                                        showLegend: false
-                                    tooltip:
-                                        mode: ""
-                                        sort: ""
-                            version: ""
-                srv-up:
-                    kind: Panel
-                    spec:
-                        data:
-                            kind: QueryGroup
-                            spec:
-                                queries:
-                                    - kind: PanelQuery
-                                      spec:
-                                        hidden: false
-                                        query:
-                                            datasource:
-                                                name: prometheus
-                                            group: prometheus
-                                            kind: DataQuery
-                                            spec:
-                                                expr: min(up{job=~".*temporal.*"})
-                                                legendFormat: up
-                                            version: v0
-                                        refId: A
-                                queryOptions: {}
-                                transformations: []
-                        description: ""
-                        id: 0
-                        links: []
-                        title: Server up
+                        title: Availability (dashboard window)
                         vizConfig:
                             group: stat
                             kind: VizConfig
@@ -494,8 +370,11 @@ spec:
                                             steps:
                                                 - color: red
                                                   value: null
+                                                - color: yellow
+                                                  value: 0.99
                                                 - color: green
-                                                  value: 1
+                                                  value: 0.999
+                                        unit: percentunit
                                     overrides: []
                                 options:
                                     colorMode: value
@@ -510,7 +389,7 @@ spec:
                                     textMode: auto
                                     wideLayout: true
                             version: ""
-                wf-completion:
+                edge-error-rate:
                     kind: Panel
                     spec:
                         data:
@@ -526,8 +405,8 @@ spec:
                                             group: prometheus
                                             kind: DataQuery
                                             spec:
-                                                expr: sum(rate(temporal_workflow_completed_total{namespace=~"$namespace",service_name=~"$service_name",workflow_type=~"$workflow_type"}[$__rate_interval])) by (workflow_type, service_name)
-                                                legendFormat: '{{workflow_type}} ({{service_name}})'
+                                                expr: sum(rate(envoy_http_downstream_rq_xx{job="envoy-gateway",envoy_http_conn_manager_prefix=~"https?-.*",envoy_response_code_class="5"}[$__rate_interval])) / sum(rate(envoy_http_downstream_rq_xx{job="envoy-gateway",envoy_http_conn_manager_prefix=~"https?-.*"}[$__rate_interval]))
+                                                legendFormat: 5xx ratio
                                             version: v0
                                         refId: A
                                 queryOptions: {}
@@ -535,72 +414,38 @@ spec:
                         description: ""
                         id: 0
                         links: []
-                        title: Workflow completion rate
+                        title: Error rate (5xx)
                         vizConfig:
-                            group: timeseries
+                            group: stat
                             kind: VizConfig
                             spec:
                                 fieldConfig:
                                     defaults:
-                                        custom: {}
-                                        unit: ops
-                                    overrides: []
-                                options:
-                                    legend:
-                                        calcs: []
-                                        displayMode: list
-                                        placement: bottom
-                                        showLegend: false
-                                    tooltip:
-                                        mode: ""
-                                        sort: ""
-                            version: ""
-                wf-failure:
-                    kind: Panel
-                    spec:
-                        data:
-                            kind: QueryGroup
-                            spec:
-                                queries:
-                                    - kind: PanelQuery
-                                      spec:
-                                        hidden: false
-                                        query:
-                                            datasource:
-                                                name: prometheus
-                                            group: prometheus
-                                            kind: DataQuery
-                                            spec:
-                                                expr: (sum(rate(temporal_workflow_failed_total{namespace=~"$namespace",service_name=~"$service_name",workflow_type=~"$workflow_type"}[$__rate_interval])) or vector(0)) / clamp_min(sum(rate(temporal_workflow_completed_total{namespace=~"$namespace",service_name=~"$service_name",workflow_type=~"$workflow_type"}[$__rate_interval])) + (sum(rate(temporal_workflow_failed_total{namespace=~"$namespace",service_name=~"$service_name",workflow_type=~"$workflow_type"}[$__rate_interval])) or vector(0)), 1)
-                                                legendFormat: failure ratio
-                                            version: v0
-                                        refId: A
-                                queryOptions: {}
-                                transformations: []
-                        description: ""
-                        id: 0
-                        links: []
-                        title: Workflow failure ratio
-                        vizConfig:
-                            group: timeseries
-                            kind: VizConfig
-                            spec:
-                                fieldConfig:
-                                    defaults:
-                                        custom: {}
+                                        thresholds:
+                                            mode: absolute
+                                            steps:
+                                                - color: green
+                                                  value: null
+                                                - color: yellow
+                                                  value: 0.01
+                                                - color: red
+                                                  value: 0.05
                                         unit: percentunit
                                     overrides: []
                                 options:
-                                    legend:
-                                        calcs: []
-                                        displayMode: list
-                                        placement: bottom
-                                        showLegend: false
-                                    tooltip:
-                                        mode: ""
-                                        sort: ""
+                                    colorMode: value
+                                    graphMode: area
+                                    justifyMode: auto
+                                    orientation: ""
+                                    percentChangeColorMode: standard
+                                    reduceOptions:
+                                        calcs:
+                                            - lastNotNull
+                                    showPercentChange: false
+                                    textMode: auto
+                                    wideLayout: true
                             version: ""
-                wf-latency:
+                edge-health:
                     kind: Panel
                     spec:
                         data:
@@ -616,8 +461,8 @@ spec:
                                             group: prometheus
                                             kind: DataQuery
                                             spec:
-                                                expr: histogram_quantile(0.95, sum(rate(temporal_workflow_endtoend_latency_seconds_bucket{namespace=~"$namespace",service_name=~"$service_name",workflow_type=~"$workflow_type"}[$__rate_interval])) by (le))
-                                                legendFormat: p95
+                                                expr: envoy_server_live{job="envoy-gateway"}
+                                                legendFormat: Envoy live
                                             version: v0
                                         refId: A
                                     - kind: PanelQuery
@@ -629,424 +474,8 @@ spec:
                                             group: prometheus
                                             kind: DataQuery
                                             spec:
-                                                expr: histogram_quantile(0.99, sum(rate(temporal_workflow_endtoend_latency_seconds_bucket{namespace=~"$namespace",service_name=~"$service_name",workflow_type=~"$workflow_type"}[$__rate_interval])) by (le))
-                                                legendFormat: p99
-                                                range: true
-                                            version: v0
-                                        refId: B
-                                queryOptions: {}
-                                transformations: []
-                        description: ""
-                        id: 0
-                        links: []
-                        title: Workflow end-to-end latency
-                        vizConfig:
-                            group: timeseries
-                            kind: VizConfig
-                            spec:
-                                fieldConfig:
-                                    defaults:
-                                        custom: {}
-                                        unit: s
-                                    overrides: []
-                                options:
-                                    legend:
-                                        calcs: []
-                                        displayMode: list
-                                        placement: bottom
-                                        showLegend: false
-                                    tooltip:
-                                        mode: ""
-                                        sort: ""
-                            version: ""
-                wf-poll:
-                    kind: Panel
-                    spec:
-                        data:
-                            kind: QueryGroup
-                            spec:
-                                queries:
-                                    - kind: PanelQuery
-                                      spec:
-                                        hidden: false
-                                        query:
-                                            datasource:
-                                                name: prometheus
-                                            group: prometheus
-                                            kind: DataQuery
-                                            spec:
-                                                expr: sum(rate(temporal_workflow_task_queue_poll_succeed_total{namespace=~"$namespace",service_name=~"$service_name"}[$__rate_interval])) by (task_queue)
-                                                legendFormat: succeed {{task_queue}}
-                                            version: v0
-                                        refId: A
-                                    - kind: PanelQuery
-                                      spec:
-                                        hidden: false
-                                        query:
-                                            datasource:
-                                                name: prometheus
-                                            group: prometheus
-                                            kind: DataQuery
-                                            spec:
-                                                expr: sum(rate(temporal_workflow_task_queue_poll_empty_total{namespace=~"$namespace",service_name=~"$service_name"}[$__rate_interval])) by (task_queue)
-                                                legendFormat: empty {{task_queue}}
-                                                range: true
-                                            version: v0
-                                        refId: B
-                                queryOptions: {}
-                                transformations: []
-                        description: ""
-                        id: 0
-                        links: []
-                        title: Workflow task poll outcome rate
-                        vizConfig:
-                            group: timeseries
-                            kind: VizConfig
-                            spec:
-                                fieldConfig:
-                                    defaults:
-                                        custom: {}
-                                        unit: ops
-                                    overrides: []
-                                options:
-                                    legend:
-                                        calcs: []
-                                        displayMode: list
-                                        placement: bottom
-                                        showLegend: false
-                                    tooltip:
-                                        mode: ""
-                                        sort: ""
-                            version: ""
-                wf-sched-start:
-                    kind: Panel
-                    spec:
-                        data:
-                            kind: QueryGroup
-                            spec:
-                                queries:
-                                    - kind: PanelQuery
-                                      spec:
-                                        hidden: false
-                                        query:
-                                            datasource:
-                                                name: prometheus
-                                            group: prometheus
-                                            kind: DataQuery
-                                            spec:
-                                                expr: histogram_quantile(0.95, sum(rate(temporal_workflow_task_schedule_to_start_latency_seconds_bucket{namespace=~"$namespace",service_name=~"$service_name"}[$__rate_interval])) by (le, task_queue))
-                                                legendFormat: p95 {{task_queue}}
-                                            version: v0
-                                        refId: A
-                                    - kind: PanelQuery
-                                      spec:
-                                        hidden: false
-                                        query:
-                                            datasource:
-                                                name: prometheus
-                                            group: prometheus
-                                            kind: DataQuery
-                                            spec:
-                                                expr: histogram_quantile(0.99, sum(rate(temporal_workflow_task_schedule_to_start_latency_seconds_bucket{namespace=~"$namespace",service_name=~"$service_name"}[$__rate_interval])) by (le, task_queue))
-                                                legendFormat: p99 {{task_queue}}
-                                                range: true
-                                            version: v0
-                                        refId: B
-                                queryOptions: {}
-                                transformations: []
-                        description: ""
-                        id: 0
-                        links: []
-                        title: Workflow task schedule-to-start latency
-                        vizConfig:
-                            group: timeseries
-                            kind: VizConfig
-                            spec:
-                                fieldConfig:
-                                    defaults:
-                                        custom: {}
-                                        unit: s
-                                    overrides: []
-                                options:
-                                    legend:
-                                        calcs: []
-                                        displayMode: list
-                                        placement: bottom
-                                        showLegend: false
-                                    tooltip:
-                                        mode: ""
-                                        sort: ""
-                            version: ""
-                wf-task-exec:
-                    kind: Panel
-                    spec:
-                        data:
-                            kind: QueryGroup
-                            spec:
-                                queries:
-                                    - kind: PanelQuery
-                                      spec:
-                                        hidden: false
-                                        query:
-                                            datasource:
-                                                name: prometheus
-                                            group: prometheus
-                                            kind: DataQuery
-                                            spec:
-                                                expr: histogram_quantile(0.95, sum(rate(temporal_workflow_task_execution_latency_seconds_bucket{namespace=~"$namespace",service_name=~"$service_name"}[$__rate_interval])) by (le, task_queue))
-                                                legendFormat: '{{task_queue}}'
-                                            version: v0
-                                        refId: A
-                                queryOptions: {}
-                                transformations: []
-                        description: ""
-                        id: 0
-                        links: []
-                        title: Workflow task execution latency (p95)
-                        vizConfig:
-                            group: timeseries
-                            kind: VizConfig
-                            spec:
-                                fieldConfig:
-                                    defaults:
-                                        custom: {}
-                                        unit: s
-                                    overrides: []
-                                options:
-                                    legend:
-                                        calcs: []
-                                        displayMode: list
-                                        placement: bottom
-                                        showLegend: false
-                                    tooltip:
-                                        mode: ""
-                                        sort: ""
-                            version: ""
-                worker-pollers:
-                    kind: Panel
-                    spec:
-                        data:
-                            kind: QueryGroup
-                            spec:
-                                queries:
-                                    - kind: PanelQuery
-                                      spec:
-                                        hidden: false
-                                        query:
-                                            datasource:
-                                                name: prometheus
-                                            group: prometheus
-                                            kind: DataQuery
-                                            spec:
-                                                expr: sum(temporal_num_pollers{namespace=~"$namespace",service_name=~"$service_name"}) by (service_name, poller_type)
-                                                legendFormat: '{{service_name}}/{{poller_type}}'
-                                            version: v0
-                                        refId: A
-                                queryOptions: {}
-                                transformations: []
-                        description: ""
-                        id: 0
-                        links: []
-                        title: Pollers
-                        vizConfig:
-                            group: timeseries
-                            kind: VizConfig
-                            spec:
-                                fieldConfig:
-                                    defaults:
-                                        custom: {}
-                                        unit: short
-                                    overrides: []
-                                options:
-                                    legend:
-                                        calcs: []
-                                        displayMode: list
-                                        placement: bottom
-                                        showLegend: false
-                                    tooltip:
-                                        mode: ""
-                                        sort: ""
-                            version: ""
-                worker-req-error:
-                    kind: Panel
-                    spec:
-                        data:
-                            kind: QueryGroup
-                            spec:
-                                queries:
-                                    - kind: PanelQuery
-                                      spec:
-                                        hidden: false
-                                        query:
-                                            datasource:
-                                                name: prometheus
-                                            group: prometheus
-                                            kind: DataQuery
-                                            spec:
-                                                expr: (sum(rate(temporal_request_failure_total{namespace=~"$namespace",service_name=~"$service_name"}[$__rate_interval])) or vector(0)) / clamp_min(sum(rate(temporal_request_total{namespace=~"$namespace",service_name=~"$service_name"}[$__rate_interval])), 1)
-                                                legendFormat: error ratio
-                                            version: v0
-                                        refId: A
-                                queryOptions: {}
-                                transformations: []
-                        description: ""
-                        id: 0
-                        links: []
-                        title: Worker → server request error ratio
-                        vizConfig:
-                            group: timeseries
-                            kind: VizConfig
-                            spec:
-                                fieldConfig:
-                                    defaults:
-                                        custom: {}
-                                        unit: percentunit
-                                    overrides: []
-                                options:
-                                    legend:
-                                        calcs: []
-                                        displayMode: list
-                                        placement: bottom
-                                        showLegend: false
-                                    tooltip:
-                                        mode: ""
-                                        sort: ""
-                            version: ""
-                worker-req-latency:
-                    kind: Panel
-                    spec:
-                        data:
-                            kind: QueryGroup
-                            spec:
-                                queries:
-                                    - kind: PanelQuery
-                                      spec:
-                                        hidden: false
-                                        query:
-                                            datasource:
-                                                name: prometheus
-                                            group: prometheus
-                                            kind: DataQuery
-                                            spec:
-                                                expr: histogram_quantile(0.95, sum(rate(temporal_request_latency_seconds_bucket{namespace=~"$namespace",service_name=~"$service_name"}[$__rate_interval])) by (le, service_name))
-                                                legendFormat: '{{service_name}}'
-                                            version: v0
-                                        refId: A
-                                queryOptions: {}
-                                transformations: []
-                        description: ""
-                        id: 0
-                        links: []
-                        title: Worker → server request latency (p95)
-                        vizConfig:
-                            group: timeseries
-                            kind: VizConfig
-                            spec:
-                                fieldConfig:
-                                    defaults:
-                                        custom: {}
-                                        unit: s
-                                    overrides: []
-                                options:
-                                    legend:
-                                        calcs: []
-                                        displayMode: list
-                                        placement: bottom
-                                        showLegend: false
-                                    tooltip:
-                                        mode: ""
-                                        sort: ""
-                            version: ""
-                worker-slots:
-                    kind: Panel
-                    spec:
-                        data:
-                            kind: QueryGroup
-                            spec:
-                                queries:
-                                    - kind: PanelQuery
-                                      spec:
-                                        hidden: false
-                                        query:
-                                            datasource:
-                                                name: prometheus
-                                            group: prometheus
-                                            kind: DataQuery
-                                            spec:
-                                                expr: sum(temporal_worker_task_slots_available{namespace=~"$namespace",service_name=~"$service_name"}) by (service_name, worker_type)
-                                                legendFormat: available {{service_name}}/{{worker_type}}
-                                            version: v0
-                                        refId: A
-                                    - kind: PanelQuery
-                                      spec:
-                                        hidden: false
-                                        query:
-                                            datasource:
-                                                name: prometheus
-                                            group: prometheus
-                                            kind: DataQuery
-                                            spec:
-                                                expr: sum(temporal_worker_task_slots_used{namespace=~"$namespace",service_name=~"$service_name"}) by (service_name, worker_type)
-                                                legendFormat: used {{service_name}}/{{worker_type}}
-                                                range: true
-                                            version: v0
-                                        refId: B
-                                queryOptions: {}
-                                transformations: []
-                        description: ""
-                        id: 0
-                        links: []
-                        title: Worker task slots
-                        vizConfig:
-                            group: timeseries
-                            kind: VizConfig
-                            spec:
-                                fieldConfig:
-                                    defaults:
-                                        custom: {}
-                                        unit: short
-                                    overrides: []
-                                options:
-                                    legend:
-                                        calcs: []
-                                        displayMode: list
-                                        placement: bottom
-                                        showLegend: false
-                                    tooltip:
-                                        mode: ""
-                                        sort: ""
-                            version: ""
-                worker-sticky-cache:
-                    kind: Panel
-                    spec:
-                        data:
-                            kind: QueryGroup
-                            spec:
-                                queries:
-                                    - kind: PanelQuery
-                                      spec:
-                                        hidden: false
-                                        query:
-                                            datasource:
-                                                name: prometheus
-                                            group: prometheus
-                                            kind: DataQuery
-                                            spec:
-                                                expr: sum(temporal_sticky_cache_size{namespace=~"$namespace",service_name=~"$service_name"}) by (service_name)
-                                                legendFormat: size {{service_name}}
-                                            version: v0
-                                        refId: A
-                                    - kind: PanelQuery
-                                      spec:
-                                        hidden: false
-                                        query:
-                                            datasource:
-                                                name: prometheus
-                                            group: prometheus
-                                            kind: DataQuery
-                                            spec:
-                                                expr: sum(rate(temporal_sticky_cache_hit_total{namespace=~"$namespace",service_name=~"$service_name"}[$__rate_interval])) by (service_name)
-                                                legendFormat: hit/s {{service_name}}
+                                                expr: up{job="envoy-gateway-controller"}
+                                                legendFormat: EG scrape up
                                                 range: true
                                             version: v0
                                         refId: B
@@ -1059,8 +488,8 @@ spec:
                                             group: prometheus
                                             kind: DataQuery
                                             spec:
-                                                expr: sum(rate(temporal_sticky_cache_forced_eviction_total{namespace=~"$namespace",service_name=~"$service_name"}[$__rate_interval])) by (service_name)
-                                                legendFormat: evictions/s {{service_name}}
+                                                expr: up{job="envoy-gateway"}
+                                                legendFormat: Envoy scrape up
                                                 range: true
                                             version: v0
                                         refId: C
@@ -1069,7 +498,761 @@ spec:
                         description: ""
                         id: 0
                         links: []
-                        title: Sticky cache
+                        title: Edge health
+                        vizConfig:
+                            group: state-timeline
+                            kind: VizConfig
+                            spec:
+                                fieldConfig:
+                                    defaults:
+                                        custom:
+                                            fillOpacity: 70
+                                            lineWidth: 0
+                                        thresholds:
+                                            mode: absolute
+                                            steps:
+                                                - color: red
+                                                  value: null
+                                                - color: green
+                                                  value: 1
+                                    overrides: []
+                                options:
+                                    alignValue: left
+                                    legend:
+                                        calcs: []
+                                        displayMode: list
+                                        placement: bottom
+                                        showLegend: false
+                                    mergeValues: true
+                                    perPage: 20
+                                    rowHeight: 0.9
+                                    showValue: never
+                                    tooltip:
+                                        mode: ""
+                                        sort: ""
+                            version: ""
+                edge-p99:
+                    kind: Panel
+                    spec:
+                        data:
+                            kind: QueryGroup
+                            spec:
+                                queries:
+                                    - kind: PanelQuery
+                                      spec:
+                                        hidden: false
+                                        query:
+                                            datasource:
+                                                name: prometheus
+                                            group: prometheus
+                                            kind: DataQuery
+                                            spec:
+                                                expr: histogram_quantile(0.99, sum by (le) (rate(envoy_http_downstream_rq_time_bucket{job="envoy-gateway",envoy_http_conn_manager_prefix=~"https?-.*"}[$__rate_interval])))
+                                                legendFormat: p99
+                                            version: v0
+                                        refId: A
+                                queryOptions: {}
+                                transformations: []
+                        description: ""
+                        id: 0
+                        links: []
+                        title: P99 latency (edge)
+                        vizConfig:
+                            group: stat
+                            kind: VizConfig
+                            spec:
+                                fieldConfig:
+                                    defaults:
+                                        thresholds:
+                                            mode: absolute
+                                            steps:
+                                                - color: green
+                                                  value: null
+                                                - color: yellow
+                                                  value: 500
+                                                - color: red
+                                                  value: 1000
+                                        unit: ms
+                                    overrides: []
+                                options:
+                                    colorMode: value
+                                    graphMode: area
+                                    justifyMode: auto
+                                    orientation: ""
+                                    percentChangeColorMode: standard
+                                    reduceOptions:
+                                        calcs:
+                                            - lastNotNull
+                                    showPercentChange: false
+                                    textMode: auto
+                                    wideLayout: true
+                            version: ""
+                edge-rps:
+                    kind: Panel
+                    spec:
+                        data:
+                            kind: QueryGroup
+                            spec:
+                                queries:
+                                    - kind: PanelQuery
+                                      spec:
+                                        hidden: false
+                                        query:
+                                            datasource:
+                                                name: prometheus
+                                            group: prometheus
+                                            kind: DataQuery
+                                            spec:
+                                                expr: sum(rate(envoy_http_downstream_rq_total{job="envoy-gateway",envoy_http_conn_manager_prefix=~"https?-.*"}[$__rate_interval]))
+                                                legendFormat: RPS
+                                            version: v0
+                                        refId: A
+                                queryOptions: {}
+                                transformations: []
+                        description: ""
+                        id: 0
+                        links: []
+                        title: Requests / sec (edge)
+                        vizConfig:
+                            group: stat
+                            kind: VizConfig
+                            spec:
+                                fieldConfig:
+                                    defaults:
+                                        thresholds:
+                                            mode: absolute
+                                            steps:
+                                                - color: green
+                                                  value: null
+                                        unit: reqps
+                                    overrides: []
+                                options:
+                                    colorMode: value
+                                    graphMode: area
+                                    justifyMode: auto
+                                    orientation: ""
+                                    percentChangeColorMode: standard
+                                    reduceOptions:
+                                        calcs:
+                                            - lastNotNull
+                                    showPercentChange: false
+                                    textMode: auto
+                                    wideLayout: true
+                            version: ""
+                gateway-httproute-status:
+                    kind: Panel
+                    spec:
+                        data:
+                            kind: QueryGroup
+                            spec:
+                                queries:
+                                    - kind: PanelQuery
+                                      spec:
+                                        hidden: false
+                                        query:
+                                            datasource:
+                                                name: prometheus
+                                            group: prometheus
+                                            kind: DataQuery
+                                            spec:
+                                                expr: sum by (kind) (rate(status_update_total{job="envoy-gateway-controller"}[$__rate_interval]))
+                                                legendFormat: status_update {{kind}}
+                                            version: v0
+                                        refId: A
+                                    - kind: PanelQuery
+                                      spec:
+                                        hidden: false
+                                        query:
+                                            datasource:
+                                                name: prometheus
+                                            group: prometheus
+                                            kind: DataQuery
+                                            spec:
+                                                expr: sum by (message) (watchable_depth{job="envoy-gateway-controller",runner="provider",message=~".*-status"})
+                                                legendFormat: 'fallback: provider {{message}} queue depth'
+                                                range: true
+                                            version: v0
+                                        refId: B
+                                queryOptions: {}
+                                transformations: []
+                        description: ""
+                        id: 0
+                        links: []
+                        title: Gateway / HTTPRoute status updates
+                        vizConfig:
+                            group: timeseries
+                            kind: VizConfig
+                            spec:
+                                fieldConfig:
+                                    defaults:
+                                        custom: {}
+                                        unit: ops
+                                    overrides: []
+                                options:
+                                    legend:
+                                        calcs: []
+                                        displayMode: list
+                                        placement: bottom
+                                        showLegend: false
+                                    tooltip:
+                                        mode: ""
+                                        sort: ""
+                            version: ""
+                memory-eg-envoy:
+                    kind: Panel
+                    spec:
+                        data:
+                            kind: QueryGroup
+                            spec:
+                                queries:
+                                    - kind: PanelQuery
+                                      spec:
+                                        hidden: false
+                                        query:
+                                            datasource:
+                                                name: prometheus
+                                            group: prometheus
+                                            kind: DataQuery
+                                            spec:
+                                                expr: process_resident_memory_bytes{job="envoy-gateway-controller"}
+                                                legendFormat: EG RSS
+                                            version: v0
+                                        refId: A
+                                    - kind: PanelQuery
+                                      spec:
+                                        hidden: false
+                                        query:
+                                            datasource:
+                                                name: prometheus
+                                            group: prometheus
+                                            kind: DataQuery
+                                            spec:
+                                                expr: envoy_server_memory_allocated{job="envoy-gateway"}
+                                                legendFormat: Envoy allocated
+                                                range: true
+                                            version: v0
+                                        refId: B
+                                    - kind: PanelQuery
+                                      spec:
+                                        hidden: false
+                                        query:
+                                            datasource:
+                                                name: prometheus
+                                            group: prometheus
+                                            kind: DataQuery
+                                            spec:
+                                                expr: envoy_server_memory_heap_size{job="envoy-gateway"}
+                                                legendFormat: Envoy heap
+                                                range: true
+                                            version: v0
+                                        refId: C
+                                    - kind: PanelQuery
+                                      spec:
+                                        hidden: false
+                                        query:
+                                            datasource:
+                                                name: prometheus
+                                            group: prometheus
+                                            kind: DataQuery
+                                            spec:
+                                                expr: envoy_server_memory_physical_size{job="envoy-gateway"}
+                                                legendFormat: Envoy physical
+                                                range: true
+                                            version: v0
+                                        refId: D
+                                queryOptions: {}
+                                transformations: []
+                        description: ""
+                        id: 0
+                        links: []
+                        title: Memory — EG process & Envoy server
+                        vizConfig:
+                            group: timeseries
+                            kind: VizConfig
+                            spec:
+                                fieldConfig:
+                                    defaults:
+                                        custom: {}
+                                        unit: bytes
+                                    overrides: []
+                                options:
+                                    legend:
+                                        calcs: []
+                                        displayMode: list
+                                        placement: bottom
+                                        showLegend: false
+                                    tooltip:
+                                        mode: ""
+                                        sort: ""
+                            version: ""
+                pod-restarts-container-cpu:
+                    kind: Panel
+                    spec:
+                        data:
+                            kind: QueryGroup
+                            spec:
+                                queries:
+                                    - kind: PanelQuery
+                                      spec:
+                                        hidden: false
+                                        query:
+                                            datasource:
+                                                name: prometheus
+                                            group: prometheus
+                                            kind: DataQuery
+                                            spec:
+                                                expr: sum by (pod) (kube_pod_container_status_restarts_total{exported_namespace="envoy-gateway"})
+                                                legendFormat: restarts {{pod}}
+                                            version: v0
+                                        refId: A
+                                    - kind: PanelQuery
+                                      spec:
+                                        hidden: false
+                                        query:
+                                            datasource:
+                                                name: prometheus
+                                            group: prometheus
+                                            kind: DataQuery
+                                            spec:
+                                                expr: sum by (pod) (rate(container_cpu_usage_seconds_total{namespace="envoy-gateway"}[$__rate_interval]))
+                                                legendFormat: container CPU {{pod}}
+                                                range: true
+                                            version: v0
+                                        refId: B
+                                    - kind: PanelQuery
+                                      spec:
+                                        hidden: false
+                                        query:
+                                            datasource:
+                                                name: prometheus
+                                            group: prometheus
+                                            kind: DataQuery
+                                            spec:
+                                                expr: envoy_server_uptime{job="envoy-gateway"}
+                                                legendFormat: 'fallback: Envoy uptime (local)'
+                                                range: true
+                                            version: v0
+                                        refId: C
+                                queryOptions: {}
+                                transformations: []
+                        description: ""
+                        id: 0
+                        links: []
+                        title: Pod restarts / container CPU (kube-state + cAdvisor)
+                        vizConfig:
+                            group: timeseries
+                            kind: VizConfig
+                            spec:
+                                fieldConfig:
+                                    defaults:
+                                        custom: {}
+                                        unit: short
+                                    overrides: []
+                                options:
+                                    legend:
+                                        calcs: []
+                                        displayMode: list
+                                        placement: bottom
+                                        showLegend: false
+                                    tooltip:
+                                        mode: ""
+                                        sort: ""
+                            version: ""
+                readme:
+                    kind: Panel
+                    spec:
+                        data:
+                            kind: QueryGroup
+                            spec:
+                                queries: []
+                                queryOptions: {}
+                                transformations: []
+                        description: ""
+                        id: 0
+                        links: []
+                        title: README — how to read this dashboard
+                        vizConfig:
+                            group: text
+                            kind: VizConfig
+                            spec:
+                                fieldConfig:
+                                    defaults: {}
+                                    overrides: []
+                                options:
+                                    content: |-
+                                        **Control plane says** “traffic to `/payment` must go THERE, with THIS timeout and THIS TLS.” · **Data plane says** “OK — a `/payment` request just passed through me in 120 ms.” · **This dashboard says** “20k req/s, p99 is 1.2 s, and 5xx is rising.”
+
+                                        **What each row reads:** **Edge Overview** + **Data Plane** ← job `envoy-gateway` (Envoy proxy stats, gateway:19005 `/stats/prometheus`) · **Control Plane** ← job `envoy-gateway-controller` (EG controller, gateway:19001) · **Infrastructure** ← process/server metrics from both jobs.
+
+                                        Panels reading kube-state / cAdvisor metrics only exist on the Kubernetes cluster — they are empty locally by design; the affected panel carries a live local fallback query alongside them.
+                                    mode: markdown
+                            version: ""
+                route-request-rate:
+                    kind: Panel
+                    spec:
+                        data:
+                            kind: QueryGroup
+                            spec:
+                                queries:
+                                    - kind: PanelQuery
+                                      spec:
+                                        hidden: false
+                                        query:
+                                            datasource:
+                                                name: prometheus
+                                            group: prometheus
+                                            kind: DataQuery
+                                            spec:
+                                                expr: sum by (envoy_cluster_name) (rate(envoy_cluster_upstream_rq_total{job="envoy-gateway",envoy_cluster_name=~"httproute/.*"}[$__rate_interval]))
+                                                legendFormat: '{{envoy_cluster_name}}'
+                                            version: v0
+                                        refId: A
+                                queryOptions: {}
+                                transformations: []
+                        description: ""
+                        id: 0
+                        links: []
+                        title: Request rate by route (upstream cluster)
+                        vizConfig:
+                            group: timeseries
+                            kind: VizConfig
+                            spec:
+                                fieldConfig:
+                                    defaults:
+                                        custom: {}
+                                        unit: reqps
+                                    overrides: []
+                                options:
+                                    legend:
+                                        calcs: []
+                                        displayMode: list
+                                        placement: bottom
+                                        showLegend: false
+                                    tooltip:
+                                        mode: ""
+                                        sort: ""
+                            version: ""
+                upstream-latency-p95:
+                    kind: Panel
+                    spec:
+                        data:
+                            kind: QueryGroup
+                            spec:
+                                queries:
+                                    - kind: PanelQuery
+                                      spec:
+                                        hidden: false
+                                        query:
+                                            datasource:
+                                                name: prometheus
+                                            group: prometheus
+                                            kind: DataQuery
+                                            spec:
+                                                expr: histogram_quantile(0.95, sum by (le, envoy_cluster_name) (rate(envoy_cluster_upstream_rq_time_bucket{job="envoy-gateway",envoy_cluster_name=~"httproute/.*"}[$__rate_interval])))
+                                                legendFormat: '{{envoy_cluster_name}}'
+                                            version: v0
+                                        refId: A
+                                queryOptions: {}
+                                transformations: []
+                        description: ""
+                        id: 0
+                        links: []
+                        title: Upstream latency p95 by route
+                        vizConfig:
+                            group: timeseries
+                            kind: VizConfig
+                            spec:
+                                fieldConfig:
+                                    defaults:
+                                        custom: {}
+                                        unit: ms
+                                    overrides: []
+                                options:
+                                    legend:
+                                        calcs: []
+                                        displayMode: list
+                                        placement: bottom
+                                        showLegend: false
+                                    tooltip:
+                                        mode: ""
+                                        sort: ""
+                            version: ""
+                upstream-retries-timeouts:
+                    kind: Panel
+                    spec:
+                        data:
+                            kind: QueryGroup
+                            spec:
+                                queries:
+                                    - kind: PanelQuery
+                                      spec:
+                                        hidden: false
+                                        query:
+                                            datasource:
+                                                name: prometheus
+                                            group: prometheus
+                                            kind: DataQuery
+                                            spec:
+                                                expr: sum(rate(envoy_cluster_upstream_rq_retry{job="envoy-gateway",envoy_cluster_name=~"httproute/.*"}[$__rate_interval]))
+                                                legendFormat: retries
+                                            version: v0
+                                        refId: A
+                                    - kind: PanelQuery
+                                      spec:
+                                        hidden: false
+                                        query:
+                                            datasource:
+                                                name: prometheus
+                                            group: prometheus
+                                            kind: DataQuery
+                                            spec:
+                                                expr: sum(rate(envoy_cluster_upstream_rq_retry_success{job="envoy-gateway",envoy_cluster_name=~"httproute/.*"}[$__rate_interval]))
+                                                legendFormat: retry successes
+                                                range: true
+                                            version: v0
+                                        refId: B
+                                    - kind: PanelQuery
+                                      spec:
+                                        hidden: false
+                                        query:
+                                            datasource:
+                                                name: prometheus
+                                            group: prometheus
+                                            kind: DataQuery
+                                            spec:
+                                                expr: sum(rate(envoy_cluster_upstream_rq_timeout{job="envoy-gateway",envoy_cluster_name=~"httproute/.*"}[$__rate_interval]))
+                                                legendFormat: timeouts
+                                                range: true
+                                            version: v0
+                                        refId: C
+                                    - kind: PanelQuery
+                                      spec:
+                                        hidden: false
+                                        query:
+                                            datasource:
+                                                name: prometheus
+                                            group: prometheus
+                                            kind: DataQuery
+                                            spec:
+                                                expr: sum(rate(envoy_cluster_upstream_rq_per_try_timeout{job="envoy-gateway",envoy_cluster_name=~"httproute/.*"}[$__rate_interval]))
+                                                legendFormat: per-try timeouts
+                                                range: true
+                                            version: v0
+                                        refId: D
+                                queryOptions: {}
+                                transformations: []
+                        description: ""
+                        id: 0
+                        links: []
+                        title: Upstream retries & timeouts
+                        vizConfig:
+                            group: timeseries
+                            kind: VizConfig
+                            spec:
+                                fieldConfig:
+                                    defaults:
+                                        custom: {}
+                                        unit: reqps
+                                    overrides: []
+                                options:
+                                    legend:
+                                        calcs: []
+                                        displayMode: list
+                                        placement: bottom
+                                        showLegend: false
+                                    tooltip:
+                                        mode: ""
+                                        sort: ""
+                            version: ""
+                watchable-events-publishes:
+                    kind: Panel
+                    spec:
+                        data:
+                            kind: QueryGroup
+                            spec:
+                                queries:
+                                    - kind: PanelQuery
+                                      spec:
+                                        hidden: false
+                                        query:
+                                            datasource:
+                                                name: prometheus
+                                            group: prometheus
+                                            kind: DataQuery
+                                            spec:
+                                                expr: sum by (runner) (rate(watchable_event_total{job="envoy-gateway-controller"}[$__rate_interval]))
+                                                legendFormat: events {{runner}}
+                                            version: v0
+                                        refId: A
+                                    - kind: PanelQuery
+                                      spec:
+                                        hidden: false
+                                        query:
+                                            datasource:
+                                                name: prometheus
+                                            group: prometheus
+                                            kind: DataQuery
+                                            spec:
+                                                expr: sum by (runner) (rate(watchable_publish_total{job="envoy-gateway-controller"}[$__rate_interval]))
+                                                legendFormat: publishes {{runner}}
+                                                range: true
+                                            version: v0
+                                        refId: B
+                                queryOptions: {}
+                                transformations: []
+                        description: ""
+                        id: 0
+                        links: []
+                        title: Watchable events / publishes by runner
+                        vizConfig:
+                            group: timeseries
+                            kind: VizConfig
+                            spec:
+                                fieldConfig:
+                                    defaults:
+                                        custom: {}
+                                        unit: ops
+                                    overrides: []
+                                options:
+                                    legend:
+                                        calcs: []
+                                        displayMode: list
+                                        placement: bottom
+                                        showLegend: false
+                                    tooltip:
+                                        mode: ""
+                                        sort: ""
+                            version: ""
+                watchable-queue-depth:
+                    kind: Panel
+                    spec:
+                        data:
+                            kind: QueryGroup
+                            spec:
+                                queries:
+                                    - kind: PanelQuery
+                                      spec:
+                                        hidden: false
+                                        query:
+                                            datasource:
+                                                name: prometheus
+                                            group: prometheus
+                                            kind: DataQuery
+                                            spec:
+                                                expr: sum by (runner) (watchable_depth{job="envoy-gateway-controller"})
+                                                legendFormat: '{{runner}}'
+                                            version: v0
+                                        refId: A
+                                queryOptions: {}
+                                transformations: []
+                        description: ""
+                        id: 0
+                        links: []
+                        title: Watchable queue depth by runner
+                        vizConfig:
+                            group: timeseries
+                            kind: VizConfig
+                            spec:
+                                fieldConfig:
+                                    defaults:
+                                        custom: {}
+                                        unit: short
+                                    overrides: []
+                                options:
+                                    legend:
+                                        calcs: []
+                                        displayMode: list
+                                        placement: bottom
+                                        showLegend: false
+                                    tooltip:
+                                        mode: ""
+                                        sort: ""
+                            version: ""
+                watchable-subscribe-duration:
+                    kind: Panel
+                    spec:
+                        data:
+                            kind: QueryGroup
+                            spec:
+                                queries:
+                                    - kind: PanelQuery
+                                      spec:
+                                        hidden: false
+                                        query:
+                                            datasource:
+                                                name: prometheus
+                                            group: prometheus
+                                            kind: DataQuery
+                                            spec:
+                                                expr: histogram_quantile(0.99, sum by (le, runner) (rate(watchable_subscribe_duration_seconds_bucket{job="envoy-gateway-controller"}[$__rate_interval])))
+                                                legendFormat: '{{runner}}'
+                                            version: v0
+                                        refId: A
+                                queryOptions: {}
+                                transformations: []
+                        description: ""
+                        id: 0
+                        links: []
+                        title: Watchable subscribe duration p99 by runner
+                        vizConfig:
+                            group: timeseries
+                            kind: VizConfig
+                            spec:
+                                fieldConfig:
+                                    defaults:
+                                        custom: {}
+                                        unit: s
+                                    overrides: []
+                                options:
+                                    legend:
+                                        calcs: []
+                                        displayMode: list
+                                        placement: bottom
+                                        showLegend: false
+                                    tooltip:
+                                        mode: ""
+                                        sort: ""
+                            version: ""
+                xds-snapshot:
+                    kind: Panel
+                    spec:
+                        data:
+                            kind: QueryGroup
+                            spec:
+                                queries:
+                                    - kind: PanelQuery
+                                      spec:
+                                        hidden: false
+                                        query:
+                                            datasource:
+                                                name: prometheus
+                                            group: prometheus
+                                            kind: DataQuery
+                                            spec:
+                                                expr: sum by (status) (increase(xds_snapshot_create_total{job="envoy-gateway-controller"}[$__rate_interval]))
+                                                legendFormat: create {{status}}
+                                            version: v0
+                                        refId: A
+                                    - kind: PanelQuery
+                                      spec:
+                                        hidden: false
+                                        query:
+                                            datasource:
+                                                name: prometheus
+                                            group: prometheus
+                                            kind: DataQuery
+                                            spec:
+                                                expr: sum by (nodeID, status) (increase(xds_snapshot_update_total{job="envoy-gateway-controller"}[$__rate_interval]))
+                                                legendFormat: update {{nodeID}} {{status}}
+                                                range: true
+                                            version: v0
+                                        refId: B
+                                queryOptions: {}
+                                transformations: []
+                        description: ""
+                        id: 0
+                        links: []
+                        title: xDS snapshot creates / updates
                         vizConfig:
                             group: timeseries
                             kind: VizConfig
@@ -1103,7 +1286,59 @@ spec:
                                           spec:
                                             element:
                                                 kind: ElementReference
-                                                name: wf-completion
+                                                name: readme
+                                            height: 6
+                                            width: 24
+                                            x: 0
+                                            "y": 0
+                                        - kind: GridLayoutItem
+                                          spec:
+                                            element:
+                                                kind: ElementReference
+                                                name: edge-rps
+                                            height: 5
+                                            width: 6
+                                            x: 0
+                                            "y": 6
+                                        - kind: GridLayoutItem
+                                          spec:
+                                            element:
+                                                kind: ElementReference
+                                                name: edge-error-rate
+                                            height: 5
+                                            width: 6
+                                            x: 6
+                                            "y": 6
+                                        - kind: GridLayoutItem
+                                          spec:
+                                            element:
+                                                kind: ElementReference
+                                                name: edge-p99
+                                            height: 5
+                                            width: 6
+                                            x: 12
+                                            "y": 6
+                                        - kind: GridLayoutItem
+                                          spec:
+                                            element:
+                                                kind: ElementReference
+                                                name: edge-availability
+                                            height: 5
+                                            width: 6
+                                            x: 18
+                                            "y": 6
+                            title: Edge Overview
+                        - kind: RowsLayoutRow
+                          spec:
+                            layout:
+                                kind: GridLayout
+                                spec:
+                                    items:
+                                        - kind: GridLayoutItem
+                                          spec:
+                                            element:
+                                                kind: ElementReference
+                                                name: route-request-rate
                                             height: 8
                                             width: 12
                                             x: 0
@@ -1112,7 +1347,7 @@ spec:
                                           spec:
                                             element:
                                                 kind: ElementReference
-                                                name: wf-failure
+                                                name: edge-4xx-5xx
                                             height: 8
                                             width: 12
                                             x: 12
@@ -1121,7 +1356,7 @@ spec:
                                           spec:
                                             element:
                                                 kind: ElementReference
-                                                name: wf-latency
+                                                name: downstream-latency
                                             height: 8
                                             width: 12
                                             x: 0
@@ -1130,7 +1365,7 @@ spec:
                                           spec:
                                             element:
                                                 kind: ElementReference
-                                                name: wf-sched-start
+                                                name: upstream-latency-p95
                                             height: 8
                                             width: 12
                                             x: 12
@@ -1139,7 +1374,7 @@ spec:
                                           spec:
                                             element:
                                                 kind: ElementReference
-                                                name: wf-task-exec
+                                                name: upstream-retries-timeouts
                                             height: 8
                                             width: 12
                                             x: 0
@@ -1148,12 +1383,12 @@ spec:
                                           spec:
                                             element:
                                                 kind: ElementReference
-                                                name: wf-poll
+                                                name: active-connections
                                             height: 8
                                             width: 12
                                             x: 12
                                             "y": 16
-                            title: Workflows
+                            title: Data Plane
                         - kind: RowsLayoutRow
                           spec:
                             layout:
@@ -1164,7 +1399,7 @@ spec:
                                           spec:
                                             element:
                                                 kind: ElementReference
-                                                name: act-rate
+                                                name: watchable-events-publishes
                                             height: 8
                                             width: 12
                                             x: 0
@@ -1173,7 +1408,7 @@ spec:
                                           spec:
                                             element:
                                                 kind: ElementReference
-                                                name: act-failure
+                                                name: watchable-subscribe-duration
                                             height: 8
                                             width: 12
                                             x: 12
@@ -1182,7 +1417,7 @@ spec:
                                           spec:
                                             element:
                                                 kind: ElementReference
-                                                name: act-latency
+                                                name: watchable-queue-depth
                                             height: 8
                                             width: 12
                                             x: 0
@@ -1191,12 +1426,30 @@ spec:
                                           spec:
                                             element:
                                                 kind: ElementReference
-                                                name: act-sched-start
+                                                name: xds-snapshot
                                             height: 8
                                             width: 12
                                             x: 12
                                             "y": 8
-                            title: Activities
+                                        - kind: GridLayoutItem
+                                          spec:
+                                            element:
+                                                kind: ElementReference
+                                                name: gateway-httproute-status
+                                            height: 8
+                                            width: 12
+                                            x: 0
+                                            "y": 16
+                                        - kind: GridLayoutItem
+                                          spec:
+                                            element:
+                                                kind: ElementReference
+                                                name: control-plane-panics-certwatcher
+                                            height: 8
+                                            width: 12
+                                            x: 12
+                                            "y": 16
+                            title: Control Plane (Envoy Gateway)
                         - kind: RowsLayoutRow
                           spec:
                             layout:
@@ -1207,115 +1460,44 @@ spec:
                                           spec:
                                             element:
                                                 kind: ElementReference
-                                                name: worker-slots
-                                            height: 8
-                                            width: 12
-                                            x: 0
-                                            "y": 0
-                                        - kind: GridLayoutItem
-                                          spec:
-                                            element:
-                                                kind: ElementReference
-                                                name: worker-pollers
-                                            height: 8
-                                            width: 12
-                                            x: 12
-                                            "y": 0
-                                        - kind: GridLayoutItem
-                                          spec:
-                                            element:
-                                                kind: ElementReference
-                                                name: worker-req-error
+                                                name: control-plane-cpu
                                             height: 8
                                             width: 8
                                             x: 0
-                                            "y": 8
+                                            "y": 0
                                         - kind: GridLayoutItem
                                           spec:
                                             element:
                                                 kind: ElementReference
-                                                name: worker-req-latency
+                                                name: memory-eg-envoy
                                             height: 8
                                             width: 8
                                             x: 8
-                                            "y": 8
+                                            "y": 0
                                         - kind: GridLayoutItem
                                           spec:
                                             element:
                                                 kind: ElementReference
-                                                name: worker-sticky-cache
+                                                name: edge-health
                                             height: 8
                                             width: 8
                                             x: 16
-                                            "y": 8
-                            title: Worker / SDK
-                        - kind: RowsLayoutRow
-                          spec:
-                            layout:
-                                kind: GridLayout
-                                spec:
-                                    items:
-                                        - kind: GridLayoutItem
-                                          spec:
-                                            element:
-                                                kind: ElementReference
-                                                name: srv-up
-                                            height: 8
-                                            width: 4
-                                            x: 0
                                             "y": 0
                                         - kind: GridLayoutItem
                                           spec:
                                             element:
                                                 kind: ElementReference
-                                                name: srv-grpc-rate
-                                            height: 8
-                                            width: 10
-                                            x: 4
-                                            "y": 0
-                                        - kind: GridLayoutItem
-                                          spec:
-                                            element:
-                                                kind: ElementReference
-                                                name: srv-error-ratio
-                                            height: 8
-                                            width: 10
-                                            x: 14
-                                            "y": 0
-                                        - kind: GridLayoutItem
-                                          spec:
-                                            element:
-                                                kind: ElementReference
-                                                name: srv-latency
-                                            height: 8
-                                            width: 8
+                                                name: pod-restarts-container-cpu
+                                            height: 6
+                                            width: 24
                                             x: 0
                                             "y": 8
-                                        - kind: GridLayoutItem
-                                          spec:
-                                            element:
-                                                kind: ElementReference
-                                                name: srv-persistence
-                                            height: 8
-                                            width: 8
-                                            x: 8
-                                            "y": 8
-                                        - kind: GridLayoutItem
-                                          spec:
-                                            element:
-                                                kind: ElementReference
-                                                name: srv-backlog
-                                            height: 8
-                                            width: 8
-                                            x: 16
-                                            "y": 8
-                            title: Server
+                            title: Infrastructure
             links: []
             preload: false
             tags:
-                - temporal
-                - observability
-                - workflow
+                - envoy-gateway
+                - edge
                 - generated
                 - foundation-sdk
             timeSettings:
@@ -1332,93 +1514,9 @@ spec:
                     - 2h
                     - 1d
                 fiscalYearStartMonth: 0
-                from: now-6h
+                from: now-1h
                 hideTimepicker: false
                 timezone: browser
                 to: now
-            title: Temporal — Workflows & Activities
-            variables:
-                - kind: QueryVariable
-                  spec:
-                    allowCustomValue: false
-                    current:
-                        text: All
-                        value: $__all
-                    definition: label_values(temporal_worker_task_slots_available, namespace)
-                    hide: dontHide
-                    includeAll: true
-                    label: Namespace
-                    multi: true
-                    name: namespace
-                    options: []
-                    query:
-                        datasource:
-                            name: prometheus
-                        group: prometheus
-                        kind: DataQuery
-                        spec:
-                            qryType: 1
-                            query: label_values(temporal_worker_task_slots_available, namespace)
-                            refId: PrometheusVariableQueryEditor-VariableQuery
-                        version: v0
-                    refresh: onDashboardLoad
-                    regex: ""
-                    regexApplyTo: value
-                    skipUrlSync: false
-                    sort: alphabeticalAsc
-                - kind: QueryVariable
-                  spec:
-                    allowCustomValue: false
-                    current:
-                        text: All
-                        value: $__all
-                    definition: label_values(temporal_worker_task_slots_available{namespace=~"$namespace"}, service_name)
-                    hide: dontHide
-                    includeAll: true
-                    label: Service
-                    multi: true
-                    name: service_name
-                    options: []
-                    query:
-                        datasource:
-                            name: prometheus
-                        group: prometheus
-                        kind: DataQuery
-                        spec:
-                            qryType: 1
-                            query: label_values(temporal_worker_task_slots_available{namespace=~"$namespace"}, service_name)
-                            refId: PrometheusVariableQueryEditor-VariableQuery
-                        version: v0
-                    refresh: onDashboardLoad
-                    regex: ""
-                    regexApplyTo: value
-                    skipUrlSync: false
-                    sort: alphabeticalAsc
-                - kind: QueryVariable
-                  spec:
-                    allowCustomValue: false
-                    current:
-                        text: All
-                        value: $__all
-                    definition: label_values(temporal_workflow_completed_total{namespace=~"$namespace"}, workflow_type)
-                    hide: dontHide
-                    includeAll: true
-                    label: Workflow type
-                    multi: true
-                    name: workflow_type
-                    options: []
-                    query:
-                        datasource:
-                            name: prometheus
-                        group: prometheus
-                        kind: DataQuery
-                        spec:
-                            qryType: 1
-                            query: label_values(temporal_workflow_completed_total{namespace=~"$namespace"}, workflow_type)
-                            refId: PrometheusVariableQueryEditor-VariableQuery
-                        version: v0
-                    refresh: onDashboardLoad
-                    regex: ""
-                    regexApplyTo: value
-                    skipUrlSync: false
-                    sort: alphabeticalAsc
+            title: Envoy Gateway — Edge Overview
+            variables: []

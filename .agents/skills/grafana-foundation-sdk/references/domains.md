@@ -5,14 +5,20 @@ A domain is a Grafana folder plus the Go packages that feed it. Folder title equ
 
 | Folder | Packages | Dashboards (UID) | Alert group |
 |---|---|---|---|
-| `Kubernetes` | `queries/prometheus/kubernetes`, `dashboards/kubernetes`, `alerts/kubernetes.go` | `kubernetes-cluster-overview` | `kubernetes` |
+| `Kubernetes` | `queries/prometheus/kubernetes`, `dashboards/kubernetes`, `alerts/kubernetes.go` | `kubernetes-cluster-overview`, `keda` | `kubernetes` |
 | `Databases` | `queries/prometheus/postgres`, `dashboards/postgres`, `alerts/postgres.go` | `pg-io-waits`, `pg-maintenance`, `pg-query-performance`, `pg-exporter-instance`, `pgdog` | `databases` |
-| `Observability` | `queries/prometheus/observability`, `dashboards/observability` | `temporal-worker` | none yet |
-| `Microservices` | `queries/prometheus/microservices`, `dashboards/microservices` | `microservices-monitoring-001-otel`, `business-otel` | none yet |
+| `Observability` | `queries/prometheus/observability`, `dashboards/observability` | `temporal-worker`, `otel-collector-health` | none yet |
+| `Microservices` | `queries/prometheus/microservices`, `dashboards/microservices` | `microservices-monitoring-001-otel`, `business-otel`, `red-spanmetrics`, `rfc0021-baseline`, `inventory-overview` | none yet |
+| `Platform` | `queries/prometheus/platform`, `dashboards/platform` | `cert-manager`, `keycloak-identity` | none yet |
+| `API Gateway` | `queries/prometheus/gateway`, `dashboards/gateway` | `eg-edge` | none yet |
 
-Adding a domain: add a `Folder*` constant in `internal/standards/folders.go`, create the
-three packages, register resources with that folder, extend the `want` map in
-`TestDomainFolders`. `cmd/generate` does not change.
+The domain slug and the folder title differ wherever the folder reads better to a human
+than the package does: `postgres` -> `Databases`, `gateway` -> `API Gateway`.
+
+Adding a domain: add a `Domain*` constant in `internal/standards/domains.go` and a
+`Folder*` constant in `internal/standards/folders.go`, create the packages, register
+resources with both, extend the `want` map in `TestDomainFolders`. `cmd/generate` does
+not change.
 
 ## Metric models, check before writing PromQL
 
@@ -24,7 +30,15 @@ The Databases folder mixes two exporter models. Do not assume one for the other.
 | Pigsty `postgres_exporter` | `pg_*` raw plus `pg:*` recording rules | `ins`, `cls`, `datname` | `pg-exporter-instance` |
 | PGDog | `pgdog_*` | `host`, `port`, `shard`, `role`, `database`, `user` | `pgdog` |
 | kube-state-metrics + cAdvisor | `kube_*`, `container_*`, `kubelet_*` | `namespace`, `pod`, `node`, `persistentvolumeclaim` | `kubernetes-cluster-overview` |
-| Temporal SDK | `temporal_workflow_*`, `temporal_activity_*` | `namespace`, `task_queue`, `workflow_type`, `activity_type` | `temporal-worker` |
+| Temporal SDK | `temporal_workflow_*_total`, `temporal_activity_*` | `namespace`, `service_name`, `task_queue`, `workflow_type`, `activity_type` | `temporal-worker` |
+| Temporal server | `service_requests`, `service_error_with_type`, `persistence_requests`, `persistence_error_with_type` | `job=~".*temporal.*"`, `service_name` | `temporal-worker` (Server row) |
+| KEDA | `keda_scaler_*`, `keda_scaled_object_errors_total`, plus kube-state-metrics HPA | `exported_namespace`, `scaledObject`, `scaler` | `keda` |
+| cert-manager | `certmanager_certificate_*`, `certmanager_controller_sync_*`, `workqueue_*` | `name`, `namespace`, `condition`, `controller` | `cert-manager` |
+| Keycloak on Quarkus | `http_server_requests_seconds_*`, `keycloak_user_events_total`, `agroal_*`, `jvm_*` | `uri`, `outcome`, `event`, `realm`, `client_id` | `keycloak-identity` |
+| Envoy + Envoy Gateway | `envoy_http_downstream_*`, `envoy_cluster_upstream_*`, `watchable_*` | `envoy_cluster_name`, `envoy_response_code_class`, `runner` | `eg-edge` |
+| OTel Collector internals | `otelcol_receiver_*`, `otelcol_exporter_*`, `otelcol_processor_batch_*` | `receiver`, `exporter`, `data_type` | `otel-collector-health` |
+| spanmetrics connector | `spanmetrics_calls_total`, `spanmetrics_duration_milliseconds_bucket` | `service_name`, `span_kind`, `status_code` | `red-spanmetrics` |
+| RFC-0021 recording rules | `rfc0021:*`, `inventory:*` | varies per rule | `rfc0021-baseline`, `inventory-overview` |
 | OTel semconv (Go SDK) | `http_server_*`, `rpc_server_*`, `rpc_client_*`, `go_memory_*`, `go_goroutine_count`, `db_client_*`, `pgxpool_*` | `service_name`, `http_route`, `http_request_method`, `http_response_status_code`, `rpc_method`, `rpc_response_status_code`, `server_address` | `microservices-monitoring-001-otel` |
 | Per-service business instruments | `payment_*`, `order_*`, `auth_*`, `product_*`, `cart_*`, `shipment_*`, `user_*`, `reviews_*`, `notification_*`, `checkout_*` | `result`, `outcome`, `op`, `reason`, `step`, `kind`, `found`, `channel`, `mode` | `business-otel` |
 

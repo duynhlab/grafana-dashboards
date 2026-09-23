@@ -4,13 +4,21 @@ kind: Kustomization
 namespace: grafana-operator
 resources:
     - grafanamanifest-kubernetes-cluster-overview.yaml
+    - grafanamanifest-keda.yaml
     - grafanamanifest-pg-io-waits.yaml
     - grafanamanifest-pg-maintenance.yaml
     - grafanamanifest-pg-query-performance.yaml
     - grafanamanifest-pg-exporter-instance.yaml
     - grafanamanifest-pgdog.yaml
     - grafanamanifest-temporal-worker.yaml
+    - grafanamanifest-otel-collector-health.yaml
     - grafanamanifest-microservices-monitoring-001-otel.yaml
     - grafanamanifest-business-otel.yaml
+    - grafanamanifest-red-spanmetrics.yaml
+    - grafanamanifest-rfc0021-baseline.yaml
+    - grafanamanifest-inventory-overview.yaml
+    - grafanamanifest-cert-manager.yaml
+    - grafanamanifest-keycloak-identity.yaml
+    - grafanamanifest-eg-edge.yaml
     - grafanaalertrulegroup-databases.yaml
     - grafanaalertrulegroup-kubernetes.yaml

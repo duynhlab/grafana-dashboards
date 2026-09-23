@@ -1,0 +1,1174 @@
+{
+  "annotations": [],
+  "cursorSync": "Off",
+  "description": "Health of the OpenTelemetry Collector self-telemetry (job=~\".*otel-collector.*\"): pipeline throughput, exporter fan-out, and collector self resource usage.",
+  "editable": true,
+  "elements": {
+    "batch-processor": {
+      "kind": "Panel",
+      "spec": {
+        "id": 0,
+        "title": "Batch processor",
+        "description": "",
+        "links": [],
+        "data": {
+          "kind": "QueryGroup",
+          "spec": {
+            "queries": [
+              {
+                "kind": "PanelQuery",
+                "spec": {
+                  "query": {
+                    "kind": "DataQuery",
+                    "group": "prometheus",
+                    "version": "v0",
+                    "datasource": {
+                      "name": "prometheus"
+                    },
+                    "spec": {
+                      "expr": "histogram_quantile(0.95, sum(rate(otelcol_processor_batch_batch_send_size_bucket{job=~\".*otel-collector.*\"}[$__rate_interval])) by (le))",
+                      "legendFormat": "batch size p95"
+                    }
+                  },
+                  "refId": "A",
+                  "hidden": false
+                }
+              },
+              {
+                "kind": "PanelQuery",
+                "spec": {
+                  "query": {
+                    "kind": "DataQuery",
+                    "group": "prometheus",
+                    "version": "v0",
+                    "datasource": {
+                      "name": "prometheus"
+                    },
+                    "spec": {
+                      "expr": "sum(rate(otelcol_processor_batch_timeout_trigger_send{job=~\".*otel-collector.*\"}[$__rate_interval]))",
+                      "legendFormat": "timeout-triggered sends/s",
+                      "range": true
+                    }
+                  },
+                  "refId": "B",
+                  "hidden": false
+                }
+              },
+              {
+                "kind": "PanelQuery",
+                "spec": {
+                  "query": {
+                    "kind": "DataQuery",
+                    "group": "prometheus",
+                    "version": "v0",
+                    "datasource": {
+                      "name": "prometheus"
+                    },
+                    "spec": {
+                      "expr": "sum(otelcol_processor_batch_metadata_cardinality{job=~\".*otel-collector.*\"})",
+                      "legendFormat": "metadata cardinality",
+                      "range": true
+                    }
+                  },
+                  "refId": "C",
+                  "hidden": false
+                }
+              }
+            ],
+            "transformations": [],
+            "queryOptions": {}
+          }
+        },
+        "vizConfig": {
+          "kind": "VizConfig",
+          "group": "timeseries",
+          "version": "",
+          "spec": {
+            "options": {
+              "legend": {
+                "displayMode": "list",
+                "placement": "bottom",
+                "showLegend": false,
+                "calcs": []
+              },
+              "tooltip": {
+                "mode": "",
+                "sort": ""
+              }
+            },
+            "fieldConfig": {
+              "defaults": {
+                "custom": {}
+              },
+              "overrides": []
+            }
+          }
+        }
+      }
+    },
+    "collector-cpu": {
+      "kind": "Panel",
+      "spec": {
+        "id": 0,
+        "title": "Collector CPU",
+        "description": "",
+        "links": [],
+        "data": {
+          "kind": "QueryGroup",
+          "spec": {
+            "queries": [
+              {
+                "kind": "PanelQuery",
+                "spec": {
+                  "query": {
+                    "kind": "DataQuery",
+                    "group": "prometheus",
+                    "version": "v0",
+                    "datasource": {
+                      "name": "prometheus"
+                    },
+                    "spec": {
+                      "expr": "sum(rate(otelcol_process_cpu_seconds{job=~\".*otel-collector.*\"}[$__rate_interval]))",
+                      "legendFormat": "cpu"
+                    }
+                  },
+                  "refId": "A",
+                  "hidden": false
+                }
+              }
+            ],
+            "transformations": [],
+            "queryOptions": {}
+          }
+        },
+        "vizConfig": {
+          "kind": "VizConfig",
+          "group": "timeseries",
+          "version": "",
+          "spec": {
+            "options": {
+              "legend": {
+                "displayMode": "list",
+                "placement": "bottom",
+                "showLegend": false,
+                "calcs": []
+              },
+              "tooltip": {
+                "mode": "",
+                "sort": ""
+              }
+            },
+            "fieldConfig": {
+              "defaults": {
+                "unit": "percentunit",
+                "custom": {}
+              },
+              "overrides": []
+            }
+          }
+        }
+      }
+    },
+    "collector-memory": {
+      "kind": "Panel",
+      "spec": {
+        "id": 0,
+        "title": "Collector memory",
+        "description": "",
+        "links": [],
+        "data": {
+          "kind": "QueryGroup",
+          "spec": {
+            "queries": [
+              {
+                "kind": "PanelQuery",
+                "spec": {
+                  "query": {
+                    "kind": "DataQuery",
+                    "group": "prometheus",
+                    "version": "v0",
+                    "datasource": {
+                      "name": "prometheus"
+                    },
+                    "spec": {
+                      "expr": "sum(otelcol_process_memory_rss{job=~\".*otel-collector.*\"})",
+                      "legendFormat": "RSS"
+                    }
+                  },
+                  "refId": "A",
+                  "hidden": false
+                }
+              },
+              {
+                "kind": "PanelQuery",
+                "spec": {
+                  "query": {
+                    "kind": "DataQuery",
+                    "group": "prometheus",
+                    "version": "v0",
+                    "datasource": {
+                      "name": "prometheus"
+                    },
+                    "spec": {
+                      "expr": "sum(otelcol_process_runtime_heap_alloc_bytes{job=~\".*otel-collector.*\"})",
+                      "legendFormat": "heap alloc",
+                      "range": true
+                    }
+                  },
+                  "refId": "B",
+                  "hidden": false
+                }
+              }
+            ],
+            "transformations": [],
+            "queryOptions": {}
+          }
+        },
+        "vizConfig": {
+          "kind": "VizConfig",
+          "group": "timeseries",
+          "version": "",
+          "spec": {
+            "options": {
+              "legend": {
+                "displayMode": "list",
+                "placement": "bottom",
+                "showLegend": false,
+                "calcs": []
+              },
+              "tooltip": {
+                "mode": "",
+                "sort": ""
+              }
+            },
+            "fieldConfig": {
+              "defaults": {
+                "unit": "bytes",
+                "custom": {}
+              },
+              "overrides": []
+            }
+          }
+        }
+      }
+    },
+    "collector-up": {
+      "kind": "Panel",
+      "spec": {
+        "id": 0,
+        "title": "Collector up",
+        "description": "",
+        "links": [],
+        "data": {
+          "kind": "QueryGroup",
+          "spec": {
+            "queries": [
+              {
+                "kind": "PanelQuery",
+                "spec": {
+                  "query": {
+                    "kind": "DataQuery",
+                    "group": "prometheus",
+                    "version": "v0",
+                    "datasource": {
+                      "name": "prometheus"
+                    },
+                    "spec": {
+                      "expr": "up{job=~\".*otel-collector.*\"}"
+                    }
+                  },
+                  "refId": "A",
+                  "hidden": false
+                }
+              }
+            ],
+            "transformations": [],
+            "queryOptions": {}
+          }
+        },
+        "vizConfig": {
+          "kind": "VizConfig",
+          "group": "stat",
+          "version": "",
+          "spec": {
+            "options": {
+              "graphMode": "area",
+              "colorMode": "value",
+              "justifyMode": "auto",
+              "textMode": "auto",
+              "wideLayout": true,
+              "showPercentChange": false,
+              "reduceOptions": {
+                "calcs": [
+                  "lastNotNull"
+                ]
+              },
+              "percentChangeColorMode": "standard",
+              "orientation": ""
+            },
+            "fieldConfig": {
+              "defaults": {
+                "thresholds": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "value": null,
+                      "color": "red"
+                    },
+                    {
+                      "value": 1,
+                      "color": "green"
+                    }
+                  ]
+                }
+              },
+              "overrides": []
+            }
+          }
+        }
+      }
+    },
+    "deltatocumulative": {
+      "kind": "Panel",
+      "spec": {
+        "id": 0,
+        "title": "deltatocumulative streams",
+        "description": "",
+        "links": [],
+        "data": {
+          "kind": "QueryGroup",
+          "spec": {
+            "queries": [
+              {
+                "kind": "PanelQuery",
+                "spec": {
+                  "query": {
+                    "kind": "DataQuery",
+                    "group": "prometheus",
+                    "version": "v0",
+                    "datasource": {
+                      "name": "prometheus"
+                    },
+                    "spec": {
+                      "expr": "sum(otelcol_deltatocumulative_streams_tracked{job=~\".*otel-collector.*\"})",
+                      "legendFormat": "tracked"
+                    }
+                  },
+                  "refId": "A",
+                  "hidden": false
+                }
+              },
+              {
+                "kind": "PanelQuery",
+                "spec": {
+                  "query": {
+                    "kind": "DataQuery",
+                    "group": "prometheus",
+                    "version": "v0",
+                    "datasource": {
+                      "name": "prometheus"
+                    },
+                    "spec": {
+                      "expr": "sum(otelcol_deltatocumulative_streams_limit{job=~\".*otel-collector.*\"})",
+                      "legendFormat": "limit",
+                      "range": true
+                    }
+                  },
+                  "refId": "B",
+                  "hidden": false
+                }
+              }
+            ],
+            "transformations": [],
+            "queryOptions": {}
+          }
+        },
+        "vizConfig": {
+          "kind": "VizConfig",
+          "group": "timeseries",
+          "version": "",
+          "spec": {
+            "options": {
+              "legend": {
+                "displayMode": "list",
+                "placement": "bottom",
+                "showLegend": false,
+                "calcs": []
+              },
+              "tooltip": {
+                "mode": "",
+                "sort": ""
+              }
+            },
+            "fieldConfig": {
+              "defaults": {
+                "custom": {}
+              },
+              "overrides": []
+            }
+          }
+        }
+      }
+    },
+    "exporter-failed": {
+      "kind": "Panel",
+      "spec": {
+        "id": 0,
+        "title": "Exporter send-failure rate",
+        "description": "",
+        "links": [],
+        "data": {
+          "kind": "QueryGroup",
+          "spec": {
+            "queries": [
+              {
+                "kind": "PanelQuery",
+                "spec": {
+                  "query": {
+                    "kind": "DataQuery",
+                    "group": "prometheus",
+                    "version": "v0",
+                    "datasource": {
+                      "name": "prometheus"
+                    },
+                    "spec": {
+                      "expr": "(sum(rate(otelcol_exporter_send_failed_spans{job=~\".*otel-collector.*\"}[$__rate_interval])) by (exporter) or vector(0))",
+                      "legendFormat": "spans {{exporter}}"
+                    }
+                  },
+                  "refId": "A",
+                  "hidden": false
+                }
+              },
+              {
+                "kind": "PanelQuery",
+                "spec": {
+                  "query": {
+                    "kind": "DataQuery",
+                    "group": "prometheus",
+                    "version": "v0",
+                    "datasource": {
+                      "name": "prometheus"
+                    },
+                    "spec": {
+                      "expr": "(sum(rate(otelcol_exporter_send_failed_metric_points{job=~\".*otel-collector.*\"}[$__rate_interval])) by (exporter) or vector(0))",
+                      "legendFormat": "metric points {{exporter}}",
+                      "range": true
+                    }
+                  },
+                  "refId": "B",
+                  "hidden": false
+                }
+              },
+              {
+                "kind": "PanelQuery",
+                "spec": {
+                  "query": {
+                    "kind": "DataQuery",
+                    "group": "prometheus",
+                    "version": "v0",
+                    "datasource": {
+                      "name": "prometheus"
+                    },
+                    "spec": {
+                      "expr": "(sum(rate(otelcol_exporter_send_failed_log_records{job=~\".*otel-collector.*\"}[$__rate_interval])) by (exporter) or vector(0))",
+                      "legendFormat": "log records {{exporter}}",
+                      "range": true
+                    }
+                  },
+                  "refId": "C",
+                  "hidden": false
+                }
+              }
+            ],
+            "transformations": [],
+            "queryOptions": {}
+          }
+        },
+        "vizConfig": {
+          "kind": "VizConfig",
+          "group": "timeseries",
+          "version": "",
+          "spec": {
+            "options": {
+              "legend": {
+                "displayMode": "list",
+                "placement": "bottom",
+                "showLegend": false,
+                "calcs": []
+              },
+              "tooltip": {
+                "mode": "",
+                "sort": ""
+              }
+            },
+            "fieldConfig": {
+              "defaults": {
+                "unit": "ops",
+                "custom": {}
+              },
+              "overrides": []
+            }
+          }
+        }
+      }
+    },
+    "exporter-queue": {
+      "kind": "Panel",
+      "spec": {
+        "id": 0,
+        "title": "Exporter queue utilisation",
+        "description": "",
+        "links": [],
+        "data": {
+          "kind": "QueryGroup",
+          "spec": {
+            "queries": [
+              {
+                "kind": "PanelQuery",
+                "spec": {
+                  "query": {
+                    "kind": "DataQuery",
+                    "group": "prometheus",
+                    "version": "v0",
+                    "datasource": {
+                      "name": "prometheus"
+                    },
+                    "spec": {
+                      "expr": "sum(otelcol_exporter_queue_size{job=~\".*otel-collector.*\"}) by (exporter)",
+                      "legendFormat": "size {{exporter}}"
+                    }
+                  },
+                  "refId": "A",
+                  "hidden": false
+                }
+              },
+              {
+                "kind": "PanelQuery",
+                "spec": {
+                  "query": {
+                    "kind": "DataQuery",
+                    "group": "prometheus",
+                    "version": "v0",
+                    "datasource": {
+                      "name": "prometheus"
+                    },
+                    "spec": {
+                      "expr": "sum(otelcol_exporter_queue_capacity{job=~\".*otel-collector.*\"}) by (exporter)",
+                      "legendFormat": "capacity {{exporter}}",
+                      "range": true
+                    }
+                  },
+                  "refId": "B",
+                  "hidden": false
+                }
+              }
+            ],
+            "transformations": [],
+            "queryOptions": {}
+          }
+        },
+        "vizConfig": {
+          "kind": "VizConfig",
+          "group": "timeseries",
+          "version": "",
+          "spec": {
+            "options": {
+              "legend": {
+                "displayMode": "list",
+                "placement": "bottom",
+                "showLegend": false,
+                "calcs": []
+              },
+              "tooltip": {
+                "mode": "",
+                "sort": ""
+              }
+            },
+            "fieldConfig": {
+              "defaults": {
+                "custom": {}
+              },
+              "overrides": []
+            }
+          }
+        }
+      }
+    },
+    "exporter-sent": {
+      "kind": "Panel",
+      "spec": {
+        "id": 0,
+        "title": "Exporter sent rate by destination",
+        "description": "",
+        "links": [],
+        "data": {
+          "kind": "QueryGroup",
+          "spec": {
+            "queries": [
+              {
+                "kind": "PanelQuery",
+                "spec": {
+                  "query": {
+                    "kind": "DataQuery",
+                    "group": "prometheus",
+                    "version": "v0",
+                    "datasource": {
+                      "name": "prometheus"
+                    },
+                    "spec": {
+                      "expr": "sum(rate(otelcol_exporter_sent_spans{job=~\".*otel-collector.*\"}[$__rate_interval])) by (exporter)",
+                      "legendFormat": "spans {{exporter}}"
+                    }
+                  },
+                  "refId": "A",
+                  "hidden": false
+                }
+              },
+              {
+                "kind": "PanelQuery",
+                "spec": {
+                  "query": {
+                    "kind": "DataQuery",
+                    "group": "prometheus",
+                    "version": "v0",
+                    "datasource": {
+                      "name": "prometheus"
+                    },
+                    "spec": {
+                      "expr": "sum(rate(otelcol_exporter_sent_metric_points{job=~\".*otel-collector.*\"}[$__rate_interval])) by (exporter)",
+                      "legendFormat": "metric points {{exporter}}",
+                      "range": true
+                    }
+                  },
+                  "refId": "B",
+                  "hidden": false
+                }
+              },
+              {
+                "kind": "PanelQuery",
+                "spec": {
+                  "query": {
+                    "kind": "DataQuery",
+                    "group": "prometheus",
+                    "version": "v0",
+                    "datasource": {
+                      "name": "prometheus"
+                    },
+                    "spec": {
+                      "expr": "sum(rate(otelcol_exporter_sent_log_records{job=~\".*otel-collector.*\"}[$__rate_interval])) by (exporter)",
+                      "legendFormat": "log records {{exporter}}",
+                      "range": true
+                    }
+                  },
+                  "refId": "C",
+                  "hidden": false
+                }
+              }
+            ],
+            "transformations": [],
+            "queryOptions": {}
+          }
+        },
+        "vizConfig": {
+          "kind": "VizConfig",
+          "group": "timeseries",
+          "version": "",
+          "spec": {
+            "options": {
+              "legend": {
+                "displayMode": "list",
+                "placement": "bottom",
+                "showLegend": false,
+                "calcs": []
+              },
+              "tooltip": {
+                "mode": "",
+                "sort": ""
+              }
+            },
+            "fieldConfig": {
+              "defaults": {
+                "unit": "ops",
+                "custom": {}
+              },
+              "overrides": []
+            }
+          }
+        }
+      }
+    },
+    "receiver-accepted": {
+      "kind": "Panel",
+      "spec": {
+        "id": 0,
+        "title": "Receiver accepted rate",
+        "description": "",
+        "links": [],
+        "data": {
+          "kind": "QueryGroup",
+          "spec": {
+            "queries": [
+              {
+                "kind": "PanelQuery",
+                "spec": {
+                  "query": {
+                    "kind": "DataQuery",
+                    "group": "prometheus",
+                    "version": "v0",
+                    "datasource": {
+                      "name": "prometheus"
+                    },
+                    "spec": {
+                      "expr": "sum(rate(otelcol_receiver_accepted_spans{job=~\".*otel-collector.*\"}[$__rate_interval])) by (receiver)",
+                      "legendFormat": "spans {{receiver}}"
+                    }
+                  },
+                  "refId": "A",
+                  "hidden": false
+                }
+              },
+              {
+                "kind": "PanelQuery",
+                "spec": {
+                  "query": {
+                    "kind": "DataQuery",
+                    "group": "prometheus",
+                    "version": "v0",
+                    "datasource": {
+                      "name": "prometheus"
+                    },
+                    "spec": {
+                      "expr": "sum(rate(otelcol_receiver_accepted_metric_points{job=~\".*otel-collector.*\"}[$__rate_interval])) by (receiver)",
+                      "legendFormat": "metric points {{receiver}}",
+                      "range": true
+                    }
+                  },
+                  "refId": "B",
+                  "hidden": false
+                }
+              },
+              {
+                "kind": "PanelQuery",
+                "spec": {
+                  "query": {
+                    "kind": "DataQuery",
+                    "group": "prometheus",
+                    "version": "v0",
+                    "datasource": {
+                      "name": "prometheus"
+                    },
+                    "spec": {
+                      "expr": "sum(rate(otelcol_receiver_accepted_log_records{job=~\".*otel-collector.*\"}[$__rate_interval])) by (receiver)",
+                      "legendFormat": "log records {{receiver}}",
+                      "range": true
+                    }
+                  },
+                  "refId": "C",
+                  "hidden": false
+                }
+              }
+            ],
+            "transformations": [],
+            "queryOptions": {}
+          }
+        },
+        "vizConfig": {
+          "kind": "VizConfig",
+          "group": "timeseries",
+          "version": "",
+          "spec": {
+            "options": {
+              "legend": {
+                "displayMode": "list",
+                "placement": "bottom",
+                "showLegend": false,
+                "calcs": []
+              },
+              "tooltip": {
+                "mode": "",
+                "sort": ""
+              }
+            },
+            "fieldConfig": {
+              "defaults": {
+                "unit": "ops",
+                "custom": {}
+              },
+              "overrides": []
+            }
+          }
+        }
+      }
+    },
+    "receiver-refused": {
+      "kind": "Panel",
+      "spec": {
+        "id": 0,
+        "title": "Receiver refused / failed rate",
+        "description": "",
+        "links": [],
+        "data": {
+          "kind": "QueryGroup",
+          "spec": {
+            "queries": [
+              {
+                "kind": "PanelQuery",
+                "spec": {
+                  "query": {
+                    "kind": "DataQuery",
+                    "group": "prometheus",
+                    "version": "v0",
+                    "datasource": {
+                      "name": "prometheus"
+                    },
+                    "spec": {
+                      "expr": "(sum(rate(otelcol_receiver_refused_spans{job=~\".*otel-collector.*\"}[$__rate_interval])) or vector(0))",
+                      "legendFormat": "refused spans"
+                    }
+                  },
+                  "refId": "A",
+                  "hidden": false
+                }
+              },
+              {
+                "kind": "PanelQuery",
+                "spec": {
+                  "query": {
+                    "kind": "DataQuery",
+                    "group": "prometheus",
+                    "version": "v0",
+                    "datasource": {
+                      "name": "prometheus"
+                    },
+                    "spec": {
+                      "expr": "(sum(rate(otelcol_receiver_refused_metric_points{job=~\".*otel-collector.*\"}[$__rate_interval])) or vector(0))",
+                      "legendFormat": "refused metric points",
+                      "range": true
+                    }
+                  },
+                  "refId": "B",
+                  "hidden": false
+                }
+              },
+              {
+                "kind": "PanelQuery",
+                "spec": {
+                  "query": {
+                    "kind": "DataQuery",
+                    "group": "prometheus",
+                    "version": "v0",
+                    "datasource": {
+                      "name": "prometheus"
+                    },
+                    "spec": {
+                      "expr": "(sum(rate(otelcol_receiver_refused_log_records{job=~\".*otel-collector.*\"}[$__rate_interval])) or vector(0))",
+                      "legendFormat": "refused log records",
+                      "range": true
+                    }
+                  },
+                  "refId": "C",
+                  "hidden": false
+                }
+              },
+              {
+                "kind": "PanelQuery",
+                "spec": {
+                  "query": {
+                    "kind": "DataQuery",
+                    "group": "prometheus",
+                    "version": "v0",
+                    "datasource": {
+                      "name": "prometheus"
+                    },
+                    "spec": {
+                      "expr": "(sum(rate(otelcol_receiver_failed_spans{job=~\".*otel-collector.*\"}[$__rate_interval])) or vector(0))",
+                      "legendFormat": "failed spans",
+                      "range": true
+                    }
+                  },
+                  "refId": "D",
+                  "hidden": false
+                }
+              },
+              {
+                "kind": "PanelQuery",
+                "spec": {
+                  "query": {
+                    "kind": "DataQuery",
+                    "group": "prometheus",
+                    "version": "v0",
+                    "datasource": {
+                      "name": "prometheus"
+                    },
+                    "spec": {
+                      "expr": "(sum(rate(otelcol_receiver_failed_metric_points{job=~\".*otel-collector.*\"}[$__rate_interval])) or vector(0))",
+                      "legendFormat": "failed metric points",
+                      "range": true
+                    }
+                  },
+                  "refId": "E",
+                  "hidden": false
+                }
+              },
+              {
+                "kind": "PanelQuery",
+                "spec": {
+                  "query": {
+                    "kind": "DataQuery",
+                    "group": "prometheus",
+                    "version": "v0",
+                    "datasource": {
+                      "name": "prometheus"
+                    },
+                    "spec": {
+                      "expr": "(sum(rate(otelcol_receiver_failed_log_records{job=~\".*otel-collector.*\"}[$__rate_interval])) or vector(0))",
+                      "legendFormat": "failed log records",
+                      "range": true
+                    }
+                  },
+                  "refId": "F",
+                  "hidden": false
+                }
+              }
+            ],
+            "transformations": [],
+            "queryOptions": {}
+          }
+        },
+        "vizConfig": {
+          "kind": "VizConfig",
+          "group": "timeseries",
+          "version": "",
+          "spec": {
+            "options": {
+              "legend": {
+                "displayMode": "list",
+                "placement": "bottom",
+                "showLegend": false,
+                "calcs": []
+              },
+              "tooltip": {
+                "mode": "",
+                "sort": ""
+              }
+            },
+            "fieldConfig": {
+              "defaults": {
+                "unit": "ops",
+                "custom": {}
+              },
+              "overrides": []
+            }
+          }
+        }
+      }
+    }
+  },
+  "layout": {
+    "kind": "RowsLayout",
+    "spec": {
+      "rows": [
+        {
+          "kind": "RowsLayoutRow",
+          "spec": {
+            "title": "Pipeline throughput",
+            "layout": {
+              "kind": "GridLayout",
+              "spec": {
+                "items": [
+                  {
+                    "kind": "GridLayoutItem",
+                    "spec": {
+                      "x": 0,
+                      "y": 0,
+                      "width": 4,
+                      "height": 8,
+                      "element": {
+                        "kind": "ElementReference",
+                        "name": "collector-up"
+                      }
+                    }
+                  },
+                  {
+                    "kind": "GridLayoutItem",
+                    "spec": {
+                      "x": 4,
+                      "y": 0,
+                      "width": 10,
+                      "height": 8,
+                      "element": {
+                        "kind": "ElementReference",
+                        "name": "receiver-accepted"
+                      }
+                    }
+                  },
+                  {
+                    "kind": "GridLayoutItem",
+                    "spec": {
+                      "x": 14,
+                      "y": 0,
+                      "width": 10,
+                      "height": 8,
+                      "element": {
+                        "kind": "ElementReference",
+                        "name": "receiver-refused"
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "kind": "RowsLayoutRow",
+          "spec": {
+            "title": "Exporters",
+            "layout": {
+              "kind": "GridLayout",
+              "spec": {
+                "items": [
+                  {
+                    "kind": "GridLayoutItem",
+                    "spec": {
+                      "x": 0,
+                      "y": 0,
+                      "width": 12,
+                      "height": 8,
+                      "element": {
+                        "kind": "ElementReference",
+                        "name": "exporter-sent"
+                      }
+                    }
+                  },
+                  {
+                    "kind": "GridLayoutItem",
+                    "spec": {
+                      "x": 12,
+                      "y": 0,
+                      "width": 12,
+                      "height": 8,
+                      "element": {
+                        "kind": "ElementReference",
+                        "name": "exporter-failed"
+                      }
+                    }
+                  },
+                  {
+                    "kind": "GridLayoutItem",
+                    "spec": {
+                      "x": 0,
+                      "y": 8,
+                      "width": 12,
+                      "height": 8,
+                      "element": {
+                        "kind": "ElementReference",
+                        "name": "exporter-queue"
+                      }
+                    }
+                  },
+                  {
+                    "kind": "GridLayoutItem",
+                    "spec": {
+                      "x": 12,
+                      "y": 8,
+                      "width": 12,
+                      "height": 8,
+                      "element": {
+                        "kind": "ElementReference",
+                        "name": "batch-processor"
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "kind": "RowsLayoutRow",
+          "spec": {
+            "title": "Self",
+            "layout": {
+              "kind": "GridLayout",
+              "spec": {
+                "items": [
+                  {
+                    "kind": "GridLayoutItem",
+                    "spec": {
+                      "x": 0,
+                      "y": 0,
+                      "width": 8,
+                      "height": 8,
+                      "element": {
+                        "kind": "ElementReference",
+                        "name": "collector-memory"
+                      }
+                    }
+                  },
+                  {
+                    "kind": "GridLayoutItem",
+                    "spec": {
+                      "x": 8,
+                      "y": 0,
+                      "width": 8,
+                      "height": 8,
+                      "element": {
+                        "kind": "ElementReference",
+                        "name": "collector-cpu"
+                      }
+                    }
+                  },
+                  {
+                    "kind": "GridLayoutItem",
+                    "spec": {
+                      "x": 16,
+                      "y": 0,
+                      "width": 8,
+                      "height": 8,
+                      "element": {
+                        "kind": "ElementReference",
+                        "name": "deltatocumulative"
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "links": [],
+  "preload": false,
+  "tags": [
+    "otel-collector",
+    "observability",
+    "generated",
+    "foundation-sdk"
+  ],
+  "timeSettings": {
+    "timezone": "browser",
+    "from": "now-6h",
+    "to": "now",
+    "autoRefresh": "30s",
+    "autoRefreshIntervals": [
+      "5s",
+      "10s",
+      "30s",
+      "1m",
+      "5m",
+      "15m",
+      "30m",
+      "1h",
+      "2h",
+      "1d"
+    ],
+    "hideTimepicker": false,
+    "fiscalYearStartMonth": 0
+  },
+  "title": "OTel Collector Health",
+  "variables": []
+}

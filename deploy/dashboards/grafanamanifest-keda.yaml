@@ -4,7 +4,7 @@ kind: GrafanaManifest
 metadata:
     labels:
         app.kubernetes.io/part-of: grafana-dashboards-as-code
-    name: temporal-worker
+    name: keda
 spec:
     instanceSelector:
         matchLabels:
@@ -15,16 +15,16 @@ spec:
         kind: Dashboard
         metadata:
             annotations:
-                grafana.app/folder: observability
-            name: temporal-worker
+                grafana.app/folder: kubernetes
+            name: keda
             namespace: default
         spec:
             annotations: []
             cursorSync: "Off"
-            description: 'Temporal on the cluster, both halves: SDK/worker metrics (temporal_*) pushed over OTLP by the order-fulfillment worker (pkg/temporalx), and server metrics (service_*, persistence_*, approximate_backlog_*) scraped via the per-role ServiceMonitors the temporalio chart renders (job=~".*temporal.*"). See homelab RFC-0001.'
+            description: 'KEDA as the Temporal workers'' autoscaler (ADR-055): what the temporal scaler computed per worker version, what the HPA it renders actually did, the server backlog and SDK schedule-to-start it is meant to drain, and KEDA''s own health.'
             editable: true
             elements:
-                act-failure:
+                current-vs-max-replicas:
                     kind: Panel
                     spec:
                         data:
@@ -40,188 +40,8 @@ spec:
                                             group: prometheus
                                             kind: DataQuery
                                             spec:
-                                                expr: (sum(rate(temporal_activity_execution_failed_total{namespace=~"$namespace",service_name=~"$service_name"}[$__rate_interval])) or vector(0)) / clamp_min(sum(rate(temporal_activity_execution_latency_seconds_count{namespace=~"$namespace",service_name=~"$service_name"}[$__rate_interval])), 1)
-                                                legendFormat: failure ratio
-                                            version: v0
-                                        refId: A
-                                queryOptions: {}
-                                transformations: []
-                        description: ""
-                        id: 0
-                        links: []
-                        title: Activity failure ratio
-                        vizConfig:
-                            group: timeseries
-                            kind: VizConfig
-                            spec:
-                                fieldConfig:
-                                    defaults:
-                                        custom: {}
-                                        unit: percentunit
-                                    overrides: []
-                                options:
-                                    legend:
-                                        calcs: []
-                                        displayMode: list
-                                        placement: bottom
-                                        showLegend: false
-                                    tooltip:
-                                        mode: ""
-                                        sort: ""
-                            version: ""
-                act-latency:
-                    kind: Panel
-                    spec:
-                        data:
-                            kind: QueryGroup
-                            spec:
-                                queries:
-                                    - kind: PanelQuery
-                                      spec:
-                                        hidden: false
-                                        query:
-                                            datasource:
-                                                name: prometheus
-                                            group: prometheus
-                                            kind: DataQuery
-                                            spec:
-                                                expr: histogram_quantile(0.95, sum(rate(temporal_activity_execution_latency_seconds_bucket{namespace=~"$namespace",service_name=~"$service_name"}[$__rate_interval])) by (le, activity_type))
-                                                legendFormat: '{{activity_type}}'
-                                            version: v0
-                                        refId: A
-                                queryOptions: {}
-                                transformations: []
-                        description: ""
-                        id: 0
-                        links: []
-                        title: Activity execution latency (p95) by type
-                        vizConfig:
-                            group: timeseries
-                            kind: VizConfig
-                            spec:
-                                fieldConfig:
-                                    defaults:
-                                        custom: {}
-                                        unit: s
-                                    overrides: []
-                                options:
-                                    legend:
-                                        calcs: []
-                                        displayMode: list
-                                        placement: bottom
-                                        showLegend: false
-                                    tooltip:
-                                        mode: ""
-                                        sort: ""
-                            version: ""
-                act-rate:
-                    kind: Panel
-                    spec:
-                        data:
-                            kind: QueryGroup
-                            spec:
-                                queries:
-                                    - kind: PanelQuery
-                                      spec:
-                                        hidden: false
-                                        query:
-                                            datasource:
-                                                name: prometheus
-                                            group: prometheus
-                                            kind: DataQuery
-                                            spec:
-                                                expr: sum(rate(temporal_activity_execution_latency_seconds_count{namespace=~"$namespace",service_name=~"$service_name"}[$__rate_interval])) by (activity_type)
-                                                legendFormat: '{{activity_type}}'
-                                            version: v0
-                                        refId: A
-                                queryOptions: {}
-                                transformations: []
-                        description: ""
-                        id: 0
-                        links: []
-                        title: Activity execution rate by type
-                        vizConfig:
-                            group: timeseries
-                            kind: VizConfig
-                            spec:
-                                fieldConfig:
-                                    defaults:
-                                        custom: {}
-                                        unit: ops
-                                    overrides: []
-                                options:
-                                    legend:
-                                        calcs: []
-                                        displayMode: list
-                                        placement: bottom
-                                        showLegend: false
-                                    tooltip:
-                                        mode: ""
-                                        sort: ""
-                            version: ""
-                act-sched-start:
-                    kind: Panel
-                    spec:
-                        data:
-                            kind: QueryGroup
-                            spec:
-                                queries:
-                                    - kind: PanelQuery
-                                      spec:
-                                        hidden: false
-                                        query:
-                                            datasource:
-                                                name: prometheus
-                                            group: prometheus
-                                            kind: DataQuery
-                                            spec:
-                                                expr: histogram_quantile(0.95, sum(rate(temporal_activity_schedule_to_start_latency_seconds_bucket{namespace=~"$namespace",service_name=~"$service_name"}[$__rate_interval])) by (le, task_queue))
-                                                legendFormat: '{{task_queue}}'
-                                            version: v0
-                                        refId: A
-                                queryOptions: {}
-                                transformations: []
-                        description: ""
-                        id: 0
-                        links: []
-                        title: Activity schedule-to-start latency (p95)
-                        vizConfig:
-                            group: timeseries
-                            kind: VizConfig
-                            spec:
-                                fieldConfig:
-                                    defaults:
-                                        custom: {}
-                                        unit: s
-                                    overrides: []
-                                options:
-                                    legend:
-                                        calcs: []
-                                        displayMode: list
-                                        placement: bottom
-                                        showLegend: false
-                                    tooltip:
-                                        mode: ""
-                                        sort: ""
-                            version: ""
-                srv-backlog:
-                    kind: Panel
-                    spec:
-                        data:
-                            kind: QueryGroup
-                            spec:
-                                queries:
-                                    - kind: PanelQuery
-                                      spec:
-                                        hidden: false
-                                        query:
-                                            datasource:
-                                                name: prometheus
-                                            group: prometheus
-                                            kind: DataQuery
-                                            spec:
-                                                expr: sum by (taskqueue, task_type, worker_version) (approximate_backlog_count{job=~".*temporal.*"})
-                                                legendFormat: backlog {{taskqueue}} {{task_type}} {{worker_version}}
+                                                expr: sum by (horizontalpodautoscaler) (kube_horizontalpodautoscaler_status_current_replicas{namespace=~"$namespace", horizontalpodautoscaler=~"keda-hpa-.*"})
+                                                legendFormat: '{{horizontalpodautoscaler}} current'
                                             version: v0
                                         refId: A
                                     - kind: PanelQuery
@@ -233,8 +53,8 @@ spec:
                                             group: prometheus
                                             kind: DataQuery
                                             spec:
-                                                expr: max by (taskqueue, task_type, worker_version) (approximate_backlog_age_seconds{job=~".*temporal.*"})
-                                                legendFormat: age(s) {{taskqueue}} {{task_type}} {{worker_version}}
+                                                expr: sum by (horizontalpodautoscaler) (kube_horizontalpodautoscaler_spec_max_replicas{namespace=~"$namespace", horizontalpodautoscaler=~"keda-hpa-.*"})
+                                                legendFormat: '{{horizontalpodautoscaler}} max'
                                                 range: true
                                             version: v0
                                         refId: B
@@ -243,7 +63,7 @@ spec:
                         description: ""
                         id: 0
                         links: []
-                        title: Task-queue backlog (server view)
+                        title: Current vs max replicas
                         vizConfig:
                             group: timeseries
                             kind: VizConfig
@@ -263,7 +83,7 @@ spec:
                                         mode: ""
                                         sort: ""
                             version: ""
-                srv-error-ratio:
+                desired-vs-target:
                     kind: Panel
                     spec:
                         data:
@@ -279,143 +99,8 @@ spec:
                                             group: prometheus
                                             kind: DataQuery
                                             spec:
-                                                expr: (sum(rate(service_error_with_type{job=~".*temporal.*"}[$__rate_interval])) or vector(0)) / clamp_min(sum(rate(service_requests{job=~".*temporal.*"}[$__rate_interval])), 1)
-                                                legendFormat: error ratio
-                                            version: v0
-                                        refId: A
-                                queryOptions: {}
-                                transformations: []
-                        description: ""
-                        id: 0
-                        links: []
-                        title: Service error ratio
-                        vizConfig:
-                            group: timeseries
-                            kind: VizConfig
-                            spec:
-                                fieldConfig:
-                                    defaults:
-                                        custom: {}
-                                        unit: percentunit
-                                    overrides: []
-                                options:
-                                    legend:
-                                        calcs: []
-                                        displayMode: list
-                                        placement: bottom
-                                        showLegend: false
-                                    tooltip:
-                                        mode: ""
-                                        sort: ""
-                            version: ""
-                srv-grpc-rate:
-                    kind: Panel
-                    spec:
-                        data:
-                            kind: QueryGroup
-                            spec:
-                                queries:
-                                    - kind: PanelQuery
-                                      spec:
-                                        hidden: false
-                                        query:
-                                            datasource:
-                                                name: prometheus
-                                            group: prometheus
-                                            kind: DataQuery
-                                            spec:
-                                                expr: sum(rate(service_requests{job=~".*temporal.*"}[$__rate_interval])) by (service_name)
-                                                legendFormat: '{{service_name}}'
-                                            version: v0
-                                        refId: A
-                                queryOptions: {}
-                                transformations: []
-                        description: ""
-                        id: 0
-                        links: []
-                        title: gRPC request rate by role
-                        vizConfig:
-                            group: timeseries
-                            kind: VizConfig
-                            spec:
-                                fieldConfig:
-                                    defaults:
-                                        custom: {}
-                                        unit: reqps
-                                    overrides: []
-                                options:
-                                    legend:
-                                        calcs: []
-                                        displayMode: list
-                                        placement: bottom
-                                        showLegend: false
-                                    tooltip:
-                                        mode: ""
-                                        sort: ""
-                            version: ""
-                srv-latency:
-                    kind: Panel
-                    spec:
-                        data:
-                            kind: QueryGroup
-                            spec:
-                                queries:
-                                    - kind: PanelQuery
-                                      spec:
-                                        hidden: false
-                                        query:
-                                            datasource:
-                                                name: prometheus
-                                            group: prometheus
-                                            kind: DataQuery
-                                            spec:
-                                                expr: histogram_quantile(0.95, sum(rate(service_latency_bucket{job=~".*temporal.*"}[$__rate_interval])) by (le, service_name))
-                                                legendFormat: '{{service_name}}'
-                                            version: v0
-                                        refId: A
-                                queryOptions: {}
-                                transformations: []
-                        description: ""
-                        id: 0
-                        links: []
-                        title: Service latency (p95) by role
-                        vizConfig:
-                            group: timeseries
-                            kind: VizConfig
-                            spec:
-                                fieldConfig:
-                                    defaults:
-                                        custom: {}
-                                        unit: s
-                                    overrides: []
-                                options:
-                                    legend:
-                                        calcs: []
-                                        displayMode: list
-                                        placement: bottom
-                                        showLegend: false
-                                    tooltip:
-                                        mode: ""
-                                        sort: ""
-                            version: ""
-                srv-persistence:
-                    kind: Panel
-                    spec:
-                        data:
-                            kind: QueryGroup
-                            spec:
-                                queries:
-                                    - kind: PanelQuery
-                                      spec:
-                                        hidden: false
-                                        query:
-                                            datasource:
-                                                name: prometheus
-                                            group: prometheus
-                                            kind: DataQuery
-                                            spec:
-                                                expr: sum(rate(persistence_requests{job=~".*temporal.*"}[$__rate_interval]))
-                                                legendFormat: requests/s
+                                                expr: sum by (scaledObject) (keda_scaler_metrics_value{exported_namespace=~"$namespace", scaledObject=~"$scaledObject"}) / 5
+                                                legendFormat: '{{scaledObject}} desired'
                                             version: v0
                                         refId: A
                                     - kind: PanelQuery
@@ -427,8 +112,8 @@ spec:
                                             group: prometheus
                                             kind: DataQuery
                                             spec:
-                                                expr: (sum(rate(persistence_error_with_type{job=~".*temporal.*"}[$__rate_interval])) or vector(0)) / clamp_min(sum(rate(persistence_requests{job=~".*temporal.*"}[$__rate_interval])), 1)
-                                                legendFormat: error ratio
+                                                expr: sum by (horizontalpodautoscaler) (kube_horizontalpodautoscaler_status_current_replicas{namespace=~"$namespace", horizontalpodautoscaler=~"keda-hpa-.*"})
+                                                legendFormat: '{{horizontalpodautoscaler}} current'
                                                 range: true
                                             version: v0
                                         refId: B
@@ -437,7 +122,7 @@ spec:
                         description: ""
                         id: 0
                         links: []
-                        title: Persistence request rate / error ratio
+                        title: Desired vs target (value ÷ targetQueueSize 5)
                         vizConfig:
                             group: timeseries
                             kind: VizConfig
@@ -457,7 +142,7 @@ spec:
                                         mode: ""
                                         sort: ""
                             version: ""
-                srv-up:
+                keda-version:
                     kind: Panel
                     spec:
                         data:
@@ -473,8 +158,7 @@ spec:
                                             group: prometheus
                                             kind: DataQuery
                                             spec:
-                                                expr: min(up{job=~".*temporal.*"})
-                                                legendFormat: up
+                                                expr: max(keda_build_info) by (version)
                                             version: v0
                                         refId: A
                                 queryOptions: {}
@@ -482,7 +166,58 @@ spec:
                         description: ""
                         id: 0
                         links: []
-                        title: Server up
+                        title: KEDA version
+                        vizConfig:
+                            group: stat
+                            kind: VizConfig
+                            spec:
+                                fieldConfig:
+                                    defaults:
+                                        thresholds:
+                                            mode: absolute
+                                            steps:
+                                                - color: green
+                                                  value: null
+                                        unit: none
+                                    overrides: []
+                                options:
+                                    colorMode: value
+                                    graphMode: area
+                                    justifyMode: auto
+                                    orientation: ""
+                                    percentChangeColorMode: standard
+                                    reduceOptions:
+                                        calcs:
+                                            - lastNotNull
+                                    showPercentChange: false
+                                    textMode: auto
+                                    wideLayout: true
+                            version: ""
+                metrics-adapter-up:
+                    kind: Panel
+                    spec:
+                        data:
+                            kind: QueryGroup
+                            spec:
+                                queries:
+                                    - kind: PanelQuery
+                                      spec:
+                                        hidden: false
+                                        query:
+                                            datasource:
+                                                name: prometheus
+                                            group: prometheus
+                                            kind: DataQuery
+                                            spec:
+                                                expr: min(up{job=~".*keda-metrics-apiserver.*|.*keda-operator-metrics-apiserver.*"})
+                                            version: v0
+                                        refId: A
+                                queryOptions: {}
+                                transformations: []
+                        description: ""
+                        id: 0
+                        links: []
+                        title: Metrics adapter up
                         vizConfig:
                             group: stat
                             kind: VizConfig
@@ -510,7 +245,7 @@ spec:
                                     textMode: auto
                                     wideLayout: true
                             version: ""
-                wf-completion:
+                operator-up:
                     kind: Panel
                     spec:
                         data:
@@ -526,8 +261,7 @@ spec:
                                             group: prometheus
                                             kind: DataQuery
                                             spec:
-                                                expr: sum(rate(temporal_workflow_completed_total{namespace=~"$namespace",service_name=~"$service_name",workflow_type=~"$workflow_type"}[$__rate_interval])) by (workflow_type, service_name)
-                                                legendFormat: '{{workflow_type}} ({{service_name}})'
+                                                expr: min(up{job=~".*keda-operator.*"})
                                             version: v0
                                         refId: A
                                 queryOptions: {}
@@ -535,27 +269,35 @@ spec:
                         description: ""
                         id: 0
                         links: []
-                        title: Workflow completion rate
+                        title: Operator up
                         vizConfig:
-                            group: timeseries
+                            group: stat
                             kind: VizConfig
                             spec:
                                 fieldConfig:
                                     defaults:
-                                        custom: {}
-                                        unit: ops
+                                        thresholds:
+                                            mode: absolute
+                                            steps:
+                                                - color: red
+                                                  value: null
+                                                - color: green
+                                                  value: 1
                                     overrides: []
                                 options:
-                                    legend:
-                                        calcs: []
-                                        displayMode: list
-                                        placement: bottom
-                                        showLegend: false
-                                    tooltip:
-                                        mode: ""
-                                        sort: ""
+                                    colorMode: value
+                                    graphMode: area
+                                    justifyMode: auto
+                                    orientation: ""
+                                    percentChangeColorMode: standard
+                                    reduceOptions:
+                                        calcs:
+                                            - lastNotNull
+                                    showPercentChange: false
+                                    textMode: auto
+                                    wideLayout: true
                             version: ""
-                wf-failure:
+                replica-changes:
                     kind: Panel
                     spec:
                         data:
@@ -571,8 +313,8 @@ spec:
                                             group: prometheus
                                             kind: DataQuery
                                             spec:
-                                                expr: (sum(rate(temporal_workflow_failed_total{namespace=~"$namespace",service_name=~"$service_name",workflow_type=~"$workflow_type"}[$__rate_interval])) or vector(0)) / clamp_min(sum(rate(temporal_workflow_completed_total{namespace=~"$namespace",service_name=~"$service_name",workflow_type=~"$workflow_type"}[$__rate_interval])) + (sum(rate(temporal_workflow_failed_total{namespace=~"$namespace",service_name=~"$service_name",workflow_type=~"$workflow_type"}[$__rate_interval])) or vector(0)), 1)
-                                                legendFormat: failure ratio
+                                                expr: delta(kube_horizontalpodautoscaler_status_current_replicas{namespace=~"$namespace", horizontalpodautoscaler=~"keda-hpa-.*"}[$__rate_interval])
+                                                legendFormat: '{{horizontalpodautoscaler}}'
                                             version: v0
                                         refId: A
                                 queryOptions: {}
@@ -580,274 +322,7 @@ spec:
                         description: ""
                         id: 0
                         links: []
-                        title: Workflow failure ratio
-                        vizConfig:
-                            group: timeseries
-                            kind: VizConfig
-                            spec:
-                                fieldConfig:
-                                    defaults:
-                                        custom: {}
-                                        unit: percentunit
-                                    overrides: []
-                                options:
-                                    legend:
-                                        calcs: []
-                                        displayMode: list
-                                        placement: bottom
-                                        showLegend: false
-                                    tooltip:
-                                        mode: ""
-                                        sort: ""
-                            version: ""
-                wf-latency:
-                    kind: Panel
-                    spec:
-                        data:
-                            kind: QueryGroup
-                            spec:
-                                queries:
-                                    - kind: PanelQuery
-                                      spec:
-                                        hidden: false
-                                        query:
-                                            datasource:
-                                                name: prometheus
-                                            group: prometheus
-                                            kind: DataQuery
-                                            spec:
-                                                expr: histogram_quantile(0.95, sum(rate(temporal_workflow_endtoend_latency_seconds_bucket{namespace=~"$namespace",service_name=~"$service_name",workflow_type=~"$workflow_type"}[$__rate_interval])) by (le))
-                                                legendFormat: p95
-                                            version: v0
-                                        refId: A
-                                    - kind: PanelQuery
-                                      spec:
-                                        hidden: false
-                                        query:
-                                            datasource:
-                                                name: prometheus
-                                            group: prometheus
-                                            kind: DataQuery
-                                            spec:
-                                                expr: histogram_quantile(0.99, sum(rate(temporal_workflow_endtoend_latency_seconds_bucket{namespace=~"$namespace",service_name=~"$service_name",workflow_type=~"$workflow_type"}[$__rate_interval])) by (le))
-                                                legendFormat: p99
-                                                range: true
-                                            version: v0
-                                        refId: B
-                                queryOptions: {}
-                                transformations: []
-                        description: ""
-                        id: 0
-                        links: []
-                        title: Workflow end-to-end latency
-                        vizConfig:
-                            group: timeseries
-                            kind: VizConfig
-                            spec:
-                                fieldConfig:
-                                    defaults:
-                                        custom: {}
-                                        unit: s
-                                    overrides: []
-                                options:
-                                    legend:
-                                        calcs: []
-                                        displayMode: list
-                                        placement: bottom
-                                        showLegend: false
-                                    tooltip:
-                                        mode: ""
-                                        sort: ""
-                            version: ""
-                wf-poll:
-                    kind: Panel
-                    spec:
-                        data:
-                            kind: QueryGroup
-                            spec:
-                                queries:
-                                    - kind: PanelQuery
-                                      spec:
-                                        hidden: false
-                                        query:
-                                            datasource:
-                                                name: prometheus
-                                            group: prometheus
-                                            kind: DataQuery
-                                            spec:
-                                                expr: sum(rate(temporal_workflow_task_queue_poll_succeed_total{namespace=~"$namespace",service_name=~"$service_name"}[$__rate_interval])) by (task_queue)
-                                                legendFormat: succeed {{task_queue}}
-                                            version: v0
-                                        refId: A
-                                    - kind: PanelQuery
-                                      spec:
-                                        hidden: false
-                                        query:
-                                            datasource:
-                                                name: prometheus
-                                            group: prometheus
-                                            kind: DataQuery
-                                            spec:
-                                                expr: sum(rate(temporal_workflow_task_queue_poll_empty_total{namespace=~"$namespace",service_name=~"$service_name"}[$__rate_interval])) by (task_queue)
-                                                legendFormat: empty {{task_queue}}
-                                                range: true
-                                            version: v0
-                                        refId: B
-                                queryOptions: {}
-                                transformations: []
-                        description: ""
-                        id: 0
-                        links: []
-                        title: Workflow task poll outcome rate
-                        vizConfig:
-                            group: timeseries
-                            kind: VizConfig
-                            spec:
-                                fieldConfig:
-                                    defaults:
-                                        custom: {}
-                                        unit: ops
-                                    overrides: []
-                                options:
-                                    legend:
-                                        calcs: []
-                                        displayMode: list
-                                        placement: bottom
-                                        showLegend: false
-                                    tooltip:
-                                        mode: ""
-                                        sort: ""
-                            version: ""
-                wf-sched-start:
-                    kind: Panel
-                    spec:
-                        data:
-                            kind: QueryGroup
-                            spec:
-                                queries:
-                                    - kind: PanelQuery
-                                      spec:
-                                        hidden: false
-                                        query:
-                                            datasource:
-                                                name: prometheus
-                                            group: prometheus
-                                            kind: DataQuery
-                                            spec:
-                                                expr: histogram_quantile(0.95, sum(rate(temporal_workflow_task_schedule_to_start_latency_seconds_bucket{namespace=~"$namespace",service_name=~"$service_name"}[$__rate_interval])) by (le, task_queue))
-                                                legendFormat: p95 {{task_queue}}
-                                            version: v0
-                                        refId: A
-                                    - kind: PanelQuery
-                                      spec:
-                                        hidden: false
-                                        query:
-                                            datasource:
-                                                name: prometheus
-                                            group: prometheus
-                                            kind: DataQuery
-                                            spec:
-                                                expr: histogram_quantile(0.99, sum(rate(temporal_workflow_task_schedule_to_start_latency_seconds_bucket{namespace=~"$namespace",service_name=~"$service_name"}[$__rate_interval])) by (le, task_queue))
-                                                legendFormat: p99 {{task_queue}}
-                                                range: true
-                                            version: v0
-                                        refId: B
-                                queryOptions: {}
-                                transformations: []
-                        description: ""
-                        id: 0
-                        links: []
-                        title: Workflow task schedule-to-start latency
-                        vizConfig:
-                            group: timeseries
-                            kind: VizConfig
-                            spec:
-                                fieldConfig:
-                                    defaults:
-                                        custom: {}
-                                        unit: s
-                                    overrides: []
-                                options:
-                                    legend:
-                                        calcs: []
-                                        displayMode: list
-                                        placement: bottom
-                                        showLegend: false
-                                    tooltip:
-                                        mode: ""
-                                        sort: ""
-                            version: ""
-                wf-task-exec:
-                    kind: Panel
-                    spec:
-                        data:
-                            kind: QueryGroup
-                            spec:
-                                queries:
-                                    - kind: PanelQuery
-                                      spec:
-                                        hidden: false
-                                        query:
-                                            datasource:
-                                                name: prometheus
-                                            group: prometheus
-                                            kind: DataQuery
-                                            spec:
-                                                expr: histogram_quantile(0.95, sum(rate(temporal_workflow_task_execution_latency_seconds_bucket{namespace=~"$namespace",service_name=~"$service_name"}[$__rate_interval])) by (le, task_queue))
-                                                legendFormat: '{{task_queue}}'
-                                            version: v0
-                                        refId: A
-                                queryOptions: {}
-                                transformations: []
-                        description: ""
-                        id: 0
-                        links: []
-                        title: Workflow task execution latency (p95)
-                        vizConfig:
-                            group: timeseries
-                            kind: VizConfig
-                            spec:
-                                fieldConfig:
-                                    defaults:
-                                        custom: {}
-                                        unit: s
-                                    overrides: []
-                                options:
-                                    legend:
-                                        calcs: []
-                                        displayMode: list
-                                        placement: bottom
-                                        showLegend: false
-                                    tooltip:
-                                        mode: ""
-                                        sort: ""
-                            version: ""
-                worker-pollers:
-                    kind: Panel
-                    spec:
-                        data:
-                            kind: QueryGroup
-                            spec:
-                                queries:
-                                    - kind: PanelQuery
-                                      spec:
-                                        hidden: false
-                                        query:
-                                            datasource:
-                                                name: prometheus
-                                            group: prometheus
-                                            kind: DataQuery
-                                            spec:
-                                                expr: sum(temporal_num_pollers{namespace=~"$namespace",service_name=~"$service_name"}) by (service_name, poller_type)
-                                                legendFormat: '{{service_name}}/{{poller_type}}'
-                                            version: v0
-                                        refId: A
-                                queryOptions: {}
-                                transformations: []
-                        description: ""
-                        id: 0
-                        links: []
-                        title: Pollers
+                        title: Replica changes
                         vizConfig:
                             group: timeseries
                             kind: VizConfig
@@ -867,7 +342,7 @@ spec:
                                         mode: ""
                                         sort: ""
                             version: ""
-                worker-req-error:
+                scale-loop-latency:
                     kind: Panel
                     spec:
                         data:
@@ -883,8 +358,8 @@ spec:
                                             group: prometheus
                                             kind: DataQuery
                                             spec:
-                                                expr: (sum(rate(temporal_request_failure_total{namespace=~"$namespace",service_name=~"$service_name"}[$__rate_interval])) or vector(0)) / clamp_min(sum(rate(temporal_request_total{namespace=~"$namespace",service_name=~"$service_name"}[$__rate_interval])), 1)
-                                                legendFormat: error ratio
+                                                expr: max by (scaledObject) (keda_internal_scale_loop_latency_seconds{exported_namespace=~"$namespace"})
+                                                legendFormat: '{{scaledObject}}'
                                             version: v0
                                         refId: A
                                 queryOptions: {}
@@ -892,52 +367,7 @@ spec:
                         description: ""
                         id: 0
                         links: []
-                        title: Worker → server request error ratio
-                        vizConfig:
-                            group: timeseries
-                            kind: VizConfig
-                            spec:
-                                fieldConfig:
-                                    defaults:
-                                        custom: {}
-                                        unit: percentunit
-                                    overrides: []
-                                options:
-                                    legend:
-                                        calcs: []
-                                        displayMode: list
-                                        placement: bottom
-                                        showLegend: false
-                                    tooltip:
-                                        mode: ""
-                                        sort: ""
-                            version: ""
-                worker-req-latency:
-                    kind: Panel
-                    spec:
-                        data:
-                            kind: QueryGroup
-                            spec:
-                                queries:
-                                    - kind: PanelQuery
-                                      spec:
-                                        hidden: false
-                                        query:
-                                            datasource:
-                                                name: prometheus
-                                            group: prometheus
-                                            kind: DataQuery
-                                            spec:
-                                                expr: histogram_quantile(0.95, sum(rate(temporal_request_latency_seconds_bucket{namespace=~"$namespace",service_name=~"$service_name"}[$__rate_interval])) by (le, service_name))
-                                                legendFormat: '{{service_name}}'
-                                            version: v0
-                                        refId: A
-                                queryOptions: {}
-                                transformations: []
-                        description: ""
-                        id: 0
-                        links: []
-                        title: Worker → server request latency (p95)
+                        title: Scale-loop latency (internal)
                         vizConfig:
                             group: timeseries
                             kind: VizConfig
@@ -957,7 +387,7 @@ spec:
                                         mode: ""
                                         sort: ""
                             version: ""
-                worker-slots:
+                scaledobject-errors:
                     kind: Panel
                     spec:
                         data:
@@ -973,10 +403,42 @@ spec:
                                             group: prometheus
                                             kind: DataQuery
                                             spec:
-                                                expr: sum(temporal_worker_task_slots_available{namespace=~"$namespace",service_name=~"$service_name"}) by (service_name, worker_type)
-                                                legendFormat: available {{service_name}}/{{worker_type}}
+                                                expr: sum by (scaledObject) (rate(keda_scaled_object_errors_total{exported_namespace=~"$namespace", scaledObject=~"$scaledObject"}[$__rate_interval]))
+                                                legendFormat: '{{scaledObject}}'
                                             version: v0
                                         refId: A
+                                queryOptions: {}
+                                transformations: []
+                        description: ""
+                        id: 0
+                        links: []
+                        title: ScaledObject errors (rate)
+                        vizConfig:
+                            group: timeseries
+                            kind: VizConfig
+                            spec:
+                                fieldConfig:
+                                    defaults:
+                                        custom: {}
+                                        unit: ops
+                                    overrides: []
+                                options:
+                                    legend:
+                                        calcs: []
+                                        displayMode: list
+                                        placement: bottom
+                                        showLegend: false
+                                    tooltip:
+                                        mode: ""
+                                        sort: ""
+                            version: ""
+                scaledobjects-registered:
+                    kind: Panel
+                    spec:
+                        data:
+                            kind: QueryGroup
+                            spec:
+                                queries:
                                     - kind: PanelQuery
                                       spec:
                                         hidden: false
@@ -986,17 +448,214 @@ spec:
                                             group: prometheus
                                             kind: DataQuery
                                             spec:
-                                                expr: sum(temporal_worker_task_slots_used{namespace=~"$namespace",service_name=~"$service_name"}) by (service_name, worker_type)
-                                                legendFormat: used {{service_name}}/{{worker_type}}
-                                                range: true
+                                                expr: sum(keda_resource_registered_total{type="scaled_object"})
                                             version: v0
-                                        refId: B
+                                        refId: A
                                 queryOptions: {}
                                 transformations: []
                         description: ""
                         id: 0
                         links: []
-                        title: Worker task slots
+                        title: ScaledObjects registered
+                        vizConfig:
+                            group: stat
+                            kind: VizConfig
+                            spec:
+                                fieldConfig:
+                                    defaults:
+                                        thresholds:
+                                            mode: absolute
+                                            steps:
+                                                - color: green
+                                                  value: null
+                                    overrides: []
+                                options:
+                                    colorMode: value
+                                    graphMode: area
+                                    justifyMode: auto
+                                    orientation: ""
+                                    percentChangeColorMode: standard
+                                    reduceOptions:
+                                        calcs:
+                                            - lastNotNull
+                                    showPercentChange: false
+                                    textMode: auto
+                                    wideLayout: true
+                            version: ""
+                scaler-active:
+                    kind: Panel
+                    spec:
+                        data:
+                            kind: QueryGroup
+                            spec:
+                                queries:
+                                    - kind: PanelQuery
+                                      spec:
+                                        hidden: false
+                                        query:
+                                            datasource:
+                                                name: prometheus
+                                            group: prometheus
+                                            kind: DataQuery
+                                            spec:
+                                                expr: max by (scaledObject) (keda_scaler_active{exported_namespace=~"$namespace", scaledObject=~"$scaledObject"})
+                                                legendFormat: '{{scaledObject}}'
+                                            version: v0
+                                        refId: A
+                                queryOptions: {}
+                                transformations: []
+                        description: ""
+                        id: 0
+                        links: []
+                        title: Scaler active
+                        vizConfig:
+                            group: state-timeline
+                            kind: VizConfig
+                            spec:
+                                fieldConfig:
+                                    defaults:
+                                        custom:
+                                            fillOpacity: 70
+                                            lineWidth: 0
+                                        thresholds:
+                                            mode: absolute
+                                            steps:
+                                                - color: transparent
+                                                  value: null
+                                                - color: green
+                                                  value: 1
+                                    overrides: []
+                                options:
+                                    alignValue: left
+                                    legend:
+                                        calcs: []
+                                        displayMode: list
+                                        placement: bottom
+                                        showLegend: false
+                                    mergeValues: true
+                                    perPage: 20
+                                    rowHeight: 0.9
+                                    showValue: never
+                                    tooltip:
+                                        mode: ""
+                                        sort: ""
+                            version: ""
+                scaler-errors:
+                    kind: Panel
+                    spec:
+                        data:
+                            kind: QueryGroup
+                            spec:
+                                queries:
+                                    - kind: PanelQuery
+                                      spec:
+                                        hidden: false
+                                        query:
+                                            datasource:
+                                                name: prometheus
+                                            group: prometheus
+                                            kind: DataQuery
+                                            spec:
+                                                expr: sum by (scaledObject, scaler) (rate(keda_scaler_detail_errors_total{exported_namespace=~"$namespace", scaledObject=~"$scaledObject"}[$__rate_interval]))
+                                                legendFormat: '{{scaledObject}} / {{scaler}}'
+                                            version: v0
+                                        refId: A
+                                queryOptions: {}
+                                transformations: []
+                        description: ""
+                        id: 0
+                        links: []
+                        title: Scaler errors (rate)
+                        vizConfig:
+                            group: timeseries
+                            kind: VizConfig
+                            spec:
+                                fieldConfig:
+                                    defaults:
+                                        custom: {}
+                                        unit: ops
+                                    overrides: []
+                                options:
+                                    legend:
+                                        calcs: []
+                                        displayMode: list
+                                        placement: bottom
+                                        showLegend: false
+                                    tooltip:
+                                        mode: ""
+                                        sort: ""
+                            version: ""
+                scaler-metric-latency:
+                    kind: Panel
+                    spec:
+                        data:
+                            kind: QueryGroup
+                            spec:
+                                queries:
+                                    - kind: PanelQuery
+                                      spec:
+                                        hidden: false
+                                        query:
+                                            datasource:
+                                                name: prometheus
+                                            group: prometheus
+                                            kind: DataQuery
+                                            spec:
+                                                expr: max by (scaler, scaledObject) (keda_scaler_metrics_latency_seconds{exported_namespace=~"$namespace"})
+                                                legendFormat: '{{scaler}}'
+                                            version: v0
+                                        refId: A
+                                queryOptions: {}
+                                transformations: []
+                        description: ""
+                        id: 0
+                        links: []
+                        title: Scaler metric latency (last fetch)
+                        vizConfig:
+                            group: timeseries
+                            kind: VizConfig
+                            spec:
+                                fieldConfig:
+                                    defaults:
+                                        custom: {}
+                                        unit: s
+                                    overrides: []
+                                options:
+                                    legend:
+                                        calcs: []
+                                        displayMode: list
+                                        placement: bottom
+                                        showLegend: false
+                                    tooltip:
+                                        mode: ""
+                                        sort: ""
+                            version: ""
+                scaler-metric-value:
+                    kind: Panel
+                    spec:
+                        data:
+                            kind: QueryGroup
+                            spec:
+                                queries:
+                                    - kind: PanelQuery
+                                      spec:
+                                        hidden: false
+                                        query:
+                                            datasource:
+                                                name: prometheus
+                                            group: prometheus
+                                            kind: DataQuery
+                                            spec:
+                                                expr: sum by (scaledObject) (keda_scaler_metrics_value{exported_namespace=~"$namespace", scaledObject=~"$scaledObject"})
+                                                legendFormat: '{{scaledObject}}'
+                                            version: v0
+                                        refId: A
+                                queryOptions: {}
+                                transformations: []
+                        description: ""
+                        id: 0
+                        links: []
+                        title: Scaler metric value (backlog per worker version)
                         vizConfig:
                             group: timeseries
                             kind: VizConfig
@@ -1016,7 +675,7 @@ spec:
                                         mode: ""
                                         sort: ""
                             version: ""
-                worker-sticky-cache:
+                schedule-to-start-p99:
                     kind: Panel
                     spec:
                         data:
@@ -1032,44 +691,156 @@ spec:
                                             group: prometheus
                                             kind: DataQuery
                                             spec:
-                                                expr: sum(temporal_sticky_cache_size{namespace=~"$namespace",service_name=~"$service_name"}) by (service_name)
-                                                legendFormat: size {{service_name}}
+                                                expr: label_replace(histogram_quantile(0.99, sum by (le, task_queue) (rate(temporal_workflow_task_schedule_to_start_latency_seconds_bucket[$__rate_interval]))), "task_type", "Workflow", "", "") or label_replace(histogram_quantile(0.99, sum by (le, task_queue) (rate(temporal_activity_schedule_to_start_latency_seconds_bucket[$__rate_interval]))), "task_type", "Activity", "", "")
+                                                legendFormat: '{{task_type}} {{task_queue}}'
                                             version: v0
                                         refId: A
-                                    - kind: PanelQuery
-                                      spec:
-                                        hidden: false
-                                        query:
-                                            datasource:
-                                                name: prometheus
-                                            group: prometheus
-                                            kind: DataQuery
-                                            spec:
-                                                expr: sum(rate(temporal_sticky_cache_hit_total{namespace=~"$namespace",service_name=~"$service_name"}[$__rate_interval])) by (service_name)
-                                                legendFormat: hit/s {{service_name}}
-                                                range: true
-                                            version: v0
-                                        refId: B
-                                    - kind: PanelQuery
-                                      spec:
-                                        hidden: false
-                                        query:
-                                            datasource:
-                                                name: prometheus
-                                            group: prometheus
-                                            kind: DataQuery
-                                            spec:
-                                                expr: sum(rate(temporal_sticky_cache_forced_eviction_total{namespace=~"$namespace",service_name=~"$service_name"}[$__rate_interval])) by (service_name)
-                                                legendFormat: evictions/s {{service_name}}
-                                                range: true
-                                            version: v0
-                                        refId: C
                                 queryOptions: {}
                                 transformations: []
                         description: ""
                         id: 0
                         links: []
-                        title: Sticky cache
+                        title: Schedule-to-start p99 by task type (SDK)
+                        vizConfig:
+                            group: timeseries
+                            kind: VizConfig
+                            spec:
+                                fieldConfig:
+                                    defaults:
+                                        custom: {}
+                                        unit: s
+                                    overrides: []
+                                options:
+                                    legend:
+                                        calcs: []
+                                        displayMode: list
+                                        placement: bottom
+                                        showLegend: false
+                                    tooltip:
+                                        mode: ""
+                                        sort: ""
+                            version: ""
+                taskqueue-backlog:
+                    kind: Panel
+                    spec:
+                        data:
+                            kind: QueryGroup
+                            spec:
+                                queries:
+                                    - kind: PanelQuery
+                                      spec:
+                                        hidden: false
+                                        query:
+                                            datasource:
+                                                name: prometheus
+                                            group: prometheus
+                                            kind: DataQuery
+                                            spec:
+                                                expr: sum by (taskqueue, task_type, worker_version) (approximate_backlog_count{job=~".*temporal.*"})
+                                                legendFormat: '{{taskqueue}} {{task_type}} {{worker_version}}'
+                                            version: v0
+                                        refId: A
+                                queryOptions: {}
+                                transformations: []
+                        description: ""
+                        id: 0
+                        links: []
+                        title: Task-queue backlog (server; summed over partition only)
+                        vizConfig:
+                            group: timeseries
+                            kind: VizConfig
+                            spec:
+                                fieldConfig:
+                                    defaults:
+                                        custom: {}
+                                        unit: short
+                                    overrides: []
+                                options:
+                                    legend:
+                                        calcs: []
+                                        displayMode: list
+                                        placement: bottom
+                                        showLegend: false
+                                    tooltip:
+                                        mode: ""
+                                        sort: ""
+                            version: ""
+                temporal-triggers-registered:
+                    kind: Panel
+                    spec:
+                        data:
+                            kind: QueryGroup
+                            spec:
+                                queries:
+                                    - kind: PanelQuery
+                                      spec:
+                                        hidden: false
+                                        query:
+                                            datasource:
+                                                name: prometheus
+                                            group: prometheus
+                                            kind: DataQuery
+                                            spec:
+                                                expr: sum(keda_trigger_registered_total{type="temporal"})
+                                            version: v0
+                                        refId: A
+                                queryOptions: {}
+                                transformations: []
+                        description: ""
+                        id: 0
+                        links: []
+                        title: temporal triggers registered
+                        vizConfig:
+                            group: stat
+                            kind: VizConfig
+                            spec:
+                                fieldConfig:
+                                    defaults:
+                                        thresholds:
+                                            mode: absolute
+                                            steps:
+                                                - color: green
+                                                  value: null
+                                    overrides: []
+                                options:
+                                    colorMode: value
+                                    graphMode: area
+                                    justifyMode: auto
+                                    orientation: ""
+                                    percentChangeColorMode: standard
+                                    reduceOptions:
+                                        calcs:
+                                            - lastNotNull
+                                    showPercentChange: false
+                                    textMode: auto
+                                    wideLayout: true
+                            version: ""
+                worker-replicas:
+                    kind: Panel
+                    spec:
+                        data:
+                            kind: QueryGroup
+                            spec:
+                                queries:
+                                    - kind: PanelQuery
+                                      spec:
+                                        hidden: false
+                                        query:
+                                            datasource:
+                                                name: prometheus
+                                            group: prometheus
+                                            kind: DataQuery
+                                            spec:
+                                                expr: sum by (namespace, deployment) (kube_deployment_status_replicas{namespace=~"$namespace", deployment=~"$deployment"})
+                                                legendFormat: '{{namespace}}/{{deployment}}'
+                                            version: v0
+                                        refId: A
+                                queryOptions: {}
+                                transformations: []
+                        description: ""
+                        id: 0
+                        links: []
+                        title: Worker replicas (versioned Deployments)
                         vizConfig:
                             group: timeseries
                             kind: VizConfig
@@ -1103,7 +874,7 @@ spec:
                                           spec:
                                             element:
                                                 kind: ElementReference
-                                                name: wf-completion
+                                                name: scaler-metric-value
                                             height: 8
                                             width: 12
                                             x: 0
@@ -1112,7 +883,7 @@ spec:
                                           spec:
                                             element:
                                                 kind: ElementReference
-                                                name: wf-failure
+                                                name: desired-vs-target
                                             height: 8
                                             width: 12
                                             x: 12
@@ -1121,8 +892,8 @@ spec:
                                           spec:
                                             element:
                                                 kind: ElementReference
-                                                name: wf-latency
-                                            height: 8
+                                                name: scaler-active
+                                            height: 6
                                             width: 12
                                             x: 0
                                             "y": 8
@@ -1130,8 +901,8 @@ spec:
                                           spec:
                                             element:
                                                 kind: ElementReference
-                                                name: wf-sched-start
-                                            height: 8
+                                                name: scaler-metric-latency
+                                            height: 6
                                             width: 12
                                             x: 12
                                             "y": 8
@@ -1139,21 +910,21 @@ spec:
                                           spec:
                                             element:
                                                 kind: ElementReference
-                                                name: wf-task-exec
-                                            height: 8
+                                                name: scaler-errors
+                                            height: 7
                                             width: 12
                                             x: 0
-                                            "y": 16
+                                            "y": 14
                                         - kind: GridLayoutItem
                                           spec:
                                             element:
                                                 kind: ElementReference
-                                                name: wf-poll
-                                            height: 8
+                                                name: scaledobject-errors
+                                            height: 7
                                             width: 12
                                             x: 12
-                                            "y": 16
-                            title: Workflows
+                                            "y": 14
+                            title: Scaler — what KEDA computed
                         - kind: RowsLayoutRow
                           spec:
                             layout:
@@ -1164,7 +935,7 @@ spec:
                                           spec:
                                             element:
                                                 kind: ElementReference
-                                                name: act-rate
+                                                name: current-vs-max-replicas
                                             height: 8
                                             width: 12
                                             x: 0
@@ -1173,30 +944,12 @@ spec:
                                           spec:
                                             element:
                                                 kind: ElementReference
-                                                name: act-failure
+                                                name: replica-changes
                                             height: 8
                                             width: 12
                                             x: 12
                                             "y": 0
-                                        - kind: GridLayoutItem
-                                          spec:
-                                            element:
-                                                kind: ElementReference
-                                                name: act-latency
-                                            height: 8
-                                            width: 12
-                                            x: 0
-                                            "y": 8
-                                        - kind: GridLayoutItem
-                                          spec:
-                                            element:
-                                                kind: ElementReference
-                                                name: act-sched-start
-                                            height: 8
-                                            width: 12
-                                            x: 12
-                                            "y": 8
-                            title: Activities
+                            title: Scale target — what the HPA did
                         - kind: RowsLayoutRow
                           spec:
                             layout:
@@ -1207,48 +960,30 @@ spec:
                                           spec:
                                             element:
                                                 kind: ElementReference
-                                                name: worker-slots
-                                            height: 8
-                                            width: 12
-                                            x: 0
-                                            "y": 0
-                                        - kind: GridLayoutItem
-                                          spec:
-                                            element:
-                                                kind: ElementReference
-                                                name: worker-pollers
-                                            height: 8
-                                            width: 12
-                                            x: 12
-                                            "y": 0
-                                        - kind: GridLayoutItem
-                                          spec:
-                                            element:
-                                                kind: ElementReference
-                                                name: worker-req-error
+                                                name: taskqueue-backlog
                                             height: 8
                                             width: 8
                                             x: 0
-                                            "y": 8
+                                            "y": 0
                                         - kind: GridLayoutItem
                                           spec:
                                             element:
                                                 kind: ElementReference
-                                                name: worker-req-latency
+                                                name: worker-replicas
                                             height: 8
                                             width: 8
                                             x: 8
-                                            "y": 8
+                                            "y": 0
                                         - kind: GridLayoutItem
                                           spec:
                                             element:
                                                 kind: ElementReference
-                                                name: worker-sticky-cache
+                                                name: schedule-to-start-p99
                                             height: 8
                                             width: 8
                                             x: 16
-                                            "y": 8
-                            title: Worker / SDK
+                                            "y": 0
+                            title: Temporal — the signal being scaled on
                         - kind: RowsLayoutRow
                           spec:
                             layout:
@@ -1259,8 +994,8 @@ spec:
                                           spec:
                                             element:
                                                 kind: ElementReference
-                                                name: srv-up
-                                            height: 8
+                                                name: operator-up
+                                            height: 5
                                             width: 4
                                             x: 0
                                             "y": 0
@@ -1268,54 +1003,53 @@ spec:
                                           spec:
                                             element:
                                                 kind: ElementReference
-                                                name: srv-grpc-rate
-                                            height: 8
-                                            width: 10
+                                                name: metrics-adapter-up
+                                            height: 5
+                                            width: 4
                                             x: 4
                                             "y": 0
                                         - kind: GridLayoutItem
                                           spec:
                                             element:
                                                 kind: ElementReference
-                                                name: srv-error-ratio
-                                            height: 8
-                                            width: 10
-                                            x: 14
+                                                name: scaledobjects-registered
+                                            height: 5
+                                            width: 4
+                                            x: 8
                                             "y": 0
                                         - kind: GridLayoutItem
                                           spec:
                                             element:
                                                 kind: ElementReference
-                                                name: srv-latency
-                                            height: 8
-                                            width: 8
-                                            x: 0
-                                            "y": 8
+                                                name: temporal-triggers-registered
+                                            height: 5
+                                            width: 4
+                                            x: 12
+                                            "y": 0
                                         - kind: GridLayoutItem
                                           spec:
                                             element:
                                                 kind: ElementReference
-                                                name: srv-persistence
-                                            height: 8
-                                            width: 8
-                                            x: 8
-                                            "y": 8
-                                        - kind: GridLayoutItem
-                                          spec:
-                                            element:
-                                                kind: ElementReference
-                                                name: srv-backlog
-                                            height: 8
+                                                name: keda-version
+                                            height: 5
                                             width: 8
                                             x: 16
-                                            "y": 8
-                            title: Server
+                                            "y": 0
+                                        - kind: GridLayoutItem
+                                          spec:
+                                            element:
+                                                kind: ElementReference
+                                                name: scale-loop-latency
+                                            height: 6
+                                            width: 24
+                                            x: 0
+                                            "y": 5
+                            title: KEDA health
             links: []
             preload: false
             tags:
+                - keda
                 - temporal
-                - observability
-                - workflow
                 - generated
                 - foundation-sdk
             timeSettings:
@@ -1332,11 +1066,11 @@ spec:
                     - 2h
                     - 1d
                 fiscalYearStartMonth: 0
-                from: now-6h
+                from: now-3h
                 hideTimepicker: false
                 timezone: browser
                 to: now
-            title: Temporal — Workflows & Activities
+            title: KEDA — Worker Autoscaling
             variables:
                 - kind: QueryVariable
                   spec:
@@ -1344,7 +1078,7 @@ spec:
                     current:
                         text: All
                         value: $__all
-                    definition: label_values(temporal_worker_task_slots_available, namespace)
+                    definition: label_values(keda_scaler_active, exported_namespace)
                     hide: dontHide
                     includeAll: true
                     label: Namespace
@@ -1358,7 +1092,7 @@ spec:
                         kind: DataQuery
                         spec:
                             qryType: 1
-                            query: label_values(temporal_worker_task_slots_available, namespace)
+                            query: label_values(keda_scaler_active, exported_namespace)
                             refId: PrometheusVariableQueryEditor-VariableQuery
                         version: v0
                     refresh: onDashboardLoad
@@ -1372,12 +1106,12 @@ spec:
                     current:
                         text: All
                         value: $__all
-                    definition: label_values(temporal_worker_task_slots_available{namespace=~"$namespace"}, service_name)
+                    definition: label_values(keda_scaler_active{exported_namespace=~"$namespace"}, scaledObject)
                     hide: dontHide
                     includeAll: true
-                    label: Service
+                    label: Scaled Object
                     multi: true
-                    name: service_name
+                    name: scaledObject
                     options: []
                     query:
                         datasource:
@@ -1386,7 +1120,7 @@ spec:
                         kind: DataQuery
                         spec:
                             qryType: 1
-                            query: label_values(temporal_worker_task_slots_available{namespace=~"$namespace"}, service_name)
+                            query: label_values(keda_scaler_active{exported_namespace=~"$namespace"}, scaledObject)
                             refId: PrometheusVariableQueryEditor-VariableQuery
                         version: v0
                     refresh: onDashboardLoad
@@ -1400,12 +1134,12 @@ spec:
                     current:
                         text: All
                         value: $__all
-                    definition: label_values(temporal_workflow_completed_total{namespace=~"$namespace"}, workflow_type)
+                    definition: label_values(kube_deployment_status_replicas{namespace=~"$namespace"}, deployment)
                     hide: dontHide
                     includeAll: true
-                    label: Workflow type
+                    label: Deployment
                     multi: true
-                    name: workflow_type
+                    name: deployment
                     options: []
                     query:
                         datasource:
@@ -1414,7 +1148,7 @@ spec:
                         kind: DataQuery
                         spec:
                             qryType: 1
-                            query: label_values(temporal_workflow_completed_total{namespace=~"$namespace"}, workflow_type)
+                            query: label_values(kube_deployment_status_replicas{namespace=~"$namespace"}, deployment)
                             refId: PrometheusVariableQueryEditor-VariableQuery
                         version: v0
                     refresh: onDashboardLoad

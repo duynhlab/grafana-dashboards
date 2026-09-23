@@ -7,3 +7,5 @@ resources:
     - grafanamanifest-databases-folder.yaml
     - grafanamanifest-observability-folder.yaml
     - grafanamanifest-microservices-folder.yaml
+    - grafanamanifest-platform-folder.yaml
+    - grafanamanifest-api-gateway-folder.yaml

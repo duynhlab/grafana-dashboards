@@ -46,6 +46,8 @@ Grafana folders:
 - `Databases`
 - `Observability`
 - `Microservices`
+- `Platform`
+- `API Gateway`
 
 Dashboards:
 
@@ -57,15 +59,36 @@ Dashboards:
   `postgres_exporter` metric model: `pg_*` metrics and `pg:*` recording rules
   with `ins`/`cls` labels, not `cnpg_*`)
 - `pgdog` — PGDog connection pooler (ported from Grafana.com dashboard 24583)
-- `temporal-worker` — Temporal workflow/activity RED metrics
+- `keda` — KEDA scaler value and errors, the HPA it drives, and the Temporal backlog
+  it scales on. The source board hardcoded the namespaces and Deployments it watched;
+  those are template variables here
+- `temporal-worker` — Temporal workflow/activity RED metrics plus the server row
+  (gRPC by role, persistence, task-queue backlog)
+- `otel-collector-health` — OTel Collector receiver/exporter/processor pipeline
 - `microservices-monitoring-001-otel` — Go services RED, runtime, gRPC east-west and
   otelpgx pool metrics, using the OpenTelemetry semantic conventions
   (`http_server_*`, `rpc_*`, `go_*`, `db_client_*`) keyed on `service_name`
 - `business-otel` — per-domain business KPIs (payments, orders and saga, auth, product,
   cart, shipping, user, review, notification, checkout)
+- `red-spanmetrics` — RED from the OTel spanmetrics connector, keyed on `service_name`.
+  Distinct from `microservices-monitoring-001-otel`, which reads `http_server_*` and
+  `rpc_server_*` directly
+- `rfc0021-baseline` — order saga and payment cutover gate
+- `inventory-overview` — inventory reservation FSM and gRPC RED
+- `cert-manager` — certificate expiry and renewal, controller sync, ACME, workqueue
+- `keycloak-identity` — login and token KPIs, realm latency, auth events, JVM and DB pool
+- `eg-edge` — Envoy Gateway edge golden signals, data plane, and control plane
 
-The last two were ported from the `duynhlab/helm-charts` `grafana-dashboards` chart,
-which still serves its own copies through ConfigMaps. See the cutover note below.
+`microservices-monitoring-001-otel` and `business-otel` were ported from the
+`duynhlab/helm-charts` `grafana-dashboards` chart, which still serves its own copies
+through ConfigMaps. See the cutover note below. The rest of the boards above were ported
+from JSON vendored in `duynhlab/homelab`; each query file records the source path and the
+commit it was read at.
+
+`rfc0021-baseline` and `inventory-overview` read `rfc0021:*` and `inventory:*` **recording
+rules**, not raw metrics. Those rules live in homelab under
+`kubernetes/infra/configs/observability/metrics/prometheusrules/microservices/`; without
+them the two boards are empty.
 
 The PostgreSQL dashboards are tested on **PostgreSQL 18**.
 

@@ -2,23 +2,23 @@
   "apiVersion": "dashboard.grafana.app/v2",
   "kind": "Dashboard",
   "metadata": {
-    "name": "temporal-worker",
+    "name": "keycloak-identity",
     "namespace": "default",
     "annotations": {
-      "grafana.app/folder": "observability"
+      "grafana.app/folder": "platform"
     }
   },
   "spec": {
     "annotations": [],
     "cursorSync": "Off",
-    "description": "Temporal on the cluster, both halves: SDK/worker metrics (temporal_*) pushed over OTLP by the order-fulfillment worker (pkg/temporalx), and server metrics (service_*, persistence_*, approximate_backlog_*) scraped via the per-role ServiceMonitors the temporalio chart renders (job=~\".*temporal.*\"). See homelab RFC-0001.",
+    "description": "Identity-provider health for the platform Keycloak: auth event rates and failure ratio (error label on login/refresh_token/code_to_token), realm/token endpoint latency and the 250 ms SLO bucket, and process infrastructure (Agroal DB pool, JVM heap, GC, Argon2id hash cost). Job `keycloak` scrapes the management interface :9000; the cluster twin uses the same queries with only the datasource input changed.",
     "editable": true,
     "elements": {
-      "act-failure": {
+      "agroal-pool": {
         "kind": "Panel",
         "spec": {
           "id": 0,
-          "title": "Activity failure ratio",
+          "title": "Agroal DB pool (datasource=default)",
           "description": "",
           "links": [],
           "data": {
@@ -36,7 +36,110 @@
                         "name": "prometheus"
                       },
                       "spec": {
-                        "expr": "(sum(rate(temporal_activity_execution_failed_total{namespace=~\"$namespace\",service_name=~\"$service_name\"}[$__rate_interval])) or vector(0)) / clamp_min(sum(rate(temporal_activity_execution_latency_seconds_count{namespace=~\"$namespace\",service_name=~\"$service_name\"}[$__rate_interval])), 1)",
+                        "expr": "agroal_available_count{job=\"keycloak\",datasource=\"default\"}",
+                        "legendFormat": "available"
+                      }
+                    },
+                    "refId": "A",
+                    "hidden": false
+                  }
+                },
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "prometheus",
+                      "version": "v0",
+                      "datasource": {
+                        "name": "prometheus"
+                      },
+                      "spec": {
+                        "expr": "agroal_active_count{job=\"keycloak\",datasource=\"default\"}",
+                        "legendFormat": "active",
+                        "range": true
+                      }
+                    },
+                    "refId": "B",
+                    "hidden": false
+                  }
+                },
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "prometheus",
+                      "version": "v0",
+                      "datasource": {
+                        "name": "prometheus"
+                      },
+                      "spec": {
+                        "expr": "agroal_awaiting_count{job=\"keycloak\",datasource=\"default\"}",
+                        "legendFormat": "awaiting",
+                        "range": true
+                      }
+                    },
+                    "refId": "C",
+                    "hidden": false
+                  }
+                }
+              ],
+              "transformations": [],
+              "queryOptions": {}
+            }
+          },
+          "vizConfig": {
+            "kind": "VizConfig",
+            "group": "timeseries",
+            "version": "",
+            "spec": {
+              "options": {
+                "legend": {
+                  "displayMode": "list",
+                  "placement": "bottom",
+                  "showLegend": false,
+                  "calcs": []
+                },
+                "tooltip": {
+                  "mode": "",
+                  "sort": ""
+                }
+              },
+              "fieldConfig": {
+                "defaults": {
+                  "unit": "short",
+                  "custom": {}
+                },
+                "overrides": []
+              }
+            }
+          }
+        }
+      },
+      "auth-failure-ratio": {
+        "kind": "Panel",
+        "spec": {
+          "id": 0,
+          "title": "Auth failure ratio",
+          "description": "",
+          "links": [],
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "prometheus",
+                      "version": "v0",
+                      "datasource": {
+                        "name": "prometheus"
+                      },
+                      "spec": {
+                        "expr": "sum(rate(keycloak_user_events_total{job=\"keycloak\",event=~\"login|refresh_token|code_to_token\",error!=\"\"}[$__rate_interval])) / sum(rate(keycloak_user_events_total{job=\"keycloak\",event=~\"login|refresh_token|code_to_token\"}[$__rate_interval]))",
                         "legendFormat": "failure ratio"
                       }
                     },
@@ -51,25 +154,44 @@
           },
           "vizConfig": {
             "kind": "VizConfig",
-            "group": "timeseries",
+            "group": "stat",
             "version": "",
             "spec": {
               "options": {
-                "legend": {
-                  "displayMode": "list",
-                  "placement": "bottom",
-                  "showLegend": false,
-                  "calcs": []
+                "graphMode": "area",
+                "colorMode": "value",
+                "justifyMode": "auto",
+                "textMode": "auto",
+                "wideLayout": true,
+                "showPercentChange": false,
+                "reduceOptions": {
+                  "calcs": [
+                    "lastNotNull"
+                  ]
                 },
-                "tooltip": {
-                  "mode": "",
-                  "sort": ""
-                }
+                "percentChangeColorMode": "standard",
+                "orientation": ""
               },
               "fieldConfig": {
                 "defaults": {
                   "unit": "percentunit",
-                  "custom": {}
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "value": null,
+                        "color": "green"
+                      },
+                      {
+                        "value": 0.05,
+                        "color": "yellow"
+                      },
+                      {
+                        "value": 0.2,
+                        "color": "red"
+                      }
+                    ]
+                  }
                 },
                 "overrides": []
               }
@@ -77,11 +199,11 @@
           }
         }
       },
-      "act-latency": {
+      "auth-p95": {
         "kind": "Panel",
         "spec": {
           "id": 0,
-          "title": "Activity execution latency (p95) by type",
+          "title": "Auth p95 latency",
           "description": "",
           "links": [],
           "data": {
@@ -99,8 +221,8 @@
                         "name": "prometheus"
                       },
                       "spec": {
-                        "expr": "histogram_quantile(0.95, sum(rate(temporal_activity_execution_latency_seconds_bucket{namespace=~\"$namespace\",service_name=~\"$service_name\"}[$__rate_interval])) by (le, activity_type))",
-                        "legendFormat": "{{activity_type}}"
+                        "expr": "histogram_quantile(0.95, sum(rate(http_server_requests_seconds_bucket{job=\"keycloak\",uri=~\"/realms/.*\"}[$__rate_interval])) by (le))",
+                        "legendFormat": "p95"
                       }
                     },
                     "refId": "A",
@@ -114,25 +236,44 @@
           },
           "vizConfig": {
             "kind": "VizConfig",
-            "group": "timeseries",
+            "group": "stat",
             "version": "",
             "spec": {
               "options": {
-                "legend": {
-                  "displayMode": "list",
-                  "placement": "bottom",
-                  "showLegend": false,
-                  "calcs": []
+                "graphMode": "area",
+                "colorMode": "value",
+                "justifyMode": "auto",
+                "textMode": "auto",
+                "wideLayout": true,
+                "showPercentChange": false,
+                "reduceOptions": {
+                  "calcs": [
+                    "lastNotNull"
+                  ]
                 },
-                "tooltip": {
-                  "mode": "",
-                  "sort": ""
-                }
+                "percentChangeColorMode": "standard",
+                "orientation": ""
               },
               "fieldConfig": {
                 "defaults": {
                   "unit": "s",
-                  "custom": {}
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "value": null,
+                        "color": "green"
+                      },
+                      {
+                        "value": 0.25,
+                        "color": "yellow"
+                      },
+                      {
+                        "value": 1,
+                        "color": "red"
+                      }
+                    ]
+                  }
                 },
                 "overrides": []
               }
@@ -140,11 +281,11 @@
           }
         }
       },
-      "act-rate": {
+      "events-by-realm-client": {
         "kind": "Panel",
         "spec": {
           "id": 0,
-          "title": "Activity execution rate by type",
+          "title": "Auth events by realm / client",
           "description": "",
           "links": [],
           "data": {
@@ -162,8 +303,8 @@
                         "name": "prometheus"
                       },
                       "spec": {
-                        "expr": "sum(rate(temporal_activity_execution_latency_seconds_count{namespace=~\"$namespace\",service_name=~\"$service_name\"}[$__rate_interval])) by (activity_type)",
-                        "legendFormat": "{{activity_type}}"
+                        "expr": "sum(rate(keycloak_user_events_total{job=\"keycloak\",event=~\"login|refresh_token|code_to_token\"}[$__rate_interval])) by (realm, client_id)",
+                        "legendFormat": "{{realm}} / {{client_id}}"
                       }
                     },
                     "refId": "A",
@@ -203,11 +344,11 @@
           }
         }
       },
-      "act-sched-start": {
+      "events-by-type": {
         "kind": "Panel",
         "spec": {
           "id": 0,
-          "title": "Activity schedule-to-start latency (p95)",
+          "title": "User events by type",
           "description": "",
           "links": [],
           "data": {
@@ -225,11 +366,157 @@
                         "name": "prometheus"
                       },
                       "spec": {
-                        "expr": "histogram_quantile(0.95, sum(rate(temporal_activity_schedule_to_start_latency_seconds_bucket{namespace=~\"$namespace\",service_name=~\"$service_name\"}[$__rate_interval])) by (le, task_queue))",
-                        "legendFormat": "{{task_queue}}"
+                        "expr": "sum(rate(keycloak_user_events_total{job=\"keycloak\"}[$__rate_interval])) by (event)",
+                        "legendFormat": "{{event}}"
                       }
                     },
                     "refId": "A",
+                    "hidden": false
+                  }
+                }
+              ],
+              "transformations": [],
+              "queryOptions": {}
+            }
+          },
+          "vizConfig": {
+            "kind": "VizConfig",
+            "group": "timeseries",
+            "version": "",
+            "spec": {
+              "options": {
+                "legend": {
+                  "displayMode": "list",
+                  "placement": "bottom",
+                  "showLegend": false,
+                  "calcs": []
+                },
+                "tooltip": {
+                  "mode": "",
+                  "sort": ""
+                }
+              },
+              "fieldConfig": {
+                "defaults": {
+                  "unit": "ops",
+                  "custom": {}
+                },
+                "overrides": []
+              }
+            }
+          }
+        }
+      },
+      "failed-events": {
+        "kind": "Panel",
+        "spec": {
+          "id": 0,
+          "title": "Failed events by error",
+          "description": "",
+          "links": [],
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "prometheus",
+                      "version": "v0",
+                      "datasource": {
+                        "name": "prometheus"
+                      },
+                      "spec": {
+                        "expr": "sum(rate(keycloak_user_events_total{job=\"keycloak\",error!=\"\"}[$__rate_interval])) by (event, error)",
+                        "legendFormat": "{{event}} / {{error}}"
+                      }
+                    },
+                    "refId": "A",
+                    "hidden": false
+                  }
+                }
+              ],
+              "transformations": [],
+              "queryOptions": {}
+            }
+          },
+          "vizConfig": {
+            "kind": "VizConfig",
+            "group": "timeseries",
+            "version": "",
+            "spec": {
+              "options": {
+                "legend": {
+                  "displayMode": "list",
+                  "placement": "bottom",
+                  "showLegend": false,
+                  "calcs": []
+                },
+                "tooltip": {
+                  "mode": "",
+                  "sort": ""
+                }
+              },
+              "fieldConfig": {
+                "defaults": {
+                  "unit": "ops",
+                  "custom": {}
+                },
+                "overrides": []
+              }
+            }
+          }
+        }
+      },
+      "gc-pause": {
+        "kind": "Panel",
+        "spec": {
+          "id": 0,
+          "title": "GC pause",
+          "description": "",
+          "links": [],
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "prometheus",
+                      "version": "v0",
+                      "datasource": {
+                        "name": "prometheus"
+                      },
+                      "spec": {
+                        "expr": "sum(rate(jvm_gc_pause_seconds_sum{job=\"keycloak\"}[$__rate_interval]))",
+                        "legendFormat": "pause time /s"
+                      }
+                    },
+                    "refId": "A",
+                    "hidden": false
+                  }
+                },
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "prometheus",
+                      "version": "v0",
+                      "datasource": {
+                        "name": "prometheus"
+                      },
+                      "spec": {
+                        "expr": "max(jvm_gc_pause_seconds_max{job=\"keycloak\"})",
+                        "legendFormat": "max pause",
+                        "range": true
+                      }
+                    },
+                    "refId": "B",
                     "hidden": false
                   }
                 }
@@ -266,11 +553,11 @@
           }
         }
       },
-      "srv-backlog": {
+      "jvm-heap": {
         "kind": "Panel",
         "spec": {
           "id": 0,
-          "title": "Task-queue backlog (server view)",
+          "title": "JVM heap",
           "description": "",
           "links": [],
           "data": {
@@ -288,8 +575,8 @@
                         "name": "prometheus"
                       },
                       "spec": {
-                        "expr": "sum by (taskqueue, task_type, worker_version) (approximate_backlog_count{job=~\".*temporal.*\"})",
-                        "legendFormat": "backlog {{taskqueue}} {{task_type}} {{worker_version}}"
+                        "expr": "sum(jvm_memory_used_bytes{job=\"keycloak\",area=\"heap\"})",
+                        "legendFormat": "used"
                       }
                     },
                     "refId": "A",
@@ -307,14 +594,34 @@
                         "name": "prometheus"
                       },
                       "spec": {
-                        "expr": "max by (taskqueue, task_type, worker_version) (approximate_backlog_age_seconds{job=~\".*temporal.*\"})",
-                        "legendFormat": "age(s) {{taskqueue}} {{task_type}} {{worker_version}}",
+                        "expr": "sum(jvm_memory_committed_bytes{job=\"keycloak\",area=\"heap\"})",
+                        "legendFormat": "committed",
                         "range": true
                       }
                     },
                     "refId": "B",
                     "hidden": false
                   }
+                },
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "prometheus",
+                      "version": "v0",
+                      "datasource": {
+                        "name": "prometheus"
+                      },
+                      "spec": {
+                        "expr": "sum(jvm_memory_max_bytes{job=\"keycloak\",area=\"heap\"})",
+                        "legendFormat": "max",
+                        "range": true
+                      }
+                    },
+                    "refId": "C",
+                    "hidden": false
+                  }
                 }
               ],
               "transformations": [],
@@ -340,7 +647,7 @@
               },
               "fieldConfig": {
                 "defaults": {
-                  "unit": "short",
+                  "unit": "bytes",
                   "custom": {}
                 },
                 "overrides": []
@@ -349,11 +656,11 @@
           }
         }
       },
-      "srv-error-ratio": {
+      "logins-per-min": {
         "kind": "Panel",
         "spec": {
           "id": 0,
-          "title": "Service error ratio",
+          "title": "Successful logins / min",
           "description": "",
           "links": [],
           "data": {
@@ -371,8 +678,82 @@
                         "name": "prometheus"
                       },
                       "spec": {
-                        "expr": "(sum(rate(service_error_with_type{job=~\".*temporal.*\"}[$__rate_interval])) or vector(0)) / clamp_min(sum(rate(service_requests{job=~\".*temporal.*\"}[$__rate_interval])), 1)",
-                        "legendFormat": "error ratio"
+                        "expr": "sum(rate(keycloak_user_events_total{job=\"keycloak\",event=\"login\",error=\"\"}[$__rate_interval])) * 60",
+                        "legendFormat": "logins/min"
+                      }
+                    },
+                    "refId": "A",
+                    "hidden": false
+                  }
+                }
+              ],
+              "transformations": [],
+              "queryOptions": {}
+            }
+          },
+          "vizConfig": {
+            "kind": "VizConfig",
+            "group": "stat",
+            "version": "",
+            "spec": {
+              "options": {
+                "graphMode": "area",
+                "colorMode": "value",
+                "justifyMode": "auto",
+                "textMode": "auto",
+                "wideLayout": true,
+                "showPercentChange": false,
+                "reduceOptions": {
+                  "calcs": [
+                    "lastNotNull"
+                  ]
+                },
+                "percentChangeColorMode": "standard",
+                "orientation": ""
+              },
+              "fieldConfig": {
+                "defaults": {
+                  "unit": "opm",
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "value": null,
+                        "color": "green"
+                      }
+                    ]
+                  }
+                },
+                "overrides": []
+              }
+            }
+          }
+        }
+      },
+      "password-hash": {
+        "kind": "Panel",
+        "spec": {
+          "id": 0,
+          "title": "Password hash validations",
+          "description": "",
+          "links": [],
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "prometheus",
+                      "version": "v0",
+                      "datasource": {
+                        "name": "prometheus"
+                      },
+                      "spec": {
+                        "expr": "sum(rate(keycloak_credentials_password_hashing_validations_total{job=\"keycloak\"}[$__rate_interval])) by (realm, outcome)",
+                        "legendFormat": "{{realm}} / {{outcome}}"
                       }
                     },
                     "refId": "A",
@@ -403,7 +784,7 @@
               },
               "fieldConfig": {
                 "defaults": {
-                  "unit": "percentunit",
+                  "unit": "ops",
                   "custom": {}
                 },
                 "overrides": []
@@ -412,74 +793,43 @@
           }
         }
       },
-      "srv-grpc-rate": {
+      "readme": {
         "kind": "Panel",
         "spec": {
           "id": 0,
-          "title": "gRPC request rate by role",
+          "title": "README — how to read this dashboard",
           "description": "",
           "links": [],
           "data": {
             "kind": "QueryGroup",
             "spec": {
-              "queries": [
-                {
-                  "kind": "PanelQuery",
-                  "spec": {
-                    "query": {
-                      "kind": "DataQuery",
-                      "group": "prometheus",
-                      "version": "v0",
-                      "datasource": {
-                        "name": "prometheus"
-                      },
-                      "spec": {
-                        "expr": "sum(rate(service_requests{job=~\".*temporal.*\"}[$__rate_interval])) by (service_name)",
-                        "legendFormat": "{{service_name}}"
-                      }
-                    },
-                    "refId": "A",
-                    "hidden": false
-                  }
-                }
-              ],
+              "queries": [],
               "transformations": [],
               "queryOptions": {}
             }
           },
           "vizConfig": {
             "kind": "VizConfig",
-            "group": "timeseries",
+            "group": "text",
             "version": "",
             "spec": {
               "options": {
-                "legend": {
-                  "displayMode": "list",
-                  "placement": "bottom",
-                  "showLegend": false,
-                  "calcs": []
-                },
-                "tooltip": {
-                  "mode": "",
-                  "sort": ""
-                }
+                "mode": "markdown",
+                "content": "**What this board answers:** is Keycloak issuing tokens (logins, refreshes, code exchanges), how many auth events are **failing**, is the auth path **fast enough** (p95 / 250 ms SLO bucket), and is the process itself healthy (Agroal DB pool, JVM heap, GC, password-hash cost).\n\n**Failures are an `error` LABEL, not an event.** Keycloak emits the same `event` (`login` / `refresh_token` / `code_to_token`) with `error=\"invalid_user_credentials\"|\"user_not_found\"|\"invalid_token\"` set on failure — there is **no** `login_error` event. Failure ratio = `sum(rate(keycloak_user_events_total{error!=\"\"}))` / `sum(rate(keycloak_user_events_total))` over the auth events.\n\n**Both stacks share job `keycloak`** (management interface `:9000` `/metrics`) with identical metric and label names — the cluster twin of this board needs no query remapping, only the datasource input differs. HTTP `uri` labels are templated (`/realms/{realm}/protocol/{protocol}/auth`, `.../token`, `/admin/...`).\n\n**Context:** closes the Keycloak row of the observability gap map (`docs/observability/` — RFC-0022 identity observability, ADR-041)."
               },
               "fieldConfig": {
-                "defaults": {
-                  "unit": "reqps",
-                  "custom": {}
-                },
+                "defaults": {},
                 "overrides": []
               }
             }
           }
         }
       },
-      "srv-latency": {
+      "realm-latency": {
         "kind": "Panel",
         "spec": {
           "id": 0,
-          "title": "Service latency (p95) by role",
+          "title": "Realm endpoints — latency quantiles",
           "description": "",
           "links": [],
           "data": {
@@ -497,11 +847,51 @@
                         "name": "prometheus"
                       },
                       "spec": {
-                        "expr": "histogram_quantile(0.95, sum(rate(service_latency_bucket{job=~\".*temporal.*\"}[$__rate_interval])) by (le, service_name))",
-                        "legendFormat": "{{service_name}}"
+                        "expr": "histogram_quantile(0.50, sum(rate(http_server_requests_seconds_bucket{job=\"keycloak\",uri=~\"/realms/.*\"}[$__rate_interval])) by (le))",
+                        "legendFormat": "p50"
                       }
                     },
                     "refId": "A",
+                    "hidden": false
+                  }
+                },
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "prometheus",
+                      "version": "v0",
+                      "datasource": {
+                        "name": "prometheus"
+                      },
+                      "spec": {
+                        "expr": "histogram_quantile(0.95, sum(rate(http_server_requests_seconds_bucket{job=\"keycloak\",uri=~\"/realms/.*\"}[$__rate_interval])) by (le))",
+                        "legendFormat": "p95",
+                        "range": true
+                      }
+                    },
+                    "refId": "B",
+                    "hidden": false
+                  }
+                },
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "prometheus",
+                      "version": "v0",
+                      "datasource": {
+                        "name": "prometheus"
+                      },
+                      "spec": {
+                        "expr": "histogram_quantile(0.99, sum(rate(http_server_requests_seconds_bucket{job=\"keycloak\",uri=~\"/realms/.*\"}[$__rate_interval])) by (le))",
+                        "legendFormat": "p99",
+                        "range": true
+                      }
+                    },
+                    "refId": "C",
                     "hidden": false
                   }
                 }
@@ -538,11 +928,11 @@
           }
         }
       },
-      "srv-persistence": {
+      "scrape-up": {
         "kind": "Panel",
         "spec": {
           "id": 0,
-          "title": "Persistence request rate / error ratio",
+          "title": "Keycloak scrape up",
           "description": "",
           "links": [],
           "data": {
@@ -560,90 +950,7 @@
                         "name": "prometheus"
                       },
                       "spec": {
-                        "expr": "sum(rate(persistence_requests{job=~\".*temporal.*\"}[$__rate_interval]))",
-                        "legendFormat": "requests/s"
-                      }
-                    },
-                    "refId": "A",
-                    "hidden": false
-                  }
-                },
-                {
-                  "kind": "PanelQuery",
-                  "spec": {
-                    "query": {
-                      "kind": "DataQuery",
-                      "group": "prometheus",
-                      "version": "v0",
-                      "datasource": {
-                        "name": "prometheus"
-                      },
-                      "spec": {
-                        "expr": "(sum(rate(persistence_error_with_type{job=~\".*temporal.*\"}[$__rate_interval])) or vector(0)) / clamp_min(sum(rate(persistence_requests{job=~\".*temporal.*\"}[$__rate_interval])), 1)",
-                        "legendFormat": "error ratio",
-                        "range": true
-                      }
-                    },
-                    "refId": "B",
-                    "hidden": false
-                  }
-                }
-              ],
-              "transformations": [],
-              "queryOptions": {}
-            }
-          },
-          "vizConfig": {
-            "kind": "VizConfig",
-            "group": "timeseries",
-            "version": "",
-            "spec": {
-              "options": {
-                "legend": {
-                  "displayMode": "list",
-                  "placement": "bottom",
-                  "showLegend": false,
-                  "calcs": []
-                },
-                "tooltip": {
-                  "mode": "",
-                  "sort": ""
-                }
-              },
-              "fieldConfig": {
-                "defaults": {
-                  "unit": "short",
-                  "custom": {}
-                },
-                "overrides": []
-              }
-            }
-          }
-        }
-      },
-      "srv-up": {
-        "kind": "Panel",
-        "spec": {
-          "id": 0,
-          "title": "Server up",
-          "description": "",
-          "links": [],
-          "data": {
-            "kind": "QueryGroup",
-            "spec": {
-              "queries": [
-                {
-                  "kind": "PanelQuery",
-                  "spec": {
-                    "query": {
-                      "kind": "DataQuery",
-                      "group": "prometheus",
-                      "version": "v0",
-                      "datasource": {
-                        "name": "prometheus"
-                      },
-                      "spec": {
-                        "expr": "min(up{job=~\".*temporal.*\"})",
+                        "expr": "up{job=\"keycloak\"}",
                         "legendFormat": "up"
                       }
                     },
@@ -678,6 +985,7 @@
               },
               "fieldConfig": {
                 "defaults": {
+                  "unit": "short",
                   "thresholds": {
                     "mode": "absolute",
                     "steps": [
@@ -698,11 +1006,11 @@
           }
         }
       },
-      "wf-completion": {
+      "slo-compliance": {
         "kind": "Panel",
         "spec": {
           "id": 0,
-          "title": "Workflow completion rate",
+          "title": "SLO compliance (\u003c 250 ms)",
           "description": "",
           "links": [],
           "data": {
@@ -720,8 +1028,198 @@
                         "name": "prometheus"
                       },
                       "spec": {
-                        "expr": "sum(rate(temporal_workflow_completed_total{namespace=~\"$namespace\",service_name=~\"$service_name\",workflow_type=~\"$workflow_type\"}[$__rate_interval])) by (workflow_type, service_name)",
-                        "legendFormat": "{{workflow_type}} ({{service_name}})"
+                        "expr": "sum(rate(http_server_requests_seconds_bucket{job=\"keycloak\",uri=~\"/realms/.*\",le=\"0.25\"}[$__rate_interval])) / sum(rate(http_server_requests_seconds_count{job=\"keycloak\",uri=~\"/realms/.*\"}[$__rate_interval]))",
+                        "legendFormat": "compliance"
+                      }
+                    },
+                    "refId": "A",
+                    "hidden": false
+                  }
+                }
+              ],
+              "transformations": [],
+              "queryOptions": {}
+            }
+          },
+          "vizConfig": {
+            "kind": "VizConfig",
+            "group": "stat",
+            "version": "",
+            "spec": {
+              "options": {
+                "graphMode": "area",
+                "colorMode": "value",
+                "justifyMode": "auto",
+                "textMode": "auto",
+                "wideLayout": true,
+                "showPercentChange": false,
+                "reduceOptions": {
+                  "calcs": [
+                    "lastNotNull"
+                  ]
+                },
+                "percentChangeColorMode": "standard",
+                "orientation": ""
+              },
+              "fieldConfig": {
+                "defaults": {
+                  "unit": "percentunit",
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "value": null,
+                        "color": "red"
+                      },
+                      {
+                        "value": 0.95,
+                        "color": "yellow"
+                      },
+                      {
+                        "value": 0.99,
+                        "color": "green"
+                      }
+                    ]
+                  }
+                },
+                "overrides": []
+              }
+            }
+          }
+        }
+      },
+      "slowest-endpoints": {
+        "kind": "Panel",
+        "spec": {
+          "id": 0,
+          "title": "Slowest endpoints (p95, dashboard window)",
+          "description": "",
+          "links": [],
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "prometheus",
+                      "version": "v0",
+                      "datasource": {
+                        "name": "prometheus"
+                      },
+                      "spec": {
+                        "expr": "topk(7, histogram_quantile(0.95, sum(rate(http_server_requests_seconds_bucket{job=\"keycloak\"}[$__range])) by (le, uri)))",
+                        "format": "table",
+                        "instant": true
+                      }
+                    },
+                    "refId": "A",
+                    "hidden": false
+                  }
+                }
+              ],
+              "transformations": [
+                {
+                  "kind": "Transformation",
+                  "group": "organize",
+                  "spec": {
+                    "options": {
+                      "excludeByName": {
+                        "Time": true
+                      },
+                      "renameByName": {
+                        "Value": "p95"
+                      }
+                    }
+                  }
+                },
+                {
+                  "kind": "Transformation",
+                  "group": "sortBy",
+                  "spec": {
+                    "options": {
+                      "fields": {},
+                      "sort": [
+                        {
+                          "desc": true,
+                          "field": "p95"
+                        }
+                      ]
+                    }
+                  }
+                }
+              ],
+              "queryOptions": {}
+            }
+          },
+          "vizConfig": {
+            "kind": "VizConfig",
+            "group": "table",
+            "version": "",
+            "spec": {
+              "options": {
+                "frameIndex": 0,
+                "showHeader": true,
+                "showTypeIcons": false,
+                "footer": {
+                  "show": false,
+                  "reducer": null,
+                  "countRows": false
+                },
+                "cellHeight": "sm"
+              },
+              "fieldConfig": {
+                "defaults": {
+                  "custom": {
+                    "align": "auto",
+                    "inspect": false
+                  }
+                },
+                "overrides": [
+                  {
+                    "matcher": {
+                      "id": "byName",
+                      "options": "p95"
+                    },
+                    "properties": [
+                      {
+                        "id": "unit",
+                        "value": "s"
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        }
+      },
+      "token-grants": {
+        "kind": "Panel",
+        "spec": {
+          "id": 0,
+          "title": "Token grants — refresh vs code exchange",
+          "description": "",
+          "links": [],
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "prometheus",
+                      "version": "v0",
+                      "datasource": {
+                        "name": "prometheus"
+                      },
+                      "spec": {
+                        "expr": "sum(rate(keycloak_user_events_total{job=\"keycloak\",event=~\"refresh_token|code_to_token\"}[$__rate_interval])) by (event)",
+                        "legendFormat": "{{event}}"
                       }
                     },
                     "refId": "A",
@@ -761,11 +1259,11 @@
           }
         }
       },
-      "wf-failure": {
+      "token-latency": {
         "kind": "Panel",
         "spec": {
           "id": 0,
-          "title": "Workflow failure ratio",
+          "title": "Token endpoint — p95 / p99",
           "description": "",
           "links": [],
           "data": {
@@ -783,70 +1281,7 @@
                         "name": "prometheus"
                       },
                       "spec": {
-                        "expr": "(sum(rate(temporal_workflow_failed_total{namespace=~\"$namespace\",service_name=~\"$service_name\",workflow_type=~\"$workflow_type\"}[$__rate_interval])) or vector(0)) / clamp_min(sum(rate(temporal_workflow_completed_total{namespace=~\"$namespace\",service_name=~\"$service_name\",workflow_type=~\"$workflow_type\"}[$__rate_interval])) + (sum(rate(temporal_workflow_failed_total{namespace=~\"$namespace\",service_name=~\"$service_name\",workflow_type=~\"$workflow_type\"}[$__rate_interval])) or vector(0)), 1)",
-                        "legendFormat": "failure ratio"
-                      }
-                    },
-                    "refId": "A",
-                    "hidden": false
-                  }
-                }
-              ],
-              "transformations": [],
-              "queryOptions": {}
-            }
-          },
-          "vizConfig": {
-            "kind": "VizConfig",
-            "group": "timeseries",
-            "version": "",
-            "spec": {
-              "options": {
-                "legend": {
-                  "displayMode": "list",
-                  "placement": "bottom",
-                  "showLegend": false,
-                  "calcs": []
-                },
-                "tooltip": {
-                  "mode": "",
-                  "sort": ""
-                }
-              },
-              "fieldConfig": {
-                "defaults": {
-                  "unit": "percentunit",
-                  "custom": {}
-                },
-                "overrides": []
-              }
-            }
-          }
-        }
-      },
-      "wf-latency": {
-        "kind": "Panel",
-        "spec": {
-          "id": 0,
-          "title": "Workflow end-to-end latency",
-          "description": "",
-          "links": [],
-          "data": {
-            "kind": "QueryGroup",
-            "spec": {
-              "queries": [
-                {
-                  "kind": "PanelQuery",
-                  "spec": {
-                    "query": {
-                      "kind": "DataQuery",
-                      "group": "prometheus",
-                      "version": "v0",
-                      "datasource": {
-                        "name": "prometheus"
-                      },
-                      "spec": {
-                        "expr": "histogram_quantile(0.95, sum(rate(temporal_workflow_endtoend_latency_seconds_bucket{namespace=~\"$namespace\",service_name=~\"$service_name\",workflow_type=~\"$workflow_type\"}[$__rate_interval])) by (le))",
+                        "expr": "histogram_quantile(0.95, sum(rate(http_server_requests_seconds_bucket{job=\"keycloak\",uri=~\".*/token\"}[$__rate_interval])) by (le))",
                         "legendFormat": "p95"
                       }
                     },
@@ -865,7 +1300,7 @@
                         "name": "prometheus"
                       },
                       "spec": {
-                        "expr": "histogram_quantile(0.99, sum(rate(temporal_workflow_endtoend_latency_seconds_bucket{namespace=~\"$namespace\",service_name=~\"$service_name\",workflow_type=~\"$workflow_type\"}[$__rate_interval])) by (le))",
+                        "expr": "histogram_quantile(0.99, sum(rate(http_server_requests_seconds_bucket{job=\"keycloak\",uri=~\".*/token\"}[$__rate_interval])) by (le))",
                         "legendFormat": "p99",
                         "range": true
                       }
@@ -907,11 +1342,11 @@
           }
         }
       },
-      "wf-poll": {
+      "uptime": {
         "kind": "Panel",
         "spec": {
           "id": 0,
-          "title": "Workflow task poll outcome rate",
+          "title": "Process uptime",
           "description": "",
           "links": [],
           "data": {
@@ -929,174 +1364,8 @@
                         "name": "prometheus"
                       },
                       "spec": {
-                        "expr": "sum(rate(temporal_workflow_task_queue_poll_succeed_total{namespace=~\"$namespace\",service_name=~\"$service_name\"}[$__rate_interval])) by (task_queue)",
-                        "legendFormat": "succeed {{task_queue}}"
-                      }
-                    },
-                    "refId": "A",
-                    "hidden": false
-                  }
-                },
-                {
-                  "kind": "PanelQuery",
-                  "spec": {
-                    "query": {
-                      "kind": "DataQuery",
-                      "group": "prometheus",
-                      "version": "v0",
-                      "datasource": {
-                        "name": "prometheus"
-                      },
-                      "spec": {
-                        "expr": "sum(rate(temporal_workflow_task_queue_poll_empty_total{namespace=~\"$namespace\",service_name=~\"$service_name\"}[$__rate_interval])) by (task_queue)",
-                        "legendFormat": "empty {{task_queue}}",
-                        "range": true
-                      }
-                    },
-                    "refId": "B",
-                    "hidden": false
-                  }
-                }
-              ],
-              "transformations": [],
-              "queryOptions": {}
-            }
-          },
-          "vizConfig": {
-            "kind": "VizConfig",
-            "group": "timeseries",
-            "version": "",
-            "spec": {
-              "options": {
-                "legend": {
-                  "displayMode": "list",
-                  "placement": "bottom",
-                  "showLegend": false,
-                  "calcs": []
-                },
-                "tooltip": {
-                  "mode": "",
-                  "sort": ""
-                }
-              },
-              "fieldConfig": {
-                "defaults": {
-                  "unit": "ops",
-                  "custom": {}
-                },
-                "overrides": []
-              }
-            }
-          }
-        }
-      },
-      "wf-sched-start": {
-        "kind": "Panel",
-        "spec": {
-          "id": 0,
-          "title": "Workflow task schedule-to-start latency",
-          "description": "",
-          "links": [],
-          "data": {
-            "kind": "QueryGroup",
-            "spec": {
-              "queries": [
-                {
-                  "kind": "PanelQuery",
-                  "spec": {
-                    "query": {
-                      "kind": "DataQuery",
-                      "group": "prometheus",
-                      "version": "v0",
-                      "datasource": {
-                        "name": "prometheus"
-                      },
-                      "spec": {
-                        "expr": "histogram_quantile(0.95, sum(rate(temporal_workflow_task_schedule_to_start_latency_seconds_bucket{namespace=~\"$namespace\",service_name=~\"$service_name\"}[$__rate_interval])) by (le, task_queue))",
-                        "legendFormat": "p95 {{task_queue}}"
-                      }
-                    },
-                    "refId": "A",
-                    "hidden": false
-                  }
-                },
-                {
-                  "kind": "PanelQuery",
-                  "spec": {
-                    "query": {
-                      "kind": "DataQuery",
-                      "group": "prometheus",
-                      "version": "v0",
-                      "datasource": {
-                        "name": "prometheus"
-                      },
-                      "spec": {
-                        "expr": "histogram_quantile(0.99, sum(rate(temporal_workflow_task_schedule_to_start_latency_seconds_bucket{namespace=~\"$namespace\",service_name=~\"$service_name\"}[$__rate_interval])) by (le, task_queue))",
-                        "legendFormat": "p99 {{task_queue}}",
-                        "range": true
-                      }
-                    },
-                    "refId": "B",
-                    "hidden": false
-                  }
-                }
-              ],
-              "transformations": [],
-              "queryOptions": {}
-            }
-          },
-          "vizConfig": {
-            "kind": "VizConfig",
-            "group": "timeseries",
-            "version": "",
-            "spec": {
-              "options": {
-                "legend": {
-                  "displayMode": "list",
-                  "placement": "bottom",
-                  "showLegend": false,
-                  "calcs": []
-                },
-                "tooltip": {
-                  "mode": "",
-                  "sort": ""
-                }
-              },
-              "fieldConfig": {
-                "defaults": {
-                  "unit": "s",
-                  "custom": {}
-                },
-                "overrides": []
-              }
-            }
-          }
-        }
-      },
-      "wf-task-exec": {
-        "kind": "Panel",
-        "spec": {
-          "id": 0,
-          "title": "Workflow task execution latency (p95)",
-          "description": "",
-          "links": [],
-          "data": {
-            "kind": "QueryGroup",
-            "spec": {
-              "queries": [
-                {
-                  "kind": "PanelQuery",
-                  "spec": {
-                    "query": {
-                      "kind": "DataQuery",
-                      "group": "prometheus",
-                      "version": "v0",
-                      "datasource": {
-                        "name": "prometheus"
-                      },
-                      "spec": {
-                        "expr": "histogram_quantile(0.95, sum(rate(temporal_workflow_task_execution_latency_seconds_bucket{namespace=~\"$namespace\",service_name=~\"$service_name\"}[$__rate_interval])) by (le, task_queue))",
-                        "legendFormat": "{{task_queue}}"
+                        "expr": "process_uptime_seconds{job=\"keycloak\"}",
+                        "legendFormat": "uptime"
                       }
                     },
                     "refId": "A",
@@ -1110,400 +1379,40 @@
           },
           "vizConfig": {
             "kind": "VizConfig",
-            "group": "timeseries",
+            "group": "stat",
             "version": "",
             "spec": {
               "options": {
-                "legend": {
-                  "displayMode": "list",
-                  "placement": "bottom",
-                  "showLegend": false,
-                  "calcs": []
+                "graphMode": "area",
+                "colorMode": "value",
+                "justifyMode": "auto",
+                "textMode": "auto",
+                "wideLayout": true,
+                "showPercentChange": false,
+                "reduceOptions": {
+                  "calcs": [
+                    "lastNotNull"
+                  ]
                 },
-                "tooltip": {
-                  "mode": "",
-                  "sort": ""
-                }
+                "percentChangeColorMode": "standard",
+                "orientation": ""
               },
               "fieldConfig": {
                 "defaults": {
-                  "unit": "s",
-                  "custom": {}
-                },
-                "overrides": []
-              }
-            }
-          }
-        }
-      },
-      "worker-pollers": {
-        "kind": "Panel",
-        "spec": {
-          "id": 0,
-          "title": "Pollers",
-          "description": "",
-          "links": [],
-          "data": {
-            "kind": "QueryGroup",
-            "spec": {
-              "queries": [
-                {
-                  "kind": "PanelQuery",
-                  "spec": {
-                    "query": {
-                      "kind": "DataQuery",
-                      "group": "prometheus",
-                      "version": "v0",
-                      "datasource": {
-                        "name": "prometheus"
+                  "unit": "dtdurations",
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "value": null,
+                        "color": "red"
                       },
-                      "spec": {
-                        "expr": "sum(temporal_num_pollers{namespace=~\"$namespace\",service_name=~\"$service_name\"}) by (service_name, poller_type)",
-                        "legendFormat": "{{service_name}}/{{poller_type}}"
+                      {
+                        "value": 300,
+                        "color": "green"
                       }
-                    },
-                    "refId": "A",
-                    "hidden": false
+                    ]
                   }
-                }
-              ],
-              "transformations": [],
-              "queryOptions": {}
-            }
-          },
-          "vizConfig": {
-            "kind": "VizConfig",
-            "group": "timeseries",
-            "version": "",
-            "spec": {
-              "options": {
-                "legend": {
-                  "displayMode": "list",
-                  "placement": "bottom",
-                  "showLegend": false,
-                  "calcs": []
-                },
-                "tooltip": {
-                  "mode": "",
-                  "sort": ""
-                }
-              },
-              "fieldConfig": {
-                "defaults": {
-                  "unit": "short",
-                  "custom": {}
-                },
-                "overrides": []
-              }
-            }
-          }
-        }
-      },
-      "worker-req-error": {
-        "kind": "Panel",
-        "spec": {
-          "id": 0,
-          "title": "Worker → server request error ratio",
-          "description": "",
-          "links": [],
-          "data": {
-            "kind": "QueryGroup",
-            "spec": {
-              "queries": [
-                {
-                  "kind": "PanelQuery",
-                  "spec": {
-                    "query": {
-                      "kind": "DataQuery",
-                      "group": "prometheus",
-                      "version": "v0",
-                      "datasource": {
-                        "name": "prometheus"
-                      },
-                      "spec": {
-                        "expr": "(sum(rate(temporal_request_failure_total{namespace=~\"$namespace\",service_name=~\"$service_name\"}[$__rate_interval])) or vector(0)) / clamp_min(sum(rate(temporal_request_total{namespace=~\"$namespace\",service_name=~\"$service_name\"}[$__rate_interval])), 1)",
-                        "legendFormat": "error ratio"
-                      }
-                    },
-                    "refId": "A",
-                    "hidden": false
-                  }
-                }
-              ],
-              "transformations": [],
-              "queryOptions": {}
-            }
-          },
-          "vizConfig": {
-            "kind": "VizConfig",
-            "group": "timeseries",
-            "version": "",
-            "spec": {
-              "options": {
-                "legend": {
-                  "displayMode": "list",
-                  "placement": "bottom",
-                  "showLegend": false,
-                  "calcs": []
-                },
-                "tooltip": {
-                  "mode": "",
-                  "sort": ""
-                }
-              },
-              "fieldConfig": {
-                "defaults": {
-                  "unit": "percentunit",
-                  "custom": {}
-                },
-                "overrides": []
-              }
-            }
-          }
-        }
-      },
-      "worker-req-latency": {
-        "kind": "Panel",
-        "spec": {
-          "id": 0,
-          "title": "Worker → server request latency (p95)",
-          "description": "",
-          "links": [],
-          "data": {
-            "kind": "QueryGroup",
-            "spec": {
-              "queries": [
-                {
-                  "kind": "PanelQuery",
-                  "spec": {
-                    "query": {
-                      "kind": "DataQuery",
-                      "group": "prometheus",
-                      "version": "v0",
-                      "datasource": {
-                        "name": "prometheus"
-                      },
-                      "spec": {
-                        "expr": "histogram_quantile(0.95, sum(rate(temporal_request_latency_seconds_bucket{namespace=~\"$namespace\",service_name=~\"$service_name\"}[$__rate_interval])) by (le, service_name))",
-                        "legendFormat": "{{service_name}}"
-                      }
-                    },
-                    "refId": "A",
-                    "hidden": false
-                  }
-                }
-              ],
-              "transformations": [],
-              "queryOptions": {}
-            }
-          },
-          "vizConfig": {
-            "kind": "VizConfig",
-            "group": "timeseries",
-            "version": "",
-            "spec": {
-              "options": {
-                "legend": {
-                  "displayMode": "list",
-                  "placement": "bottom",
-                  "showLegend": false,
-                  "calcs": []
-                },
-                "tooltip": {
-                  "mode": "",
-                  "sort": ""
-                }
-              },
-              "fieldConfig": {
-                "defaults": {
-                  "unit": "s",
-                  "custom": {}
-                },
-                "overrides": []
-              }
-            }
-          }
-        }
-      },
-      "worker-slots": {
-        "kind": "Panel",
-        "spec": {
-          "id": 0,
-          "title": "Worker task slots",
-          "description": "",
-          "links": [],
-          "data": {
-            "kind": "QueryGroup",
-            "spec": {
-              "queries": [
-                {
-                  "kind": "PanelQuery",
-                  "spec": {
-                    "query": {
-                      "kind": "DataQuery",
-                      "group": "prometheus",
-                      "version": "v0",
-                      "datasource": {
-                        "name": "prometheus"
-                      },
-                      "spec": {
-                        "expr": "sum(temporal_worker_task_slots_available{namespace=~\"$namespace\",service_name=~\"$service_name\"}) by (service_name, worker_type)",
-                        "legendFormat": "available {{service_name}}/{{worker_type}}"
-                      }
-                    },
-                    "refId": "A",
-                    "hidden": false
-                  }
-                },
-                {
-                  "kind": "PanelQuery",
-                  "spec": {
-                    "query": {
-                      "kind": "DataQuery",
-                      "group": "prometheus",
-                      "version": "v0",
-                      "datasource": {
-                        "name": "prometheus"
-                      },
-                      "spec": {
-                        "expr": "sum(temporal_worker_task_slots_used{namespace=~\"$namespace\",service_name=~\"$service_name\"}) by (service_name, worker_type)",
-                        "legendFormat": "used {{service_name}}/{{worker_type}}",
-                        "range": true
-                      }
-                    },
-                    "refId": "B",
-                    "hidden": false
-                  }
-                }
-              ],
-              "transformations": [],
-              "queryOptions": {}
-            }
-          },
-          "vizConfig": {
-            "kind": "VizConfig",
-            "group": "timeseries",
-            "version": "",
-            "spec": {
-              "options": {
-                "legend": {
-                  "displayMode": "list",
-                  "placement": "bottom",
-                  "showLegend": false,
-                  "calcs": []
-                },
-                "tooltip": {
-                  "mode": "",
-                  "sort": ""
-                }
-              },
-              "fieldConfig": {
-                "defaults": {
-                  "unit": "short",
-                  "custom": {}
-                },
-                "overrides": []
-              }
-            }
-          }
-        }
-      },
-      "worker-sticky-cache": {
-        "kind": "Panel",
-        "spec": {
-          "id": 0,
-          "title": "Sticky cache",
-          "description": "",
-          "links": [],
-          "data": {
-            "kind": "QueryGroup",
-            "spec": {
-              "queries": [
-                {
-                  "kind": "PanelQuery",
-                  "spec": {
-                    "query": {
-                      "kind": "DataQuery",
-                      "group": "prometheus",
-                      "version": "v0",
-                      "datasource": {
-                        "name": "prometheus"
-                      },
-                      "spec": {
-                        "expr": "sum(temporal_sticky_cache_size{namespace=~\"$namespace\",service_name=~\"$service_name\"}) by (service_name)",
-                        "legendFormat": "size {{service_name}}"
-                      }
-                    },
-                    "refId": "A",
-                    "hidden": false
-                  }
-                },
-                {
-                  "kind": "PanelQuery",
-                  "spec": {
-                    "query": {
-                      "kind": "DataQuery",
-                      "group": "prometheus",
-                      "version": "v0",
-                      "datasource": {
-                        "name": "prometheus"
-                      },
-                      "spec": {
-                        "expr": "sum(rate(temporal_sticky_cache_hit_total{namespace=~\"$namespace\",service_name=~\"$service_name\"}[$__rate_interval])) by (service_name)",
-                        "legendFormat": "hit/s {{service_name}}",
-                        "range": true
-                      }
-                    },
-                    "refId": "B",
-                    "hidden": false
-                  }
-                },
-                {
-                  "kind": "PanelQuery",
-                  "spec": {
-                    "query": {
-                      "kind": "DataQuery",
-                      "group": "prometheus",
-                      "version": "v0",
-                      "datasource": {
-                        "name": "prometheus"
-                      },
-                      "spec": {
-                        "expr": "sum(rate(temporal_sticky_cache_forced_eviction_total{namespace=~\"$namespace\",service_name=~\"$service_name\"}[$__rate_interval])) by (service_name)",
-                        "legendFormat": "evictions/s {{service_name}}",
-                        "range": true
-                      }
-                    },
-                    "refId": "C",
-                    "hidden": false
-                  }
-                }
-              ],
-              "transformations": [],
-              "queryOptions": {}
-            }
-          },
-          "vizConfig": {
-            "kind": "VizConfig",
-            "group": "timeseries",
-            "version": "",
-            "spec": {
-              "options": {
-                "legend": {
-                  "displayMode": "list",
-                  "placement": "bottom",
-                  "showLegend": false,
-                  "calcs": []
-                },
-                "tooltip": {
-                  "mode": "",
-                  "sort": ""
-                }
-              },
-              "fieldConfig": {
-                "defaults": {
-                  "unit": "short",
-                  "custom": {}
                 },
                 "overrides": []
               }
@@ -1519,7 +1428,7 @@
           {
             "kind": "RowsLayoutRow",
             "spec": {
-              "title": "Workflows",
+              "title": "Overview",
               "layout": {
                 "kind": "GridLayout",
                 "spec": {
@@ -1529,24 +1438,11 @@
                       "spec": {
                         "x": 0,
                         "y": 0,
-                        "width": 12,
-                        "height": 8,
+                        "width": 24,
+                        "height": 6,
                         "element": {
                           "kind": "ElementReference",
-                          "name": "wf-completion"
-                        }
-                      }
-                    },
-                    {
-                      "kind": "GridLayoutItem",
-                      "spec": {
-                        "x": 12,
-                        "y": 0,
-                        "width": 12,
-                        "height": 8,
-                        "element": {
-                          "kind": "ElementReference",
-                          "name": "wf-failure"
+                          "name": "readme"
                         }
                       }
                     },
@@ -1554,246 +1450,155 @@
                       "kind": "GridLayoutItem",
                       "spec": {
                         "x": 0,
-                        "y": 8,
-                        "width": 12,
-                        "height": 8,
+                        "y": 6,
+                        "width": 5,
+                        "height": 5,
                         "element": {
                           "kind": "ElementReference",
-                          "name": "wf-latency"
+                          "name": "logins-per-min"
                         }
                       }
                     },
                     {
                       "kind": "GridLayoutItem",
                       "spec": {
-                        "x": 12,
-                        "y": 8,
-                        "width": 12,
-                        "height": 8,
+                        "x": 5,
+                        "y": 6,
+                        "width": 5,
+                        "height": 5,
                         "element": {
                           "kind": "ElementReference",
-                          "name": "wf-sched-start"
+                          "name": "auth-failure-ratio"
                         }
                       }
                     },
                     {
                       "kind": "GridLayoutItem",
                       "spec": {
-                        "x": 0,
-                        "y": 16,
-                        "width": 12,
-                        "height": 8,
+                        "x": 10,
+                        "y": 6,
+                        "width": 5,
+                        "height": 5,
                         "element": {
                           "kind": "ElementReference",
-                          "name": "wf-task-exec"
+                          "name": "auth-p95"
                         }
                       }
                     },
                     {
                       "kind": "GridLayoutItem",
                       "spec": {
-                        "x": 12,
-                        "y": 16,
-                        "width": 12,
-                        "height": 8,
+                        "x": 15,
+                        "y": 6,
+                        "width": 5,
+                        "height": 5,
                         "element": {
                           "kind": "ElementReference",
-                          "name": "wf-poll"
-                        }
-                      }
-                    }
-                  ]
-                }
-              }
-            }
-          },
-          {
-            "kind": "RowsLayoutRow",
-            "spec": {
-              "title": "Activities",
-              "layout": {
-                "kind": "GridLayout",
-                "spec": {
-                  "items": [
-                    {
-                      "kind": "GridLayoutItem",
-                      "spec": {
-                        "x": 0,
-                        "y": 0,
-                        "width": 12,
-                        "height": 8,
-                        "element": {
-                          "kind": "ElementReference",
-                          "name": "act-rate"
+                          "name": "slo-compliance"
                         }
                       }
                     },
                     {
                       "kind": "GridLayoutItem",
                       "spec": {
-                        "x": 12,
-                        "y": 0,
-                        "width": 12,
-                        "height": 8,
-                        "element": {
-                          "kind": "ElementReference",
-                          "name": "act-failure"
-                        }
-                      }
-                    },
-                    {
-                      "kind": "GridLayoutItem",
-                      "spec": {
-                        "x": 0,
-                        "y": 8,
-                        "width": 12,
-                        "height": 8,
-                        "element": {
-                          "kind": "ElementReference",
-                          "name": "act-latency"
-                        }
-                      }
-                    },
-                    {
-                      "kind": "GridLayoutItem",
-                      "spec": {
-                        "x": 12,
-                        "y": 8,
-                        "width": 12,
-                        "height": 8,
-                        "element": {
-                          "kind": "ElementReference",
-                          "name": "act-sched-start"
-                        }
-                      }
-                    }
-                  ]
-                }
-              }
-            }
-          },
-          {
-            "kind": "RowsLayoutRow",
-            "spec": {
-              "title": "Worker / SDK",
-              "layout": {
-                "kind": "GridLayout",
-                "spec": {
-                  "items": [
-                    {
-                      "kind": "GridLayoutItem",
-                      "spec": {
-                        "x": 0,
-                        "y": 0,
-                        "width": 12,
-                        "height": 8,
-                        "element": {
-                          "kind": "ElementReference",
-                          "name": "worker-slots"
-                        }
-                      }
-                    },
-                    {
-                      "kind": "GridLayoutItem",
-                      "spec": {
-                        "x": 12,
-                        "y": 0,
-                        "width": 12,
-                        "height": 8,
-                        "element": {
-                          "kind": "ElementReference",
-                          "name": "worker-pollers"
-                        }
-                      }
-                    },
-                    {
-                      "kind": "GridLayoutItem",
-                      "spec": {
-                        "x": 0,
-                        "y": 8,
-                        "width": 8,
-                        "height": 8,
-                        "element": {
-                          "kind": "ElementReference",
-                          "name": "worker-req-error"
-                        }
-                      }
-                    },
-                    {
-                      "kind": "GridLayoutItem",
-                      "spec": {
-                        "x": 8,
-                        "y": 8,
-                        "width": 8,
-                        "height": 8,
-                        "element": {
-                          "kind": "ElementReference",
-                          "name": "worker-req-latency"
-                        }
-                      }
-                    },
-                    {
-                      "kind": "GridLayoutItem",
-                      "spec": {
-                        "x": 16,
-                        "y": 8,
-                        "width": 8,
-                        "height": 8,
-                        "element": {
-                          "kind": "ElementReference",
-                          "name": "worker-sticky-cache"
-                        }
-                      }
-                    }
-                  ]
-                }
-              }
-            }
-          },
-          {
-            "kind": "RowsLayoutRow",
-            "spec": {
-              "title": "Server",
-              "layout": {
-                "kind": "GridLayout",
-                "spec": {
-                  "items": [
-                    {
-                      "kind": "GridLayoutItem",
-                      "spec": {
-                        "x": 0,
-                        "y": 0,
+                        "x": 20,
+                        "y": 6,
                         "width": 4,
+                        "height": 5,
+                        "element": {
+                          "kind": "ElementReference",
+                          "name": "scrape-up"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "kind": "RowsLayoutRow",
+            "spec": {
+              "title": "Latency",
+              "layout": {
+                "kind": "GridLayout",
+                "spec": {
+                  "items": [
+                    {
+                      "kind": "GridLayoutItem",
+                      "spec": {
+                        "x": 0,
+                        "y": 0,
+                        "width": 9,
                         "height": 8,
                         "element": {
                           "kind": "ElementReference",
-                          "name": "srv-up"
+                          "name": "realm-latency"
                         }
                       }
                     },
                     {
                       "kind": "GridLayoutItem",
                       "spec": {
-                        "x": 4,
+                        "x": 9,
                         "y": 0,
-                        "width": 10,
+                        "width": 9,
                         "height": 8,
                         "element": {
                           "kind": "ElementReference",
-                          "name": "srv-grpc-rate"
+                          "name": "token-latency"
                         }
                       }
                     },
                     {
                       "kind": "GridLayoutItem",
                       "spec": {
-                        "x": 14,
+                        "x": 18,
                         "y": 0,
-                        "width": 10,
+                        "width": 6,
                         "height": 8,
                         "element": {
                           "kind": "ElementReference",
-                          "name": "srv-error-ratio"
+                          "name": "slowest-endpoints"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "kind": "RowsLayoutRow",
+            "spec": {
+              "title": "Auth events",
+              "layout": {
+                "kind": "GridLayout",
+                "spec": {
+                  "items": [
+                    {
+                      "kind": "GridLayoutItem",
+                      "spec": {
+                        "x": 0,
+                        "y": 0,
+                        "width": 12,
+                        "height": 8,
+                        "element": {
+                          "kind": "ElementReference",
+                          "name": "events-by-type"
+                        }
+                      }
+                    },
+                    {
+                      "kind": "GridLayoutItem",
+                      "spec": {
+                        "x": 12,
+                        "y": 0,
+                        "width": 12,
+                        "height": 8,
+                        "element": {
+                          "kind": "ElementReference",
+                          "name": "failed-events"
                         }
                       }
                     },
@@ -1802,11 +1607,50 @@
                       "spec": {
                         "x": 0,
                         "y": 8,
+                        "width": 12,
+                        "height": 8,
+                        "element": {
+                          "kind": "ElementReference",
+                          "name": "events-by-realm-client"
+                        }
+                      }
+                    },
+                    {
+                      "kind": "GridLayoutItem",
+                      "spec": {
+                        "x": 12,
+                        "y": 8,
+                        "width": 12,
+                        "height": 8,
+                        "element": {
+                          "kind": "ElementReference",
+                          "name": "token-grants"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "kind": "RowsLayoutRow",
+            "spec": {
+              "title": "Infrastructure",
+              "layout": {
+                "kind": "GridLayout",
+                "spec": {
+                  "items": [
+                    {
+                      "kind": "GridLayoutItem",
+                      "spec": {
+                        "x": 0,
+                        "y": 0,
                         "width": 8,
                         "height": 8,
                         "element": {
                           "kind": "ElementReference",
-                          "name": "srv-latency"
+                          "name": "agroal-pool"
                         }
                       }
                     },
@@ -1814,12 +1658,38 @@
                       "kind": "GridLayoutItem",
                       "spec": {
                         "x": 8,
-                        "y": 8,
+                        "y": 0,
                         "width": 8,
                         "height": 8,
                         "element": {
                           "kind": "ElementReference",
-                          "name": "srv-persistence"
+                          "name": "jvm-heap"
+                        }
+                      }
+                    },
+                    {
+                      "kind": "GridLayoutItem",
+                      "spec": {
+                        "x": 16,
+                        "y": 0,
+                        "width": 8,
+                        "height": 8,
+                        "element": {
+                          "kind": "ElementReference",
+                          "name": "gc-pause"
+                        }
+                      }
+                    },
+                    {
+                      "kind": "GridLayoutItem",
+                      "spec": {
+                        "x": 0,
+                        "y": 8,
+                        "width": 16,
+                        "height": 7,
+                        "element": {
+                          "kind": "ElementReference",
+                          "name": "password-hash"
                         }
                       }
                     },
@@ -1829,10 +1699,10 @@
                         "x": 16,
                         "y": 8,
                         "width": 8,
-                        "height": 8,
+                        "height": 7,
                         "element": {
                           "kind": "ElementReference",
-                          "name": "srv-backlog"
+                          "name": "uptime"
                         }
                       }
                     }
@@ -1847,15 +1717,14 @@
     "links": [],
     "preload": false,
     "tags": [
-      "temporal",
-      "observability",
-      "workflow",
+      "keycloak",
+      "identity",
       "generated",
       "foundation-sdk"
     ],
     "timeSettings": {
       "timezone": "browser",
-      "from": "now-6h",
+      "from": "now-1h",
       "to": "now",
       "autoRefresh": "30s",
       "autoRefreshIntervals": [
@@ -1873,113 +1742,7 @@
       "hideTimepicker": false,
       "fiscalYearStartMonth": 0
     },
-    "title": "Temporal — Workflows \u0026 Activities",
-    "variables": [
-      {
-        "kind": "QueryVariable",
-        "spec": {
-          "name": "namespace",
-          "current": {
-            "text": "All",
-            "value": "$__all"
-          },
-          "label": "Namespace",
-          "hide": "dontHide",
-          "refresh": "onDashboardLoad",
-          "skipUrlSync": false,
-          "query": {
-            "kind": "DataQuery",
-            "group": "prometheus",
-            "version": "v0",
-            "datasource": {
-              "name": "prometheus"
-            },
-            "spec": {
-              "qryType": 1,
-              "query": "label_values(temporal_worker_task_slots_available, namespace)",
-              "refId": "PrometheusVariableQueryEditor-VariableQuery"
-            }
-          },
-          "regex": "",
-          "regexApplyTo": "value",
-          "sort": "alphabeticalAsc",
-          "definition": "label_values(temporal_worker_task_slots_available, namespace)",
-          "options": [],
-          "multi": true,
-          "includeAll": true,
-          "allowCustomValue": false
-        }
-      },
-      {
-        "kind": "QueryVariable",
-        "spec": {
-          "name": "service_name",
-          "current": {
-            "text": "All",
-            "value": "$__all"
-          },
-          "label": "Service",
-          "hide": "dontHide",
-          "refresh": "onDashboardLoad",
-          "skipUrlSync": false,
-          "query": {
-            "kind": "DataQuery",
-            "group": "prometheus",
-            "version": "v0",
-            "datasource": {
-              "name": "prometheus"
-            },
-            "spec": {
-              "qryType": 1,
-              "query": "label_values(temporal_worker_task_slots_available{namespace=~\"$namespace\"}, service_name)",
-              "refId": "PrometheusVariableQueryEditor-VariableQuery"
-            }
-          },
-          "regex": "",
-          "regexApplyTo": "value",
-          "sort": "alphabeticalAsc",
-          "definition": "label_values(temporal_worker_task_slots_available{namespace=~\"$namespace\"}, service_name)",
-          "options": [],
-          "multi": true,
-          "includeAll": true,
-          "allowCustomValue": false
-        }
-      },
-      {
-        "kind": "QueryVariable",
-        "spec": {
-          "name": "workflow_type",
-          "current": {
-            "text": "All",
-            "value": "$__all"
-          },
-          "label": "Workflow type",
-          "hide": "dontHide",
-          "refresh": "onDashboardLoad",
-          "skipUrlSync": false,
-          "query": {
-            "kind": "DataQuery",
-            "group": "prometheus",
-            "version": "v0",
-            "datasource": {
-              "name": "prometheus"
-            },
-            "spec": {
-              "qryType": 1,
-              "query": "label_values(temporal_workflow_completed_total{namespace=~\"$namespace\"}, workflow_type)",
-              "refId": "PrometheusVariableQueryEditor-VariableQuery"
-            }
-          },
-          "regex": "",
-          "regexApplyTo": "value",
-          "sort": "alphabeticalAsc",
-          "definition": "label_values(temporal_workflow_completed_total{namespace=~\"$namespace\"}, workflow_type)",
-          "options": [],
-          "multi": true,
-          "includeAll": true,
-          "allowCustomValue": false
-        }
-      }
-    ]
+    "title": "Keycloak — Identity",
+    "variables": []
   }
 }
