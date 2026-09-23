@@ -3,7 +3,8 @@
 Strongly typed Grafana dashboards and alert rules built with Go and the
 [Grafana Foundation SDK](https://github.com/grafana/grafana-foundation-sdk).
 
-The project uses the Dashboard v2 model and targets Grafana 12 or newer.
+The project uses the Dashboard v2 model and targets Grafana 13 or newer:
+`dashboard.grafana.app/v2` is not served on 12.0 or 12.1.
 Generated Kubernetes resources are published as an OCI artifact for GitOps
 delivery with Flux and the Grafana Operator.
 
@@ -78,7 +79,7 @@ Alert rules:
 ## Requirements
 
 - Go 1.26 or newer
-- Grafana 12 or newer
+- Grafana 13 or newer (12.x does not serve `dashboard.grafana.app/v2`)
 - Grafana Operator for Kubernetes delivery
 - Flux CLI for OCI publishing
 - Kind, kubectl, and Helm for end-to-end tests
@@ -198,12 +199,46 @@ kubectl kustomize deploy/
 
 The bundle contains:
 
-- one `GrafanaFolder` per domain
-- one `GrafanaDashboard` per dashboard (`spec.oci`, JSON is not stored in etcd)
+- one `GrafanaManifest` wrapping a `folder.grafana.app/v1` `Folder` per domain
+- one `GrafanaManifest` wrapping a `dashboard.grafana.app/v2` `Dashboard` per dashboard
 - one `GrafanaAlertRuleGroup` per alert domain
 
-Grafana Operator 5.24+ fetches dashboard JSON from an OCI artifact. This
-repository pins Helm chart **5.25.0** in e2e.
+### Why `GrafanaManifest` and not `GrafanaDashboard`
+
+`GrafanaDashboard` posts through the legacy `/api/dashboards/db` envelope, and
+that is what the controller does rather than a setting — its content sources
+(`oci`, `url`, `configMapRef`, `json`, `grafanaCom`, `jsonnet`) are only
+transports for the bytes. A Dashboard v2 payload is refused twice over: the bare
+spec returns `400 dashboard appears to be in v2 format`, and the wrapped object
+that error asks for returns `400 The k8s style dashboard must not include an id
+on the root element` — unfixable from here, because the operator's content
+resolver sets an `id` on every model before posting.
+
+`GrafanaManifest` applies its payload with a discovery-based dynamic client
+against `/apis`, so it speaks the same protocol as the schema. The trade is that
+it has **no content sources at all**, so the dashboard spec is inlined and the
+object is bounded by the etcd limit near 1 MiB. Grafana must serve
+`dashboard.grafana.app/v2`, which means **13.x**; 12.0 and 12.1 serve no higher
+than `v2alpha1`.
+
+### Two waves
+
+`deploy/` is split because a dashboard whose `grafana.app/folder` annotation
+names a folder that does not exist yet fails outright and then waits for the
+operator's next resync — long enough that a Flux wave times out red. Listing the
+folder first inside one kustomization does not help; kustomize ordering is not
+apply ordering for independent controllers.
+
+```text
+deploy/folders/      GrafanaManifest -> folder.grafana.app/v1 Folder
+deploy/dashboards/   GrafanaManifest -> dashboard.grafana.app/v2 Dashboard, plus alert groups
+deploy/              both, for a single apply where nothing is racing
+```
+
+A consumer points one Flux `Kustomization` at `./deploy/folders` and a second at
+`./deploy/dashboards` with `dependsOn`. The second also needs `healthCheckExprs`:
+`GrafanaManifest` reports `ManifestSynchronized`, not the `Ready` condition
+kstatus expects.
 
 Run the local end-to-end smoke test:
 
@@ -212,37 +247,30 @@ make e2e-kind
 ```
 
 The test creates a Kind cluster, installs Grafana Operator 5.25.0, deploys
-Grafana 12, pushes every generated `<domain>/*.spec.json` into an in-cluster registry,
-applies CRs that reference `spec.oci`, and waits for each folder and dashboard
-to report a synchronized condition. The expected resource set is read from
-`deploy/manifests/`, so a newly registered dashboard is covered automatically.
+Grafana 13, applies the two waves in order, waits for every `GrafanaManifest` to
+report `ManifestSynchronized`, and then **reads each board back** through
+`/apis/dashboard.grafana.app/v2/namespaces/default/dashboards/<uid>`, comparing
+title and element count against the generated spec. The read-back is the point:
+on Grafana 12.0.0 the legacy save path accepts fairly arbitrary JSON and reports
+a synchronized condition while storing something unusable, so an assertion on
+the CR condition alone proves nothing. The expected resource set is read from
+`deploy/`, so a newly registered dashboard is covered automatically.
 
 ## OCI publishing
 
-GitHub Actions publishes two artifacts:
-
-Inside the dashboard artifact each spec keeps its domain prefix, so
-`spec.oci.path` reads `postgres/pg-io-waits.spec.json`. The operator matches that
-string against the OCI layer title, so the two must stay identical.
+GitHub Actions publishes one artifact, the `deploy/` bundle, on every push to
+`main` and on `v*` tags:
 
 ```text
-# Dashboard JSON for GrafanaDashboard.spec.oci (oras)
-ghcr.io/duynhlab/grafana-dashboards:latest
-ghcr.io/duynhlab/grafana-dashboards:sha-<commit>
-
-# Kustomize CRs for GitOps (flux)
 ghcr.io/duynhlab/grafana-dashboards-as-code:latest
-ghcr.io/duynhlab/grafana-dashboards-as-code:sha-<commit>
+ghcr.io/duynhlab/grafana-dashboards-as-code:sha-<commit>   # branch push
+ghcr.io/duynhlab/grafana-dashboards-as-code:v<x.y.z>       # tag push, pin this
 ```
 
-Generate CRs against a tag or digest:
+There is no separate dashboard-JSON artifact. `GrafanaManifest` cannot fetch
+content, so nothing would pull one; the specs under `generated/dashboards/` stay
+committed as the review surface, not as a delivery mechanism.
 
-```bash
-OCI_REFERENCE=ghcr.io/duynhlab/grafana-dashboards:latest go run ./cmd/generate
-```
-
-For a private registry, also set `OCI_PULL_SECRET=ghcr-pull` and create a
-`kubernetes.io/dockerconfigjson` Secret in the Grafana Operator namespace.
 
 The `latest` tag follows the `as-code` branch. Commit tags provide immutable
 references for GitOps consumers.
@@ -270,9 +298,10 @@ Pull requests run:
 - `go vet`
 - repository-wide test coverage with a minimum of 90%
 - deterministic artifact generation and diff verification
-- Kustomize rendering checks for folders, dashboards, and alert groups
-- a guard that every generated `*.spec.json` has a matching `GrafanaDashboard` CR
-- Kind end-to-end smoke tests (operator fetch via `spec.oci`)
+- Kustomize rendering checks on each of the three overlays, including a guard
+  that `deploy/` never emits a `GrafanaDashboard` again
+- a guard that every generated `*.spec.json` has a matching `GrafanaManifest` CR
+- Kind end-to-end smoke tests that read every board back through `/apis`
 
-Pushes to `as-code` additionally publish dashboard JSON (oras) and the Flux
-deploy bundle to GHCR.
+Pushes to `main` and `v*` tags additionally publish the Flux deploy bundle to
+GHCR.

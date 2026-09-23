@@ -3,10 +3,11 @@ name: As-Code Dashboards
 on:
   push:
     branches:
-      - as-code
+      - main
+    tags:
+      - "v*"
   pull_request:
     branches:
-      - as-code
       - main
 
 permissions:
@@ -15,11 +16,9 @@ permissions:
 
 env:
   OCI_IMAGE: ghcr.io/duynhlab/grafana-dashboards-as-code
-  OCI_DASHBOARDS: ghcr.io/duynhlab/grafana-dashboards
   GO_VERSION: "1.26"
   FLUX_VERSION: "2.6.0"
   KIND_VERSION: "v0.30.0"
-  ORAS_VERSION: "1.3.0"
 
 jobs:
   validate:
@@ -53,22 +52,31 @@ jobs:
 
       - name: Kustomize build
         run: |
-          kubectl kustomize deploy/ > /tmp/rendered.yaml
-          grep -q "kind: GrafanaFolder" /tmp/rendered.yaml
-          grep -q "kind: GrafanaDashboard" /tmp/rendered.yaml
-          grep -q "kind: GrafanaAlertRuleGroup" /tmp/rendered.yaml
-          grep -q "path: kubernetes/kubernetes-cluster-overview.spec.json" /tmp/rendered.yaml
+          # Each wave must render on its own: a consumer points one Flux
+          # Kustomization at deploy/folders and the next at deploy/dashboards.
+          for overlay in deploy deploy/folders deploy/dashboards; do
+            kubectl kustomize "${overlay}" > "/tmp/rendered-$(basename "${overlay}").yaml"
+          done
+          grep -q "kind: GrafanaManifest" /tmp/rendered-deploy.yaml
+          grep -q "kind: GrafanaAlertRuleGroup" /tmp/rendered-deploy.yaml
+          grep -q "apiVersion: folder.grafana.app/v1" /tmp/rendered-folders.yaml
+          grep -q "apiVersion: dashboard.grafana.app/v2" /tmp/rendered-dashboards.yaml
+          # GrafanaDashboard cannot carry a v2 payload; Grafana answers 400.
+          if grep -q "kind: GrafanaDashboard" /tmp/rendered-deploy.yaml; then
+            echo "deploy/ still emits GrafanaDashboard, which cannot carry a v2 board" >&2
+            exit 1
+          fi
 
       - name: Every generated dashboard has a CR
         run: |
           specs="$(find generated/dashboards -name '*.spec.json' | wc -l)"
-          crs="$(ls deploy/manifests/grafanadashboard-*.yaml | wc -l)"
-          echo "spec files: ${specs}, GrafanaDashboard CRs: ${crs}"
+          crs="$(ls deploy/dashboards/grafanamanifest-*.yaml | wc -l)"
+          echo "spec files: ${specs}, GrafanaManifest CRs: ${crs}"
           test "${specs}" -eq "${crs}"
 
   publish-oci:
     needs: validate
-    if: github.event_name == 'push' && github.ref == 'refs/heads/as-code'
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -80,53 +88,34 @@ jobs:
       - name: Generate dashboards
         run: go run ./cmd/generate
 
-      - name: Install oras
-        run: |
-          curl -fsSL "https://github.com/oras-project/oras/releases/download/v${ORAS_VERSION}/oras_${ORAS_VERSION}_linux_amd64.tar.gz" | tar xz
-          sudo mv oras /usr/local/bin/oras
-          oras version
-
       - name: Install Flux CLI
         run: |
           curl -fsSL "https://github.com/fluxcd/flux2/releases/download/v${FLUX_VERSION}/flux_${FLUX_VERSION}_linux_amd64.tar.gz" | tar xz
           sudo mv flux /usr/local/bin/flux
           flux version --client
 
-      - name: Push dashboard JSON and deploy artifacts
+      - name: Push the deploy bundle
         env:
           GHCR_USER: ${{ github.actor }}
           GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          # Only the deploy bundle ships. GrafanaManifest has no content sources
+          # at all, so nothing would ever pull a separate dashboard-JSON
+          # artifact: Flux pulls this bundle once per interval and applies it.
           SHORT_SHA="${GITHUB_SHA::7}"
-          echo "${GHCR_TOKEN}" | oras login ghcr.io -u "${GHCR_USER}" --password-stdin
-          (
-            cd generated/dashboards
-            # Every generated spec ships; never list dashboards by name here.
-            # Paths stay domain-relative (kubernetes/foo.spec.json) because oras
-            # records them as the layer title, which is what spec.oci.path must
-            # equal for the operator to find the file.
-            spec_files=()
-            while IFS= read -r spec; do
-              spec_files+=("${spec}:application/json")
-            done < <(find . -name '*.spec.json' -printf '%P\n' | sort)
-            if [[ ${#spec_files[@]} -eq 0 ]]; then
-              echo "no dashboard spec files found under generated/dashboards" >&2
-              exit 1
-            fi
-            echo "pushing ${#spec_files[@]} dashboard spec files"
-            oras push "${OCI_DASHBOARDS}:latest" \
-              --artifact-type application/vnd.grafana.dashboard+json \
-              "${spec_files[@]}"
-            oras tag "${OCI_DASHBOARDS}:latest" "${OCI_DASHBOARDS}:sha-${SHORT_SHA}"
-          )
+          if [[ "${GITHUB_REF}" == refs/tags/* ]]; then
+            EXTRA_TAG="${GITHUB_REF_NAME}"
+          else
+            EXTRA_TAG="sha-${SHORT_SHA}"
+          fi
           flux push artifact "oci://${OCI_IMAGE}:latest" \
             --path="./deploy" \
             --source="$(git config --get remote.origin.url)" \
-            --revision="as-code@sha1:${{ github.sha }}" \
+            --revision="${GITHUB_REF_NAME}@sha1:${{ github.sha }}" \
             --reproducible \
             --creds="${GHCR_USER}:${GHCR_TOKEN}"
           flux tag artifact "oci://${OCI_IMAGE}:latest" \
-            --tag "sha-${SHORT_SHA}" \
+            --tag "${EXTRA_TAG}" \
             --creds="${GHCR_USER}:${GHCR_TOKEN}"
 
   e2e-kind:
@@ -148,12 +137,6 @@ jobs:
           chmod +x /tmp/kind
           sudo mv /tmp/kind /usr/local/bin/kind
           kind version
-
-      - name: Install oras
-        run: |
-          curl -fsSL "https://github.com/oras-project/oras/releases/download/v${ORAS_VERSION}/oras_${ORAS_VERSION}_linux_amd64.tar.gz" | tar xz
-          sudo mv oras /usr/local/bin/oras
-          oras version
 
       - name: E2E on Kind 1.36
         run: ./test/e2e/kind/run.sh

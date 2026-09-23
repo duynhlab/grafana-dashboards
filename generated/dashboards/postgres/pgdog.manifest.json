@@ -2,7 +2,11 @@
   "apiVersion": "dashboard.grafana.app/v2",
   "kind": "Dashboard",
   "metadata": {
-    "name": "pgdog"
+    "name": "pgdog",
+    "namespace": "default",
+    "annotations": {
+      "grafana.app/folder": "databases"
+    }
   },
   "spec": {
     "annotations": [],

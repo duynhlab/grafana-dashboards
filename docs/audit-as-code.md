@@ -5,7 +5,7 @@ Scope: Grafana Foundation SDK docs (Context7 + Grafana docs MCP) packaged into [
 
 ## Executive summary
 
-The repository has a parallel **as-code** track. Legacy JSON under `dashboard/` stays frozen. New work uses **Go + Grafana Foundation SDK `dashboardv2`** targeting **Grafana 12+**, with generated artifacts delivered via **GitHub Actions → Flux OCI → GHCR**. Grafana folders are **domain names** (`Kubernetes`, `Databases`). Alerts are first-class Go resources.
+The repository has a parallel **as-code** track. Legacy JSON under `dashboard/` stays frozen. New work uses **Go + Grafana Foundation SDK `dashboardv2`** targeting **Grafana 13+**, with generated artifacts delivered via **GitHub Actions → Flux OCI → GHCR**. Grafana folders are **domain names** (`Kubernetes`, `Databases`). Alerts are first-class Go resources.
 
 ## Architecture (kept in the skill)
 
@@ -24,15 +24,17 @@ See skill references — do not keep a root architecture markdown file:
 |-----|------------|
 | CI/CD specifics | `.github/workflows/as-code.yml`: lint, test, generate, diff check, `flux push artifact` |
 | OCI delivery | `deploy/` kustomize bundle → `ghcr.io/duynhlab/grafana-dashboards-as-code` |
-| Grafana version | **Grafana 12+** required |
+| Grafana version | **Grafana 13+** required |
 | dashboardv2 vs v1 | Greenfield `dashboardv2`; legacy JSON is reference only |
-| Domain folders | `Kubernetes` and `Databases` GrafanaFolders, not `as-code` |
+| Domain folders | `Kubernetes` and `Databases` folders, not `as-code` |
 | Alerts | `internal/alerts/` + `GrafanaAlertRuleGroup` CRs |
-| E2E | `test/e2e/kind/` with Kubernetes 1.36 |
+| E2E | `test/e2e/kind/` with Kubernetes 1.36, reading each board back through `/apis` |
 
 ### API version note
 
 Official dashboard automation examples use `dashboard` (v1) + `dashboard.grafana.app/v1`. This project uses **`dashboardv2` + `dashboard.grafana.app/v2`**. UID lives in K8s manifest `metadata.name`.
+
+That choice decides the delivery resource. `GrafanaDashboard` posts through the legacy `/api/dashboards/db` envelope and cannot carry a v2 payload in either shape, so dashboards and folders ship as **`GrafanaManifest`** with the object inlined in `spec.template`, and the OCI artifact is the `deploy/` bundle Flux pulls rather than per-board JSON the operator pulls.
 
 ## Target dashboards
 

@@ -1,8 +1,8 @@
 # AGENTS.md
 
 Grafana dashboards and alert rules as Go code (Grafana Foundation SDK, dashboardv2),
-rendered by `go run ./cmd/generate` and delivered to Grafana 12 through Flux OCI
-artifacts and the Grafana Operator.
+rendered by `go run ./cmd/generate` and delivered to Grafana 13 through a Flux OCI
+artifact and the Grafana Operator.
 
 ## Skill
 

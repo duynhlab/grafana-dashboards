@@ -8,7 +8,7 @@ internal/alerts/rule.go            Rule struct
 internal/alerts/<domain>.go        one flat file per domain (kubernetes.go, postgres.go)
 internal/registry/alerts.go        []alerts.Rule registration
 generated/alerts/<domain>/<uid>.json
-deploy/manifests/grafanaalertrulegroup-<group>.yaml
+deploy/dashboards/grafanaalertrulegroup-<group>.yaml
 test/dashboards/alerts_test.go     registry-wide contract test
 ```
 
@@ -41,7 +41,10 @@ dashboard -> problem -> alert -> runbook.
 ## Delivery
 
 The generator groups rules by `Group` into one `GrafanaAlertRuleGroup` CR whose
-`folderRef` matches the domain `GrafanaFolder`. Evaluation interval is per group
+`folderUID` carries the folder slug directly. `folderRef` is not used: it resolves by
+looking up a live `GrafanaFolder` object, and folders now ship as `GrafanaManifest`
+wrapping a `folder.grafana.app/v1` `Folder`, so a group left on `folderRef` would never
+find its folder. Both fields are immutable once applied. Evaluation interval is per group
 (default `1m`). A new `Group` value produces a new CR without generator changes.
 
 ## Adding an alert

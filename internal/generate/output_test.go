@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 	"testing"
 
@@ -27,7 +28,7 @@ func TestGeneratorProducesDeterministicBundleAndRemovesStaleFiles(t *testing.T) 
 		t.Fatal(err)
 	}
 
-	stale := filepath.Join(root, "deploy", "manifests", "stale.yaml")
+	stale := filepath.Join(root, "deploy", "dashboards", "stale.yaml")
 	if err := os.MkdirAll(filepath.Dir(stale), 0o755); err != nil {
 		t.Fatal(err)
 	}
@@ -53,18 +54,20 @@ func TestGeneratorProducesDeterministicBundleAndRemovesStaleFiles(t *testing.T) 
 
 	wantFiles := []string{
 		"deploy/kustomization.yaml",
-		"deploy/manifests/grafanafolder-kubernetes.yaml",
-		"deploy/manifests/grafanafolder-databases.yaml",
-		"deploy/manifests/grafanafolder-observability.yaml",
-		"deploy/manifests/grafanadashboard-kubernetes-cluster-overview.yaml",
-		"deploy/manifests/grafanadashboard-pg-io-waits.yaml",
-		"deploy/manifests/grafanadashboard-pg-maintenance.yaml",
-		"deploy/manifests/grafanadashboard-pg-query-performance.yaml",
-		"deploy/manifests/grafanadashboard-pg-exporter-instance.yaml",
-		"deploy/manifests/grafanadashboard-pgdog.yaml",
-		"deploy/manifests/grafanadashboard-temporal-worker.yaml",
-		"deploy/manifests/grafanaalertrulegroup-kubernetes.yaml",
-		"deploy/manifests/grafanaalertrulegroup-databases.yaml",
+		"deploy/folders/kustomization.yaml",
+		"deploy/dashboards/kustomization.yaml",
+		"deploy/folders/grafanamanifest-kubernetes-folder.yaml",
+		"deploy/folders/grafanamanifest-databases-folder.yaml",
+		"deploy/folders/grafanamanifest-observability-folder.yaml",
+		"deploy/dashboards/grafanamanifest-kubernetes-cluster-overview.yaml",
+		"deploy/dashboards/grafanamanifest-pg-io-waits.yaml",
+		"deploy/dashboards/grafanamanifest-pg-maintenance.yaml",
+		"deploy/dashboards/grafanamanifest-pg-query-performance.yaml",
+		"deploy/dashboards/grafanamanifest-pg-exporter-instance.yaml",
+		"deploy/dashboards/grafanamanifest-pgdog.yaml",
+		"deploy/dashboards/grafanamanifest-temporal-worker.yaml",
+		"deploy/dashboards/grafanaalertrulegroup-kubernetes.yaml",
+		"deploy/dashboards/grafanaalertrulegroup-databases.yaml",
 		"generated/alerts/kubernetes/kubernetes_crashlooping_pods.json",
 		"generated/alerts/postgres/postgres_backends_waiting.json",
 		"generated/dashboards/kubernetes/kubernetes-cluster-overview.spec.json",
@@ -82,37 +85,9 @@ func TestGeneratorProducesDeterministicBundleAndRemovesStaleFiles(t *testing.T) 
 		}
 	}
 
-	assertManifest(t, second["deploy/manifests/grafanadashboard-kubernetes-cluster-overview.yaml"], "GrafanaDashboard", "kubernetes")
-	assertManifest(t, second["deploy/manifests/grafanaalertrulegroup-databases.yaml"], "GrafanaAlertRuleGroup", "databases")
-	assertDashboardOCI(t, second["deploy/manifests/grafanadashboard-kubernetes-cluster-overview.yaml"], defaultOCIReference, "kubernetes/kubernetes-cluster-overview.spec.json", false, "")
-}
-
-func TestDashboardOCIFromEnvironment(t *testing.T) {
-	t.Setenv("OCI_REFERENCE", "registry.grafana-operator.svc.cluster.local/grafana-dashboards:e2e")
-	t.Setenv("OCI_PULL_SECRET", "ghcr-pull")
-	t.Setenv("OCI_INSECURE_PLAIN_HTTP", "true")
-
-	root := t.TempDir()
-	generator, err := New(root, registry.Dashboards, registry.Alerts)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if err := generator.Run(); err != nil {
-		t.Fatal(err)
-	}
-	data, err := os.ReadFile(filepath.Join(root, "deploy", "manifests", "grafanadashboard-pg-io-waits.yaml"))
-	if err != nil {
-		t.Fatal(err)
-	}
-	assertDashboardOCI(t, data, "registry.grafana-operator.svc.cluster.local/grafana-dashboards:e2e", "postgres/pg-io-waits.spec.json", true, "ghcr-pull")
-}
-
-func TestReferenceWithPortIsRejected(t *testing.T) {
-	t.Setenv("OCI_REFERENCE", "registry.grafana-operator.svc.cluster.local:5000/grafana-dashboards:e2e")
-
-	if _, err := New(t.TempDir(), registry.Dashboards, registry.Alerts); err == nil {
-		t.Fatal("expected a registry host carrying a port to be rejected")
-	}
+	assertDashboardManifest(t, second["deploy/dashboards/grafanamanifest-kubernetes-cluster-overview.yaml"], "kubernetes-cluster-overview", "kubernetes")
+	assertFolderManifest(t, second["deploy/folders/grafanamanifest-databases-folder.yaml"], "databases", "Databases")
+	assertAlertGroup(t, second["deploy/dashboards/grafanaalertrulegroup-databases.yaml"], "databases")
 }
 
 func TestRunUsesCurrentDirectory(t *testing.T) {
@@ -315,62 +290,112 @@ func equalSnapshot(left, right map[string][]byte) bool {
 	return true
 }
 
-func assertManifest(t *testing.T, data []byte, kind, folderRef string) {
+// assertDashboardManifest holds the wire contract that makes a v2 board
+// reachable at all. Three of these four fields are silent when wrong: the
+// outer namespace is the operator's and the inner one is Grafana's tenant, the
+// inner metadata.name is the dashboard UID rather than a display name, and the
+// folder annotation takes the folder's UID, which is the folder manifest's
+// inner name and not the "-folder" name of the CR that wraps it.
+func assertDashboardManifest(t *testing.T, data []byte, uid, folderUID string) {
 	t.Helper()
-	var document map[string]any
-	if err := yaml.Unmarshal(data, &document); err != nil {
-		t.Fatal(err)
+	template := assertManifestCR(t, data, uid)
+
+	if template["apiVersion"] != "dashboard.grafana.app/v2" {
+		t.Fatalf("template.apiVersion = %v, want dashboard.grafana.app/v2", template["apiVersion"])
 	}
-	if document["kind"] != kind {
-		t.Fatalf("kind = %v, want %s", document["kind"], kind)
+	if template["kind"] != "Dashboard" {
+		t.Fatalf("template.kind = %v, want Dashboard", template["kind"])
 	}
-	spec := document["spec"].(map[string]any)
-	if spec["folderRef"] != folderRef {
-		t.Fatalf("folderRef = %v, want %s", spec["folderRef"], folderRef)
+
+	meta := template["metadata"].(map[string]any)
+	if meta["name"] != uid {
+		t.Fatalf("template.metadata.name = %v, want the dashboard UID %s", meta["name"], uid)
 	}
-	if kind == "GrafanaDashboard" {
-		if _, exists := spec["json"]; exists {
-			t.Fatal("GrafanaDashboard must not embed json")
-		}
-		oci, ok := spec["oci"].(map[string]any)
-		if !ok {
-			t.Fatalf("missing spec.oci: %#v", spec)
-		}
-		if oci["path"] == "" || oci["reference"] == "" {
-			t.Fatalf("incomplete spec.oci: %#v", oci)
-		}
+	if meta["namespace"] != tenantNamespace {
+		t.Fatalf("template.metadata.namespace = %v, want %s", meta["namespace"], tenantNamespace)
+	}
+	annotations := meta["annotations"].(map[string]any)
+	if annotations[folderAnnotation] != folderUID {
+		t.Fatalf("%s = %v, want the folder UID %s", folderAnnotation, annotations[folderAnnotation], folderUID)
+	}
+
+	spec := template["spec"].(map[string]any)
+	if spec["title"] == nil || spec["elements"] == nil {
+		t.Fatalf("template.spec is not a dashboard: %v", keys(spec))
+	}
+	if _, embedded := spec["panels"]; embedded {
+		t.Fatal("template.spec carries v1 panels; the board was not built with dashboardv2")
 	}
 }
 
-func assertDashboardOCI(t *testing.T, data []byte, reference, path string, insecure bool, secret string) {
+func assertFolderManifest(t *testing.T, data []byte, uid, title string) {
+	t.Helper()
+	template := assertManifestCR(t, data, uid+"-folder")
+
+	if template["apiVersion"] != folderAPIVersion {
+		t.Fatalf("template.apiVersion = %v, want %s", template["apiVersion"], folderAPIVersion)
+	}
+	meta := template["metadata"].(map[string]any)
+	if meta["name"] != uid {
+		t.Fatalf("template.metadata.name = %v, want the bare folder UID %s", meta["name"], uid)
+	}
+	if meta["namespace"] != tenantNamespace {
+		t.Fatalf("template.metadata.namespace = %v, want %s", meta["namespace"], tenantNamespace)
+	}
+	if spec := template["spec"].(map[string]any); spec["title"] != title {
+		t.Fatalf("template.spec.title = %v, want %s", spec["title"], title)
+	}
+}
+
+func assertManifestCR(t *testing.T, data []byte, name string) map[string]any {
 	t.Helper()
 	var document map[string]any
 	if err := yaml.Unmarshal(data, &document); err != nil {
 		t.Fatal(err)
 	}
+	if document["kind"] != "GrafanaManifest" {
+		t.Fatalf("kind = %v, want GrafanaManifest; GrafanaDashboard cannot carry a v2 payload", document["kind"])
+	}
+	if document["apiVersion"] != operatorAPIVersion {
+		t.Fatalf("apiVersion = %v, want %s", document["apiVersion"], operatorAPIVersion)
+	}
+	if meta := document["metadata"].(map[string]any); meta["name"] != name {
+		t.Fatalf("metadata.name = %v, want %s", meta["name"], name)
+	}
+
 	spec := document["spec"].(map[string]any)
-	oci := spec["oci"].(map[string]any)
-	if oci["reference"] != reference {
-		t.Fatalf("oci.reference = %v, want %s", oci["reference"], reference)
+	if _, exists := spec["oci"]; exists {
+		t.Fatal("spec.oci is set; GrafanaManifest has no content sources and must inline the object")
 	}
-	if oci["path"] != path {
-		t.Fatalf("oci.path = %v, want %s", oci["path"], path)
+	return spec["template"].(map[string]any)
+}
+
+// assertAlertGroup pins folderUID rather than folderRef. folderRef resolves by
+// looking up a live GrafanaFolder object, and this repository no longer emits
+// one, so a group left on folderRef would never find its folder.
+func assertAlertGroup(t *testing.T, data []byte, folderUID string) {
+	t.Helper()
+	var document map[string]any
+	if err := yaml.Unmarshal(data, &document); err != nil {
+		t.Fatal(err)
 	}
-	if insecure {
-		if oci["insecurePlainHTTP"] != true {
-			t.Fatalf("expected insecurePlainHTTP: %#v", oci)
-		}
-	} else if _, exists := oci["insecurePlainHTTP"]; exists {
-		t.Fatalf("unexpected insecurePlainHTTP: %#v", oci)
+	if document["kind"] != "GrafanaAlertRuleGroup" {
+		t.Fatalf("kind = %v, want GrafanaAlertRuleGroup", document["kind"])
 	}
-	if secret == "" {
-		if _, exists := oci["pullSecretRef"]; exists {
-			t.Fatalf("unexpected pullSecretRef: %#v", oci)
-		}
-		return
+	spec := document["spec"].(map[string]any)
+	if _, exists := spec["folderRef"]; exists {
+		t.Fatal("spec.folderRef is set; it resolves against a GrafanaFolder CR this repository no longer emits")
 	}
-	ref := oci["pullSecretRef"].(map[string]any)
-	if ref["name"] != secret {
-		t.Fatalf("pullSecretRef.name = %v, want %s", ref["name"], secret)
+	if spec["folderUID"] != folderUID {
+		t.Fatalf("folderUID = %v, want %s", spec["folderUID"], folderUID)
 	}
+}
+
+func keys(m map[string]any) []string {
+	out := make([]string, 0, len(m))
+	for k := range m {
+		out = append(out, k)
+	}
+	sort.Strings(out)
+	return out
 }

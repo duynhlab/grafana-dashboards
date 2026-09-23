@@ -6,7 +6,7 @@ metadata:
         app.kubernetes.io/part-of: grafana-dashboards-as-code
     name: kubernetes
 spec:
-    folderRef: kubernetes
+    folderUID: kubernetes
     instanceSelector:
         matchLabels:
             dashboards: grafana

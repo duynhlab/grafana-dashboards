@@ -2,7 +2,11 @@
   "apiVersion": "dashboard.grafana.app/v2",
   "kind": "Dashboard",
   "metadata": {
-    "name": "temporal-worker"
+    "name": "temporal-worker",
+    "namespace": "default",
+    "annotations": {
+      "grafana.app/folder": "observability"
+    }
   },
   "spec": {
     "annotations": [],

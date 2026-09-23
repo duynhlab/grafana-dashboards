@@ -2,7 +2,11 @@
   "apiVersion": "dashboard.grafana.app/v2",
   "kind": "Dashboard",
   "metadata": {
-    "name": "microservices-monitoring-001-otel"
+    "name": "microservices-monitoring-001-otel",
+    "namespace": "default",
+    "annotations": {
+      "grafana.app/folder": "microservices"
+    }
   },
   "spec": {
     "annotations": [],
