@@ -25,7 +25,7 @@ spec:
                     type: prometheus
                     uid: prometheus
                 editorMode: code
-                expr: count(max_over_time(kube_pod_container_status_waiting_reason{reason="CrashLoopBackOff"}[5m]) == 1)
+                expr: count(max_over_time(kube_pod_container_status_waiting_reason{reason="CrashLoopBackOff"}[$__rate_interval]) == 1)
                 instant: true
                 refId: A
               refId: A

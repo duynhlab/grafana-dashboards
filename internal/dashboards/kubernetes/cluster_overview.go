@@ -14,7 +14,8 @@ func ClusterOverview() cog.Builder[dashboardv2.Dashboard] {
 		Description("Kubernetes cluster overview using the USE method. Covers node/pod counts, workload health, resource utilization, and persistent volume storage.").
 		Editable(true).
 		Tags([]string{"kubernetes", "cluster", "generated", "foundation-sdk"}).
-		TimeSettings(standards.TimeSettings("now-1h", "now", "30s"))
+		TimeSettings(standards.TimeSettings("now-1h", "now", "30s")).
+		QueryVariable(panels.QueryVar("namespace", "Namespace", k8squeries.NamespaceValues))
 
 	panelIDs := []struct {
 		id, title, expr, legend string
@@ -57,6 +58,8 @@ func ClusterOverview() cog.Builder[dashboardv2.Dashboard] {
 			panels.PromQuery(k8squeries.PVCUsed, "used"),
 		))
 
+	b = clusterOverviewNodeSectionPanels(b)
+
 	return b.RowsLayout(panels.RowsLayout(
 		panels.Row("Cluster Overview",
 			panels.GridItem("nodes", 0, 0, 4, 4),
@@ -73,12 +76,17 @@ func ClusterOverview() cog.Builder[dashboardv2.Dashboard] {
 			panels.GridItem("oom", 18, 0, 6, 4),
 			panels.GridItem("pod-restarts", 0, 4, 12, 8),
 			panels.GridItem("pod-status", 12, 4, 12, 8),
+			panels.GridItem("node-pressure", 0, 12, 24, 8),
 		),
 		panels.Row("Resource Utilization",
 			panels.GridItem("cpu-usage", 0, 0, 12, 8),
 			panels.GridItem("mem-usage", 12, 0, 12, 8),
 			panels.GridItem("cpu-throttle", 0, 8, 12, 8),
 			panels.GridItem("net-io", 12, 8, 12, 8),
+			panels.GridItem("cpu-req-alloc-node", 0, 16, 12, 8),
+			panels.GridItem("mem-req-alloc-node", 12, 16, 12, 8),
+			panels.GridItem("packets-dropped", 0, 24, 12, 8),
+			panels.GridItem("pods-per-node", 12, 24, 12, 8),
 		),
 		panels.Row("Storage",
 			panels.GridItem("pvc-table", 0, 0, 16, 8),

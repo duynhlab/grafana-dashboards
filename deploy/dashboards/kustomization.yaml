@@ -4,6 +4,7 @@ kind: Kustomization
 namespace: grafana-operator
 resources:
     - grafanamanifest-kubernetes-cluster-overview.yaml
+    - grafanamanifest-kubernetes-workloads.yaml
     - grafanamanifest-keda.yaml
     - grafanamanifest-pg-io-waits.yaml
     - grafanamanifest-pg-maintenance.yaml

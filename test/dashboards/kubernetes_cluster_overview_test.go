@@ -20,8 +20,12 @@ func TestKubernetesClusterOverview(t *testing.T) {
 		t.Fatalf("unexpected title: %s", dash.Title)
 	}
 
-	if len(dash.Elements) < 19 {
-		t.Fatalf("expected at least 19 panels, got %d", len(dash.Elements))
+	if len(dash.Elements) != 24 {
+		t.Fatalf("expected 24 panels, got %d", len(dash.Elements))
+	}
+
+	if len(dash.Variables) != 1 {
+		t.Fatalf("expected 1 variable, got %d", len(dash.Variables))
 	}
 
 	manifest, err := dashboardv2.Manifest("kubernetes-cluster-overview", kubernetes.ClusterOverview()).Build()
@@ -40,9 +44,21 @@ func TestKubernetesClusterOverview(t *testing.T) {
 		t.Fatalf("marshal: %v", err)
 	}
 	s := string(body)
-	for _, needle := range []string{"kube_node_info", "kube_pod_status_phase", "kubelet_volume_stats_available_bytes"} {
+	for _, needle := range []string{
+		"kube_node_info",
+		"kube_pod_status_phase",
+		"kubelet_volume_stats_available_bytes",
+		"kube_node_status_condition",
+		"container_network_receive_packets_dropped_total",
+	} {
 		if !strings.Contains(s, needle) {
 			t.Fatalf("missing query fragment: %s", needle)
+		}
+	}
+
+	for _, needle := range []string{"${ds}", "[5m]"} {
+		if strings.Contains(s, needle) {
+			t.Fatalf("unexpected query fragment present: %s", needle)
 		}
 	}
 }
