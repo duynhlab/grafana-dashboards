@@ -25,3 +25,22 @@ func StatValue(title, unit string, steps []Threshold, expr, legend string) cog.B
 		Data(queryGroup(PromQuery(expr, legend))).
 		Visualization(viz)
 }
+
+// StatValues is StatValue with several targets side by side, for a figure that
+// needs context — an average next to the quantiles that place it. Each target
+// needs a distinct ref id (see Query).
+func StatValues(title, unit string, steps []Threshold, queries ...cog.Builder[dashboardv2.PanelQueryKind]) cog.Builder[dashboardv2.PanelKind] {
+	viz := stat.NewVisualizationV2Builder().
+		ColorMode(common.BigValueColorModeValue).
+		ReduceOptions(common.NewReduceDataOptionsBuilder().Calcs([]string{"lastNotNull"}))
+	if unit != "" {
+		viz = viz.Unit(unit)
+	}
+	if len(steps) > 0 {
+		viz = viz.Thresholds(thresholds(steps))
+	}
+	return dashboardv2.NewPanelBuilder().
+		Title(title).
+		Data(queryGroup(queries...)).
+		Visualization(viz)
+}

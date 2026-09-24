@@ -21,7 +21,7 @@ func businessPayments(b *dashboardv2.DashboardBuilder) *dashboardv2.DashboardBui
 		}, msqueries.PaymentCardDeclineRatio, "Card decline rate")).
 		Panel("pay-authorization", panels.SeriesExpr("Authorization outcomes", "reqps", msqueries.PaymentAuthorizationOutcomes, "{{result}}")).
 		Panel("pay-operations", panels.SeriesExpr("Money operations by op & result", "reqps", msqueries.PaymentMoneyOperations, "{{op}} · {{result}}")).
-		Panel("pay-provider-latency", panels.SeriesExpr("Provider-hop latency p95 (mockpay)", "s", msqueries.PaymentProviderLatencyP95, "{{op}}")).
+		Panel("pay-provider-latency", panels.SeriesQuantiles("Provider-hop latency p50 / p95 / p99 (mockpay)", "s", "{{op}} ", msqueries.PaymentProviderLatencyP50, msqueries.PaymentProviderLatencyP95, msqueries.PaymentProviderLatencyP99)).
 		Panel("pay-reconciliation", panels.SeriesExpr("Reconciliation discrepancies", "ops", msqueries.PaymentReconciliationDiscrepancies, "{{kind}}"))
 }
 
@@ -34,9 +34,14 @@ func businessOrders(b *dashboardv2.DashboardBuilder) *dashboardv2.DashboardBuild
 			panels.Thr("green", nil),
 			panels.Thr("red", panels.Ptr(0.0001)),
 		}, msqueries.OrderFailedCompensations, "Failed compensations (stuck money)")).
-		Panel("order-average-value", panels.StatValue("Average order value", "currencyUSD", []panels.Threshold{
+		Panel("order-average-value", panels.StatValues("Order value — average, p50 / p95 / p99", "currencyUSD", []panels.Threshold{
 			panels.Thr("green", nil),
-		}, msqueries.OrderAverageValueUSD, "Average order value")).
+		},
+			panels.Query("A", msqueries.OrderAverageValueUSD, "Average"),
+			panels.Query("B", msqueries.OrderValueP50USD, "p50"),
+			panels.Query("C", msqueries.OrderValueP95USD, "p95"),
+			panels.Query("D", msqueries.OrderValueP99USD, "p99"),
+		)).
 		Panel("order-payment-activity", panels.SeriesExpr("Payment activity by op & result", "reqps", msqueries.OrderPaymentActivity, "{{op}} · {{result}}")).
 		Panel("order-stock-reservation", panels.SeriesExpr("Stock reservation outcomes", "reqps", msqueries.OrderSagaStockReservationOutcomes, "{{result}}")).
 		Panel("order-compensation-steps", panels.SeriesExpr("Compensation steps", "reqps", msqueries.OrderCompensationSteps, "{{step}} · {{result}}"))
@@ -102,7 +107,7 @@ func businessReview(b *dashboardv2.DashboardBuilder) *dashboardv2.DashboardBuild
 func businessNotification(b *dashboardv2.DashboardBuilder) *dashboardv2.DashboardBuilder {
 	return b.
 		Panel("notification-reads", panels.SeriesExpr("Reads by mode", "reqps", msqueries.NotificationReads, "{{mode}}")).
-		Panel("notification-send-latency", panels.SeriesExpr("Send latency p95 by channel", "s", msqueries.NotificationSendLatencyP95, "{{channel}}"))
+		Panel("notification-send-latency", panels.SeriesQuantiles("Send latency p50 / p95 / p99 by channel", "s", "{{channel}} ", msqueries.NotificationSendLatencyP50, msqueries.NotificationSendLatencyP95, msqueries.NotificationSendLatencyP99))
 }
 
 func businessCheckout(b *dashboardv2.DashboardBuilder) *dashboardv2.DashboardBuilder {
@@ -116,5 +121,5 @@ func businessCheckout(b *dashboardv2.DashboardBuilder) *dashboardv2.DashboardBui
 			panels.Query("B", msqueries.CheckoutPromoRejected, "rejected · {{reason}}"),
 		)).
 		Panel("checkout-price-changed", panels.SeriesExpr("Price-changed on confirm", "ops", msqueries.CheckoutPriceChanged, "price changed")).
-		Panel("checkout-confirm-latency", panels.SeriesExpr("Confirm latency p95", "s", msqueries.CheckoutConfirmLatencyP95, "p95"))
+		Panel("checkout-confirm-latency", panels.SeriesQuantiles("Confirm latency p50 / p95 / p99", "s", "", msqueries.CheckoutConfirmLatencyP50, msqueries.CheckoutConfirmLatencyP95, msqueries.CheckoutConfirmLatencyP99))
 }

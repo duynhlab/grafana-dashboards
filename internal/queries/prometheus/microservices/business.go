@@ -28,9 +28,13 @@ const (
 	// PaymentMoneyOperations covers the capture / void / refund lifecycle.
 	PaymentMoneyOperations = `sum by (op,result) (rate(payment_operation_total[$__rate_interval]))`
 
-	// PaymentProviderLatencyP95 is the RFC-0017 W2 money-hop SLI: latency of
-	// the outbound call to the mockpay provider, per operation.
+	// PaymentProviderLatencyP50/P95/P99 are the RFC-0017 W2 money-hop SLI:
+	// latency of the outbound call to the mockpay provider, per operation.
+	// Every business histogram is shown at p50 (the typical call), p95 (the
+	// tail an SLO watches) and p99 (the tail an incident shows first).
+	PaymentProviderLatencyP50 = `histogram_quantile(0.5, sum by (le,op) (rate(payment_provider_request_duration_seconds_bucket[$__rate_interval])))`
 	PaymentProviderLatencyP95 = `histogram_quantile(0.95, sum by (le,op) (rate(payment_provider_request_duration_seconds_bucket[$__rate_interval])))`
+	PaymentProviderLatencyP99 = `histogram_quantile(0.99, sum by (le,op) (rate(payment_provider_request_duration_seconds_bucket[$__rate_interval])))`
 
 	// PaymentReconciliationDiscrepancies counts ledger-vs-provider mismatches
 	// found by the reconciler. Healthy systems sit at ~0.
@@ -52,6 +56,13 @@ const (
 	// currency units (cents); the trailing / 100 converts to whole dollars,
 	// which is why the panel is rendered with the currencyUSD unit.
 	OrderAverageValueUSD = `sum(increase(order_value_minor_sum[$__range])) / sum(increase(order_value_minor_count[$__range])) / 100`
+
+	// OrderValueP50USD/P95USD/P99USD place the average: a mean pulled up by a
+	// few large baskets reads very differently from one the median agrees
+	// with. Same minor-unit division as the average.
+	OrderValueP50USD = `histogram_quantile(0.5, sum by (le) (increase(order_value_minor_bucket[$__range]))) / 100`
+	OrderValueP95USD = `histogram_quantile(0.95, sum by (le) (increase(order_value_minor_bucket[$__range]))) / 100`
+	OrderValueP99USD = `histogram_quantile(0.99, sum by (le) (increase(order_value_minor_bucket[$__range]))) / 100`
 
 	// OrderPaymentActivity is the order -> payment saga activity calls.
 	OrderPaymentActivity = `sum by (op,result) (rate(order_payment_activity_total[$__rate_interval]))`
@@ -173,8 +184,10 @@ const (
 	// NotificationReads splits single from bulk mark-as-read.
 	NotificationReads = `sum by (mode) (rate(notification_read_total[$__rate_interval]))`
 
-	// NotificationSendLatencyP95 is delivery latency per channel.
+	// NotificationSendLatencyP50/P95/P99 are delivery latency per channel.
+	NotificationSendLatencyP50 = `histogram_quantile(0.5, sum by (le,channel) (rate(notification_send_duration_seconds_bucket[$__rate_interval])))`
 	NotificationSendLatencyP95 = `histogram_quantile(0.95, sum by (le,channel) (rate(notification_send_duration_seconds_bucket[$__rate_interval])))`
+	NotificationSendLatencyP99 = `histogram_quantile(0.99, sum by (le,channel) (rate(notification_send_duration_seconds_bucket[$__rate_interval])))`
 
 	// --- Checkout -------------------------------------------------------
 
@@ -197,7 +210,9 @@ const (
 	// confirm.
 	CheckoutPriceChanged = `sum(rate(checkout_price_changed_total[$__rate_interval]))`
 
-	// CheckoutConfirmLatencyP95 is end-to-end checkout confirm duration
-	// (the RFC-0015 exemplar path).
+	// CheckoutConfirmLatencyP50/P95/P99 are end-to-end checkout confirm
+	// duration (the RFC-0015 exemplar path).
+	CheckoutConfirmLatencyP50 = `histogram_quantile(0.5, sum by (le) (rate(checkout_confirm_duration_seconds_bucket[$__rate_interval])))`
 	CheckoutConfirmLatencyP95 = `histogram_quantile(0.95, sum by (le) (rate(checkout_confirm_duration_seconds_bucket[$__rate_interval])))`
+	CheckoutConfirmLatencyP99 = `histogram_quantile(0.99, sum by (le) (rate(checkout_confirm_duration_seconds_bucket[$__rate_interval])))`
 )

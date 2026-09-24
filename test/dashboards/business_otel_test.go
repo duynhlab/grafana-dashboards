@@ -2,6 +2,7 @@ package dashboards_test
 
 import (
 	"encoding/json"
+	"regexp"
 	"strings"
 	"testing"
 
@@ -56,6 +57,21 @@ func TestBusinessOTel(t *testing.T) {
 	} {
 		if !strings.Contains(s, needle) {
 			t.Fatalf("missing query fragment: %s", needle)
+		}
+	}
+
+	// Every business histogram is shown at p50 / p95 / p99, never p95 alone.
+	for _, metric := range []string{
+		"payment_provider_request_duration_seconds_bucket",
+		"notification_send_duration_seconds_bucket",
+		"checkout_confirm_duration_seconds_bucket",
+		"order_value_minor_bucket",
+	} {
+		for _, q := range []string{"0.5", "0.95", "0.99"} {
+			re := regexp.MustCompile(`histogram_quantile\(` + regexp.QuoteMeta(q) + `, sum by \(le[^)]*\) \((rate|increase)\(` + metric)
+			if !re.MatchString(s) {
+				t.Fatalf("%s: missing the %s quantile", metric, q)
+			}
 		}
 	}
 
