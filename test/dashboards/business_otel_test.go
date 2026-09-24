@@ -75,6 +75,21 @@ func TestBusinessOTel(t *testing.T) {
 		}
 	}
 
+	// A quantile panel without a legend is three unlabelled lines.
+	for _, name := range []string{"checkout-confirm-latency", "notification-send-latency", "pay-provider-latency"} {
+		panel, ok := dash.Elements[name]
+		if !ok || panel.PanelKind == nil {
+			t.Fatalf("%s: panel missing", name)
+		}
+		opts, err := json.Marshal(panel.PanelKind.Spec.VizConfig.Spec.Options)
+		if err != nil {
+			t.Fatalf("%s: marshal options: %v", name, err)
+		}
+		if !strings.Contains(string(opts), `"showLegend":true`) {
+			t.Fatalf("%s: quantile panel hides its legend: %s", name, opts)
+		}
+	}
+
 	// Guard against the un-normalised rate window from the source board.
 	if strings.Contains(s, "$rate") {
 		t.Fatalf("un-normalised $rate window left in the board")

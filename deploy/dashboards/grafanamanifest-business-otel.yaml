@@ -408,7 +408,7 @@ spec:
                                         calcs: []
                                         displayMode: list
                                         placement: bottom
-                                        showLegend: false
+                                        showLegend: true
                                     tooltip:
                                         mode: ""
                                         sort: ""
@@ -728,7 +728,7 @@ spec:
                                         calcs: []
                                         displayMode: list
                                         placement: bottom
-                                        showLegend: false
+                                        showLegend: true
                                     tooltip:
                                         mode: ""
                                         sort: ""
@@ -1277,7 +1277,7 @@ spec:
                                         calcs: []
                                         displayMode: list
                                         placement: bottom
-                                        showLegend: false
+                                        showLegend: true
                                     tooltip:
                                         mode: ""
                                         sort: ""

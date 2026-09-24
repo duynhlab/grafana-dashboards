@@ -26,12 +26,25 @@ func SeriesExpr(title, unit, expr, legend string) cog.Builder[dashboardv2.PanelK
 
 // SeriesQuantiles renders one histogram as three lines, p50 / p95 / p99. The
 // legend prefix carries the grouping label ("{{op}} "), empty when ungrouped.
+// The legend is shown: three unlabelled lines of one colour family cannot be
+// told apart.
 func SeriesQuantiles(title, unit, legend, p50, p95, p99 string) cog.Builder[dashboardv2.PanelKind] {
-	return Series(title, unit,
-		Query("A", p50, legend+"p50"),
-		Query("B", p95, legend+"p95"),
-		Query("C", p99, legend+"p99"),
-	)
+	viz := timeseries.NewVisualizationV2Builder().
+		Legend(common.NewVizLegendOptionsBuilder().
+			ShowLegend(true).
+			DisplayMode(common.LegendDisplayModeList).
+			Placement(common.LegendPlacementBottom))
+	if unit != "" {
+		viz = viz.Unit(unit)
+	}
+	return dashboardv2.NewPanelBuilder().
+		Title(title).
+		Data(queryGroup(
+			Query("A", p50, legend+"p50"),
+			Query("B", p95, legend+"p95"),
+			Query("C", p99, legend+"p99"),
+		)).
+		Visualization(viz)
 }
 
 // SeriesThresholdLine renders a timeseries panel that draws a threshold line at
