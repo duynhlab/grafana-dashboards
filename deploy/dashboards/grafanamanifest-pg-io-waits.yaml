@@ -100,7 +100,7 @@ spec:
                                                 expr: sum (rate(cnpg_pg_stat_io_evictions{cnpg_io_cluster=~"$cluster", pod=~"$pod"}[$__rate_interval]))
                                                 legendFormat: evictions
                                             version: v0
-                                        refId: A
+                                        refId: B
                                     - kind: PanelQuery
                                       spec:
                                         hidden: false
@@ -113,7 +113,7 @@ spec:
                                                 expr: sum (rate(cnpg_pg_stat_io_reuses{cnpg_io_cluster=~"$cluster", pod=~"$pod"}[$__rate_interval]))
                                                 legendFormat: reuses
                                             version: v0
-                                        refId: A
+                                        refId: C
                                 queryOptions: {}
                                 transformations: []
                         description: ""
@@ -302,7 +302,7 @@ spec:
                                                 expr: sum by (backend_type) (rate(cnpg_pg_stat_io_write_time{cnpg_io_cluster=~"$cluster", pod=~"$pod"}[$__rate_interval]))
                                                 legendFormat: write {{backend_type}}
                                             version: v0
-                                        refId: A
+                                        refId: B
                                 queryOptions: {}
                                 transformations: []
                         description: ""
@@ -403,7 +403,7 @@ spec:
                                                 expr: sum (rate(cnpg_pg_stat_io_write_bytes{cnpg_io_cluster=~"$cluster", pod=~"$pod"}[$__rate_interval]))
                                                 legendFormat: write
                                             version: v0
-                                        refId: A
+                                        refId: B
                                 queryOptions: {}
                                 transformations: []
                         description: ""

@@ -662,7 +662,7 @@
                       "legendFormat": "tx {{namespace}}"
                     }
                   },
-                  "refId": "A",
+                  "refId": "B",
                   "hidden": false
                 }
               }
@@ -1378,7 +1378,7 @@
                       "legendFormat": "used"
                     }
                   },
-                  "refId": "A",
+                  "refId": "B",
                   "hidden": false
                 }
               }

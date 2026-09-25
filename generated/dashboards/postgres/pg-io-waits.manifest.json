@@ -121,7 +121,7 @@
                         "legendFormat": "evictions"
                       }
                     },
-                    "refId": "A",
+                    "refId": "B",
                     "hidden": false
                   }
                 },
@@ -140,7 +140,7 @@
                         "legendFormat": "reuses"
                       }
                     },
-                    "refId": "A",
+                    "refId": "C",
                     "hidden": false
                   }
                 }
@@ -407,7 +407,7 @@
                         "legendFormat": "write {{backend_type}}"
                       }
                     },
-                    "refId": "A",
+                    "refId": "B",
                     "hidden": false
                   }
                 }
@@ -550,7 +550,7 @@
                         "legendFormat": "write"
                       }
                     },
-                    "refId": "A",
+                    "refId": "B",
                     "hidden": false
                   }
                 }
