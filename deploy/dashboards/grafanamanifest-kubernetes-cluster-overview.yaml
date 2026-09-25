@@ -497,7 +497,7 @@ spec:
                                                 expr: sum by (namespace) (rate(container_network_transmit_bytes_total{image!="", namespace=~"$namespace"}[$__rate_interval]))
                                                 legendFormat: tx {{namespace}}
                                             version: v0
-                                        refId: A
+                                        refId: B
                                 queryOptions: {}
                                 transformations: []
                         description: ""
@@ -1011,7 +1011,7 @@ spec:
                                                 expr: kubelet_volume_stats_used_bytes
                                                 legendFormat: used
                                             version: v0
-                                        refId: A
+                                        refId: B
                                 queryOptions: {}
                                 transformations: []
                         description: ""
