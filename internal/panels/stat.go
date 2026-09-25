@@ -11,6 +11,13 @@ import (
 // threshold coloring. Values reduce to the last non-null sample and color the
 // displayed value, matching the source dashboards.
 func StatValue(title, unit string, steps []Threshold, expr, legend string) cog.Builder[dashboardv2.PanelKind] {
+	return StatValues(title, unit, steps, PromQuery(expr, legend))
+}
+
+// StatValues is StatValue with several targets side by side, for a figure that
+// needs context — an average next to the quantiles that place it. Each target
+// needs a distinct ref id (see Query).
+func StatValues(title, unit string, steps []Threshold, queries ...cog.Builder[dashboardv2.PanelQueryKind]) cog.Builder[dashboardv2.PanelKind] {
 	viz := stat.NewVisualizationV2Builder().
 		ColorMode(common.BigValueColorModeValue).
 		ReduceOptions(common.NewReduceDataOptionsBuilder().Calcs([]string{"lastNotNull"}))
@@ -22,6 +29,6 @@ func StatValue(title, unit string, steps []Threshold, expr, legend string) cog.B
 	}
 	return dashboardv2.NewPanelBuilder().
 		Title(title).
-		Data(queryGroup(PromQuery(expr, legend))).
+		Data(queryGroup(queries...)).
 		Visualization(viz)
 }
