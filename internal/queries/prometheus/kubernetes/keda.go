@@ -37,7 +37,7 @@ const (
 	// KedaDeploymentLabelValues drives the $deployment variable used by
 	// KedaWorkerReplicas. It replaces the source's hardcoded
 	// `deployment=~"order-fulfillment.*|checkout-abandon.*"` selector.
-	KedaDeploymentLabelValues = `label_values(kube_deployment_status_replicas{namespace=~"$namespace"}, deployment)`
+	KedaDeploymentLabelValues = `label_values(kube_deployment_status_replicas{exported_namespace=~"$namespace"}, deployment)`
 )
 
 const (
@@ -50,13 +50,15 @@ const (
 	KedaScalerDesired = `sum by (scaledObject) (keda_scaler_metrics_value{exported_namespace=~"$namespace", scaledObject=~"$scaledObject"}) / 5`
 
 	// KedaHPACurrentReplicas is the kube-state-metrics view of what the HPA
-	// KEDA renders behind every ScaledObject actually set. Uses the plain
-	// `namespace` label — kube-state-metrics series carry the object's
-	// namespace natively.
-	KedaHPACurrentReplicas = `sum by (horizontalpodautoscaler) (kube_horizontalpodautoscaler_status_current_replicas{namespace=~"$namespace", horizontalpodautoscaler=~"keda-hpa-.*"})`
+	// KEDA renders behind every ScaledObject actually set. Filters on
+	// `exported_namespace`: kube-state-metrics is scraped without honorLabels,
+	// so `namespace` is the KSM pod's own namespace (kube-system) and the
+	// object's namespace is moved to `exported_namespace` — the same rule the
+	// KEDA series above follow, and the one workloads.go uses.
+	KedaHPACurrentReplicas = `sum by (horizontalpodautoscaler) (kube_horizontalpodautoscaler_status_current_replicas{exported_namespace=~"$namespace", horizontalpodautoscaler=~"keda-hpa-.*"})`
 
 	// KedaHPAMaxReplicas is the configured ceiling for the same HPA.
-	KedaHPAMaxReplicas = `sum by (horizontalpodautoscaler) (kube_horizontalpodautoscaler_spec_max_replicas{namespace=~"$namespace", horizontalpodautoscaler=~"keda-hpa-.*"})`
+	KedaHPAMaxReplicas = `sum by (horizontalpodautoscaler) (kube_horizontalpodautoscaler_spec_max_replicas{exported_namespace=~"$namespace", horizontalpodautoscaler=~"keda-hpa-.*"})`
 
 	// KedaScalerActive is keda_scaler_active — 1 while the backlog is above
 	// activationTargetQueueSize.
@@ -76,7 +78,7 @@ const (
 
 	// KedaHPAReplicaChanges is the delta of current replicas, positive for
 	// scale-outs and negative for scale-ins.
-	KedaHPAReplicaChanges = `delta(kube_horizontalpodautoscaler_status_current_replicas{namespace=~"$namespace", horizontalpodautoscaler=~"keda-hpa-.*"}[$__rate_interval])`
+	KedaHPAReplicaChanges = `delta(kube_horizontalpodautoscaler_status_current_replicas{exported_namespace=~"$namespace", horizontalpodautoscaler=~"keda-hpa-.*"}[$__rate_interval])`
 
 	// KedaTaskQueueBacklog is approximate_backlog_count, a SERVER metric
 	// from the matching service, summed over partitions only (keep
@@ -88,7 +90,7 @@ const (
 	// (shared with the rest of the board) and $deployment (new, see
 	// KedaDeploymentLabelValues) replacing the source's hardcoded
 	// `namespace=~"order|checkout"` / `deployment=~"order-fulfillment.*|checkout-abandon.*"`.
-	KedaWorkerReplicas = `sum by (namespace, deployment) (kube_deployment_status_replicas{namespace=~"$namespace", deployment=~"$deployment"})`
+	KedaWorkerReplicas = `sum by (namespace, deployment) (label_replace(kube_deployment_status_replicas{exported_namespace=~"$namespace", deployment=~"$deployment"}, "namespace", "$1", "exported_namespace", "(.*)"))`
 
 	// KedaScheduleToStartP99 is the SDK's leading indicator for both task
 	// types: time a workflow task or an activity waited for a poller.

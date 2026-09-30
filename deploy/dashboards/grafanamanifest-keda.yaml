@@ -40,7 +40,7 @@ spec:
                                             group: prometheus
                                             kind: DataQuery
                                             spec:
-                                                expr: sum by (horizontalpodautoscaler) (kube_horizontalpodautoscaler_status_current_replicas{namespace=~"$namespace", horizontalpodautoscaler=~"keda-hpa-.*"})
+                                                expr: sum by (horizontalpodautoscaler) (kube_horizontalpodautoscaler_status_current_replicas{exported_namespace=~"$namespace", horizontalpodautoscaler=~"keda-hpa-.*"})
                                                 legendFormat: '{{horizontalpodautoscaler}} current'
                                             version: v0
                                         refId: A
@@ -53,7 +53,7 @@ spec:
                                             group: prometheus
                                             kind: DataQuery
                                             spec:
-                                                expr: sum by (horizontalpodautoscaler) (kube_horizontalpodautoscaler_spec_max_replicas{namespace=~"$namespace", horizontalpodautoscaler=~"keda-hpa-.*"})
+                                                expr: sum by (horizontalpodautoscaler) (kube_horizontalpodautoscaler_spec_max_replicas{exported_namespace=~"$namespace", horizontalpodautoscaler=~"keda-hpa-.*"})
                                                 legendFormat: '{{horizontalpodautoscaler}} max'
                                                 range: true
                                             version: v0
@@ -112,7 +112,7 @@ spec:
                                             group: prometheus
                                             kind: DataQuery
                                             spec:
-                                                expr: sum by (horizontalpodautoscaler) (kube_horizontalpodautoscaler_status_current_replicas{namespace=~"$namespace", horizontalpodautoscaler=~"keda-hpa-.*"})
+                                                expr: sum by (horizontalpodautoscaler) (kube_horizontalpodautoscaler_status_current_replicas{exported_namespace=~"$namespace", horizontalpodautoscaler=~"keda-hpa-.*"})
                                                 legendFormat: '{{horizontalpodautoscaler}} current'
                                                 range: true
                                             version: v0
@@ -313,7 +313,7 @@ spec:
                                             group: prometheus
                                             kind: DataQuery
                                             spec:
-                                                expr: delta(kube_horizontalpodautoscaler_status_current_replicas{namespace=~"$namespace", horizontalpodautoscaler=~"keda-hpa-.*"}[$__rate_interval])
+                                                expr: delta(kube_horizontalpodautoscaler_status_current_replicas{exported_namespace=~"$namespace", horizontalpodautoscaler=~"keda-hpa-.*"}[$__rate_interval])
                                                 legendFormat: '{{horizontalpodautoscaler}}'
                                             version: v0
                                         refId: A
@@ -831,7 +831,7 @@ spec:
                                             group: prometheus
                                             kind: DataQuery
                                             spec:
-                                                expr: sum by (namespace, deployment) (kube_deployment_status_replicas{namespace=~"$namespace", deployment=~"$deployment"})
+                                                expr: sum by (namespace, deployment) (label_replace(kube_deployment_status_replicas{exported_namespace=~"$namespace", deployment=~"$deployment"}, "namespace", "$1", "exported_namespace", "(.*)"))
                                                 legendFormat: '{{namespace}}/{{deployment}}'
                                             version: v0
                                         refId: A
@@ -1134,7 +1134,7 @@ spec:
                     current:
                         text: All
                         value: $__all
-                    definition: label_values(kube_deployment_status_replicas{namespace=~"$namespace"}, deployment)
+                    definition: label_values(kube_deployment_status_replicas{exported_namespace=~"$namespace"}, deployment)
                     hide: dontHide
                     includeAll: true
                     label: Deployment
@@ -1148,7 +1148,7 @@ spec:
                         kind: DataQuery
                         spec:
                             qryType: 1
-                            query: label_values(kube_deployment_status_replicas{namespace=~"$namespace"}, deployment)
+                            query: label_values(kube_deployment_status_replicas{exported_namespace=~"$namespace"}, deployment)
                             refId: PrometheusVariableQueryEditor-VariableQuery
                         version: v0
                     refresh: onDashboardLoad

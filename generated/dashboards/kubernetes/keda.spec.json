@@ -26,7 +26,7 @@
                       "name": "prometheus"
                     },
                     "spec": {
-                      "expr": "sum by (horizontalpodautoscaler) (kube_horizontalpodautoscaler_status_current_replicas{namespace=~\"$namespace\", horizontalpodautoscaler=~\"keda-hpa-.*\"})",
+                      "expr": "sum by (horizontalpodautoscaler) (kube_horizontalpodautoscaler_status_current_replicas{exported_namespace=~\"$namespace\", horizontalpodautoscaler=~\"keda-hpa-.*\"})",
                       "legendFormat": "{{horizontalpodautoscaler}} current"
                     }
                   },
@@ -45,7 +45,7 @@
                       "name": "prometheus"
                     },
                     "spec": {
-                      "expr": "sum by (horizontalpodautoscaler) (kube_horizontalpodautoscaler_spec_max_replicas{namespace=~\"$namespace\", horizontalpodautoscaler=~\"keda-hpa-.*\"})",
+                      "expr": "sum by (horizontalpodautoscaler) (kube_horizontalpodautoscaler_spec_max_replicas{exported_namespace=~\"$namespace\", horizontalpodautoscaler=~\"keda-hpa-.*\"})",
                       "legendFormat": "{{horizontalpodautoscaler}} max",
                       "range": true
                     }
@@ -128,7 +128,7 @@
                       "name": "prometheus"
                     },
                     "spec": {
-                      "expr": "sum by (horizontalpodautoscaler) (kube_horizontalpodautoscaler_status_current_replicas{namespace=~\"$namespace\", horizontalpodautoscaler=~\"keda-hpa-.*\"})",
+                      "expr": "sum by (horizontalpodautoscaler) (kube_horizontalpodautoscaler_status_current_replicas{exported_namespace=~\"$namespace\", horizontalpodautoscaler=~\"keda-hpa-.*\"})",
                       "legendFormat": "{{horizontalpodautoscaler}} current",
                       "range": true
                     }
@@ -417,7 +417,7 @@
                       "name": "prometheus"
                     },
                     "spec": {
-                      "expr": "delta(kube_horizontalpodautoscaler_status_current_replicas{namespace=~\"$namespace\", horizontalpodautoscaler=~\"keda-hpa-.*\"}[$__rate_interval])",
+                      "expr": "delta(kube_horizontalpodautoscaler_status_current_replicas{exported_namespace=~\"$namespace\", horizontalpodautoscaler=~\"keda-hpa-.*\"}[$__rate_interval])",
                       "legendFormat": "{{horizontalpodautoscaler}}"
                     }
                   },
@@ -1148,7 +1148,7 @@
                       "name": "prometheus"
                     },
                     "spec": {
-                      "expr": "sum by (namespace, deployment) (kube_deployment_status_replicas{namespace=~\"$namespace\", deployment=~\"$deployment\"})",
+                      "expr": "sum by (namespace, deployment) (label_replace(kube_deployment_status_replicas{exported_namespace=~\"$namespace\", deployment=~\"$deployment\"}, \"namespace\", \"$1\", \"exported_namespace\", \"(.*)\"))",
                       "legendFormat": "{{namespace}}/{{deployment}}"
                     }
                   },
@@ -1591,14 +1591,14 @@
           },
           "spec": {
             "qryType": 1,
-            "query": "label_values(kube_deployment_status_replicas{namespace=~\"$namespace\"}, deployment)",
+            "query": "label_values(kube_deployment_status_replicas{exported_namespace=~\"$namespace\"}, deployment)",
             "refId": "PrometheusVariableQueryEditor-VariableQuery"
           }
         },
         "regex": "",
         "regexApplyTo": "value",
         "sort": "alphabeticalAsc",
-        "definition": "label_values(kube_deployment_status_replicas{namespace=~\"$namespace\"}, deployment)",
+        "definition": "label_values(kube_deployment_status_replicas{exported_namespace=~\"$namespace\"}, deployment)",
         "options": [],
         "multi": true,
         "includeAll": true,

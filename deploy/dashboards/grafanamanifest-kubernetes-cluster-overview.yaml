@@ -40,7 +40,7 @@ spec:
                                             group: prometheus
                                             kind: DataQuery
                                             spec:
-                                                expr: sum by (node) (kube_pod_container_resource_requests{resource="cpu"} * on (namespace, pod) group_left () (max by (namespace, pod) (kube_pod_status_phase{phase="Running"}) == 1)) / (sum by (node) (kube_node_status_allocatable{resource="cpu"}) > 0)
+                                                expr: sum by (node) (kube_pod_container_resource_requests{resource="cpu"} * on (exported_namespace, pod) group_left () (max by (exported_namespace, pod) (kube_pod_status_phase{phase="Running"}) == 1)) / (sum by (node) (kube_node_status_allocatable{resource="cpu"}) > 0)
                                                 legendFormat: '{{node}}'
                                             version: v0
                                         refId: A
@@ -349,7 +349,7 @@ spec:
                                             group: prometheus
                                             kind: DataQuery
                                             spec:
-                                                expr: sum by (node) (kube_pod_container_resource_requests{resource="memory"} * on (namespace, pod) group_left () (max by (namespace, pod) (kube_pod_status_phase{phase="Running"}) == 1)) / (sum by (node) (kube_node_status_allocatable{resource="memory"}) > 0)
+                                                expr: sum by (node) (kube_pod_container_resource_requests{resource="memory"} * on (exported_namespace, pod) group_left () (max by (exported_namespace, pod) (kube_pod_status_phase{phase="Running"}) == 1)) / (sum by (node) (kube_node_status_allocatable{resource="memory"}) > 0)
                                                 legendFormat: '{{node}}'
                                             version: v0
                                         refId: A
@@ -804,7 +804,7 @@ spec:
                                             group: prometheus
                                             kind: DataQuery
                                             spec:
-                                                expr: sum by (namespace) (increase(kube_pod_container_status_restarts_total{namespace=~"$namespace"}[1h]))
+                                                expr: sum by (namespace) (label_replace(increase(kube_pod_container_status_restarts_total{exported_namespace=~"$namespace"}[1h]), "namespace", "$1", "exported_namespace", "(.*)"))
                                                 legendFormat: '{{namespace}}'
                                             version: v0
                                         refId: A
@@ -848,7 +848,7 @@ spec:
                                             group: prometheus
                                             kind: DataQuery
                                             spec:
-                                                expr: count by (namespace, phase) (kube_pod_status_phase{namespace=~"$namespace"} == 1)
+                                                expr: count by (namespace, phase) (label_replace(kube_pod_status_phase{exported_namespace=~"$namespace"} == 1, "namespace", "$1", "exported_namespace", "(.*)"))
                                                 legendFormat: '{{namespace}} {{phase}}'
                                             version: v0
                                         refId: A
@@ -1450,7 +1450,7 @@ spec:
                     current:
                         text: All
                         value: $__all
-                    definition: label_values(kube_pod_info, namespace)
+                    definition: label_values(kube_pod_info, exported_namespace)
                     hide: dontHide
                     includeAll: true
                     label: Namespace
@@ -1464,7 +1464,7 @@ spec:
                         kind: DataQuery
                         spec:
                             qryType: 1
-                            query: label_values(kube_pod_info, namespace)
+                            query: label_values(kube_pod_info, exported_namespace)
                             refId: PrometheusVariableQueryEditor-VariableQuery
                         version: v0
                     refresh: onDashboardLoad

@@ -10,13 +10,19 @@ package kubernetes
 // normalised to this repo's conventions: the `job="kube-state-metrics"` /
 // `job="kubelet"` scrape-job selectors were dropped (this repo's other
 // kube-state-metrics/cAdvisor queries below carry no job filter either), the
-// federation-only `exported_namespace`/`exported_pod` join labels were
-// rewritten to the plain `namespace`/`pod` labels documented for this metric
-// model, and the literal `[$__rate_interval]` window was kept as-is. The
+// `exported_pod` join label was rewritten to the plain `pod` label, and the literal `[$__rate_interval]` window was kept as-is. The
 // pre-existing literal `[5m]` windows elsewhere in this file were also
 // normalised to `$__rate_interval` while touching this file, per the "rate
 // windows never a literal" convention; the `[1h]` restart/OOM windows are a
 // different, deliberate semantic (a fixed lookback) and are left alone.
+//
+// Namespace labels differ by source on this platform. cAdvisor (job kubelet)
+// series carry the pod's namespace in `namespace`. kube-state-metrics is
+// scraped without honorLabels, so its `namespace` is the KSM pod's own
+// namespace (kube-system) and the object's namespace sits in
+// `exported_namespace`: every KSM query below filters on exported_namespace
+// and label_replaces it back to `namespace` where it groups or joins, the
+// convention workloads.go already follows.
 const (
 	NodeCount              = `count(kube_node_info)`
 	RunningPods            = `count(kube_pod_status_phase{phase="Running"} == 1)`
@@ -30,8 +36,8 @@ const (
 	CrashLoopingPods      = `count(max_over_time(kube_pod_container_status_waiting_reason{reason="CrashLoopBackOff"}[$__rate_interval]) == 1)`
 	OOMEvents1h           = `sum(increase(kube_pod_container_status_last_terminated_reason{reason="OOMKilled"}[1h]))`
 
-	PodRestartsByNamespace = `sum by (namespace) (increase(kube_pod_container_status_restarts_total{namespace=~"$namespace"}[1h]))`
-	PodStatusByNamespace   = `count by (namespace, phase) (kube_pod_status_phase{namespace=~"$namespace"} == 1)`
+	PodRestartsByNamespace = `sum by (namespace) (label_replace(increase(kube_pod_container_status_restarts_total{exported_namespace=~"$namespace"}[1h]), "namespace", "$1", "exported_namespace", "(.*)"))`
+	PodStatusByNamespace   = `count by (namespace, phase) (label_replace(kube_pod_status_phase{exported_namespace=~"$namespace"} == 1, "namespace", "$1", "exported_namespace", "(.*)"))`
 
 	CPUUsageByNamespace = `sum by (namespace) (rate(container_cpu_usage_seconds_total{container!="", image!="", namespace=~"$namespace"}[$__rate_interval]))`
 	MemoryUsageByNS     = `sum by (namespace) (container_memory_working_set_bytes{container!="", image!="", namespace=~"$namespace"})`
@@ -45,14 +51,14 @@ const (
 	PVCsAtRisk  = `count((1 - kubelet_volume_stats_available_bytes / kubelet_volume_stats_capacity_bytes) > 0.8)`
 
 	// NamespaceValues drives the `namespace` template variable.
-	NamespaceValues = `label_values(kube_pod_info, namespace)`
+	NamespaceValues = `label_values(kube_pod_info, exported_namespace)`
 
 	// CPURequestsVsAllocatableByNode and MemoryRequestsVsAllocatableByNode are
 	// the per-node breakdown of CPURequestsVsCapacity / MemoryRequestsCapacity
 	// above (which stay cluster-wide). Node-scoped, so left unfiltered by
 	// $namespace.
-	CPURequestsVsAllocatableByNode    = `sum by (node) (kube_pod_container_resource_requests{resource="cpu"} * on (namespace, pod) group_left () (max by (namespace, pod) (kube_pod_status_phase{phase="Running"}) == 1)) / (sum by (node) (kube_node_status_allocatable{resource="cpu"}) > 0)`
-	MemoryRequestsVsAllocatableByNode = `sum by (node) (kube_pod_container_resource_requests{resource="memory"} * on (namespace, pod) group_left () (max by (namespace, pod) (kube_pod_status_phase{phase="Running"}) == 1)) / (sum by (node) (kube_node_status_allocatable{resource="memory"}) > 0)`
+	CPURequestsVsAllocatableByNode    = `sum by (node) (kube_pod_container_resource_requests{resource="cpu"} * on (exported_namespace, pod) group_left () (max by (exported_namespace, pod) (kube_pod_status_phase{phase="Running"}) == 1)) / (sum by (node) (kube_node_status_allocatable{resource="cpu"}) > 0)`
+	MemoryRequestsVsAllocatableByNode = `sum by (node) (kube_pod_container_resource_requests{resource="memory"} * on (exported_namespace, pod) group_left () (max by (exported_namespace, pod) (kube_pod_status_phase{phase="Running"}) == 1)) / (sum by (node) (kube_node_status_allocatable{resource="memory"}) > 0)`
 
 	// NodeMemoryPressure, NodeDiskPressure, and NodePIDPressure feed the Node
 	// Pressure Conditions panel as three separate targets, one per condition.
