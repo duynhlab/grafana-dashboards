@@ -47,7 +47,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.678463279e+09
                         links: []
                         title: Error rate (%) by service
                         vizConfig:
@@ -91,7 +91,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 8.68747118e+08
                         links: []
                         title: Overall error rate
                         vizConfig:
@@ -175,7 +175,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 2.54436326e+08
                         links: []
                         title: Latency p50 / p95 / p99 (selected services)
                         vizConfig:
@@ -219,7 +219,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.707164413e+09
                         links: []
                         title: Overall latency p95
                         vizConfig:
@@ -275,7 +275,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.724291843e+09
                         links: []
                         title: Latency p95 (ms) by service
                         vizConfig:
@@ -320,7 +320,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.720634616e+09
                         links: []
                         title: Request rate (req/s) by service
                         vizConfig:
@@ -364,7 +364,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.830946374e+09
                         links: []
                         title: Services reporting
                         vizConfig:
@@ -415,7 +415,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.992399371e+09
                         links: []
                         title: Total request rate (SERVER)
                         vizConfig:

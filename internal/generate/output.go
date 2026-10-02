@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"hash/fnv"
 	"os"
 	"path/filepath"
 	"sort"
@@ -116,6 +117,14 @@ func (g *Generator) writeDashboard(definition registry.DashboardDefinition) erro
 	if err != nil {
 		return err
 	}
+	spec, ok := manifest.Spec.(dashboardv2.Dashboard)
+	if !ok {
+		return fmt.Errorf("%s: manifest spec is %T, not a dashboardv2.Dashboard", definition.UID, manifest.Spec)
+	}
+	if err := assignPanelIDs(&spec); err != nil {
+		return fmt.Errorf("%s: %w", definition.UID, err)
+	}
+	manifest.Spec = spec
 
 	// The App Platform object carries its own namespace and its folder. Setting
 	// them here rather than only on the CR keeps the generated manifest.json
@@ -142,6 +151,41 @@ func (g *Generator) writeDashboard(definition registry.DashboardDefinition) erro
 		return fmt.Errorf("render template: %w", err)
 	}
 	return g.writeManifestCR(waveDashboards, dashboardCRName(definition.UID), template)
+}
+
+// assignPanelIDs gives every panel a distinct, stable id. The builders leave
+// the SDK default of 0 on every panel, and Grafana's v2 renderer keys panels by
+// id, so every panel of a grid row rendered as the row's first one. The id is a
+// hash of the element name, so adding or removing a panel never renumbers the
+// others (it is the value a viewPanel link carries).
+func assignPanelIDs(spec *dashboardv2.Dashboard) error {
+	owner := make(map[float64]string, len(spec.Elements))
+	for name, element := range spec.Elements {
+		id := panelID(name)
+		if other, taken := owner[id]; taken {
+			return fmt.Errorf("elements %q and %q hash to the same panel id %v; rename one", other, name, id)
+		}
+		owner[id] = name
+		switch {
+		case element.PanelKind != nil:
+			element.PanelKind.Spec.Id = id
+		case element.LibraryPanelKind != nil:
+			element.LibraryPanelKind.Spec.Id = id
+		}
+		spec.Elements[name] = element
+	}
+	return nil
+}
+
+// panelID maps an element name to a positive id that fits a JavaScript number.
+func panelID(name string) float64 {
+	h := fnv.New32a()
+	_, _ = h.Write([]byte(name))
+	id := h.Sum32() & 0x7fffffff
+	if id == 0 {
+		id = 1
+	}
+	return float64(id)
 }
 
 func writeJSON(path string, value any) error {

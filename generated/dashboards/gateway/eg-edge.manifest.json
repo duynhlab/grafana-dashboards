@@ -17,7 +17,7 @@
       "active-connections": {
         "kind": "Panel",
         "spec": {
-          "id": 0,
+          "id": 844510819,
           "title": "Active connections",
           "description": "",
           "links": [],
@@ -120,7 +120,7 @@
       "control-plane-cpu": {
         "kind": "Panel",
         "spec": {
-          "id": 0,
+          "id": 794333382,
           "title": "Control-plane CPU (EG process)",
           "description": "",
           "links": [],
@@ -183,7 +183,7 @@
       "control-plane-panics-certwatcher": {
         "kind": "Panel",
         "spec": {
-          "id": 0,
+          "id": 1543778291,
           "title": "Control-plane panics \u0026 cert watcher",
           "description": "",
           "links": [],
@@ -286,7 +286,7 @@
       "downstream-latency": {
         "kind": "Panel",
         "spec": {
-          "id": 0,
+          "id": 1349110410,
           "title": "Downstream latency p50 / p95 / p99 (edge)",
           "description": "",
           "links": [],
@@ -389,7 +389,7 @@
       "edge-4xx-5xx": {
         "kind": "Panel",
         "spec": {
-          "id": 0,
+          "id": 1164028135,
           "title": "4xx / 5xx response rate (edge)",
           "description": "",
           "links": [],
@@ -452,7 +452,7 @@
       "edge-availability": {
         "kind": "Panel",
         "spec": {
-          "id": 0,
+          "id": 1752598452,
           "title": "Availability (dashboard window)",
           "description": "",
           "links": [],
@@ -534,7 +534,7 @@
       "edge-error-rate": {
         "kind": "Panel",
         "spec": {
-          "id": 0,
+          "id": 235168544,
           "title": "Error rate (5xx)",
           "description": "",
           "links": [],
@@ -616,7 +616,7 @@
       "edge-health": {
         "kind": "Panel",
         "spec": {
-          "id": 0,
+          "id": 1988055797,
           "title": "Edge health",
           "description": "",
           "links": [],
@@ -739,7 +739,7 @@
       "edge-p99": {
         "kind": "Panel",
         "spec": {
-          "id": 0,
+          "id": 1836196043,
           "title": "P99 latency (edge)",
           "description": "",
           "links": [],
@@ -821,7 +821,7 @@
       "edge-rps": {
         "kind": "Panel",
         "spec": {
-          "id": 0,
+          "id": 1572548014,
           "title": "Requests / sec (edge)",
           "description": "",
           "links": [],
@@ -895,7 +895,7 @@
       "gateway-httproute-status": {
         "kind": "Panel",
         "spec": {
-          "id": 0,
+          "id": 702390062,
           "title": "Gateway / HTTPRoute status updates",
           "description": "",
           "links": [],
@@ -978,7 +978,7 @@
       "memory-eg-envoy": {
         "kind": "Panel",
         "spec": {
-          "id": 0,
+          "id": 1887945039,
           "title": "Memory — EG process \u0026 Envoy server",
           "description": "",
           "links": [],
@@ -1101,7 +1101,7 @@
       "pod-restarts-container-cpu": {
         "kind": "Panel",
         "spec": {
-          "id": 0,
+          "id": 1155927166,
           "title": "Pod restarts / container CPU (kube-state + cAdvisor)",
           "description": "",
           "links": [],
@@ -1204,7 +1204,7 @@
       "readme": {
         "kind": "Panel",
         "spec": {
-          "id": 0,
+          "id": 1242013863,
           "title": "README — how to read this dashboard",
           "description": "",
           "links": [],
@@ -1236,7 +1236,7 @@
       "route-request-rate": {
         "kind": "Panel",
         "spec": {
-          "id": 0,
+          "id": 421948075,
           "title": "Request rate by route (upstream cluster)",
           "description": "",
           "links": [],
@@ -1299,7 +1299,7 @@
       "upstream-latency-p95": {
         "kind": "Panel",
         "spec": {
-          "id": 0,
+          "id": 1827258324,
           "title": "Upstream latency p95 by route",
           "description": "",
           "links": [],
@@ -1362,7 +1362,7 @@
       "upstream-retries-timeouts": {
         "kind": "Panel",
         "spec": {
-          "id": 0,
+          "id": 712109350,
           "title": "Upstream retries \u0026 timeouts",
           "description": "",
           "links": [],
@@ -1485,7 +1485,7 @@
       "watchable-events-publishes": {
         "kind": "Panel",
         "spec": {
-          "id": 0,
+          "id": 676382388,
           "title": "Watchable events / publishes by runner",
           "description": "",
           "links": [],
@@ -1568,7 +1568,7 @@
       "watchable-queue-depth": {
         "kind": "Panel",
         "spec": {
-          "id": 0,
+          "id": 1109660526,
           "title": "Watchable queue depth by runner",
           "description": "",
           "links": [],
@@ -1631,7 +1631,7 @@
       "watchable-subscribe-duration": {
         "kind": "Panel",
         "spec": {
-          "id": 0,
+          "id": 2072151604,
           "title": "Watchable subscribe duration p99 by runner",
           "description": "",
           "links": [],
@@ -1694,7 +1694,7 @@
       "xds-snapshot": {
         "kind": "Panel",
         "spec": {
-          "id": 0,
+          "id": 1288266777,
           "title": "xDS snapshot creates / updates",
           "description": "",
           "links": [],

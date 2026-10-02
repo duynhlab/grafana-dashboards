@@ -7,7 +7,7 @@
     "auth-bcrypt-latency": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 11308103,
         "title": "bcrypt latency p95",
         "description": "",
         "links": [],
@@ -70,7 +70,7 @@
     "auth-family-revocations": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 248843030,
         "title": "Token-family revocations by reason",
         "description": "",
         "links": [],
@@ -133,7 +133,7 @@
     "auth-refresh-rotations": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 888035503,
         "title": "Refresh rotations by outcome",
         "description": "",
         "links": [],
@@ -196,7 +196,7 @@
     "auth-registrations": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 2099726260,
         "title": "Registrations by outcome",
         "description": "",
         "links": [],
@@ -259,7 +259,7 @@
     "cart-cleared": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 1792001558,
         "title": "Carts cleared by source",
         "description": "",
         "links": [],
@@ -322,7 +322,7 @@
     "cart-items-added": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 436439277,
         "title": "Items added by result",
         "description": "",
         "links": [],
@@ -385,7 +385,7 @@
     "cart-snapshot-requests": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 2054022947,
         "title": "Snapshot requests by result",
         "description": "",
         "links": [],
@@ -448,7 +448,7 @@
     "checkout-confirm-latency": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 813317507,
         "title": "Confirm latency p50 / p95 / p99",
         "description": "",
         "links": [],
@@ -552,7 +552,7 @@
     "checkout-price-changed": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 1061884552,
         "title": "Price-changed on confirm",
         "description": "",
         "links": [],
@@ -615,7 +615,7 @@
     "checkout-promo": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 89807315,
         "title": "Promo redeemed vs rejected",
         "description": "",
         "links": [],
@@ -698,7 +698,7 @@
     "checkout-sessions-confirmed": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 2114528701,
         "title": "Sessions confirmed",
         "description": "",
         "links": [],
@@ -772,7 +772,7 @@
     "checkout-sessions-expired": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 1522150389,
         "title": "Expirations by reason",
         "description": "",
         "links": [],
@@ -835,7 +835,7 @@
     "notification-reads": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 990268806,
         "title": "Reads by mode",
         "description": "",
         "links": [],
@@ -898,7 +898,7 @@
     "notification-send-latency": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 1626142344,
         "title": "Send latency p50 / p95 / p99 by channel",
         "description": "",
         "links": [],
@@ -1002,7 +1002,7 @@
     "order-average-value": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 1832471721,
         "title": "Order value — average, p50 / p95 / p99",
         "description": "",
         "links": [],
@@ -1137,7 +1137,7 @@
     "order-compensation-steps": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 1893980890,
         "title": "Compensation steps",
         "description": "",
         "links": [],
@@ -1200,7 +1200,7 @@
     "order-failed-compensations": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 1181602793,
         "title": "Failed compensations (stuck money)",
         "description": "",
         "links": [],
@@ -1278,7 +1278,7 @@
     "order-payment-activity": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 1610258906,
         "title": "Payment activity by op \u0026 result",
         "description": "",
         "links": [],
@@ -1341,7 +1341,7 @@
     "order-saga-outcomes": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 1876980640,
         "title": "Saga outcomes",
         "description": "",
         "links": [],
@@ -1404,7 +1404,7 @@
     "order-stock-reservation": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 2023803111,
         "title": "Stock reservation outcomes",
         "description": "",
         "links": [],
@@ -1467,7 +1467,7 @@
     "pay-authorization": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 618677085,
         "title": "Authorization outcomes",
         "description": "",
         "links": [],
@@ -1530,7 +1530,7 @@
     "pay-decline-rate": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 746553963,
         "title": "Card decline rate",
         "description": "",
         "links": [],
@@ -1612,7 +1612,7 @@
     "pay-operations": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 1145104690,
         "title": "Money operations by op \u0026 result",
         "description": "",
         "links": [],
@@ -1675,7 +1675,7 @@
     "pay-provider-latency": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 1514676230,
         "title": "Provider-hop latency p50 / p95 / p99 (mockpay)",
         "description": "",
         "links": [],
@@ -1779,7 +1779,7 @@
     "pay-reconciliation": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 1567861329,
         "title": "Reconciliation discrepancies",
         "description": "",
         "links": [],
@@ -1842,7 +1842,7 @@
     "product-cache-gets": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 1268740827,
         "title": "Cache gets by result",
         "description": "",
         "links": [],
@@ -1905,7 +1905,7 @@
     "product-cache-hit-ratio": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 1971212685,
         "title": "Cache hit ratio",
         "description": "",
         "links": [],
@@ -1987,7 +1987,7 @@
     "product-cache-pool": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 2059445140,
         "title": "Cache pool usage (Valkey)",
         "description": "",
         "links": [],
@@ -2050,7 +2050,7 @@
     "product-cache-use-time": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 1136605597,
         "title": "Cache conn use-time p95 (Valkey)",
         "description": "",
         "links": [],
@@ -2113,7 +2113,7 @@
     "product-stock-reservation": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 329361520,
         "title": "Stock reservation outcomes",
         "description": "",
         "links": [],
@@ -2176,7 +2176,7 @@
     "review-average-rating": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 877177859,
         "title": "Average rating",
         "description": "",
         "links": [],
@@ -2250,7 +2250,7 @@
     "review-quality-signals": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 1963375229,
         "title": "Quality signals",
         "description": "",
         "links": [],
@@ -2333,7 +2333,7 @@
     "review-rating-distribution": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 1413928342,
         "title": "Rating distribution",
         "description": "",
         "links": [],
@@ -2414,7 +2414,7 @@
     "shipping-cancelled": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 314387661,
         "title": "Shipments cancelled by outcome",
         "description": "",
         "links": [],
@@ -2477,7 +2477,7 @@
     "shipping-created": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 1875940750,
         "title": "Shipments created by outcome",
         "description": "",
         "links": [],
@@ -2540,7 +2540,7 @@
     "shipping-lookups": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 1625961453,
         "title": "Lookups by kind \u0026 found",
         "description": "",
         "links": [],
@@ -2603,7 +2603,7 @@
     "user-profile-lookups": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 1903597756,
         "title": "Profile lookups by audience \u0026 found",
         "description": "",
         "links": [],
@@ -2666,7 +2666,7 @@
     "user-profile-updates": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 1394350185,
         "title": "Profile updates by result",
         "description": "",
         "links": [],

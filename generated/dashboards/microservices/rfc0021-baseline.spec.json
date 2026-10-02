@@ -7,7 +7,7 @@
     "cutover-confirm-p95": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 1069345887,
         "title": "Confirm handler p95",
         "description": "",
         "links": [],
@@ -70,7 +70,7 @@
     "cutover-confirm-success-bounce": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 342533697,
         "title": "Confirm success vs bounce (per second)",
         "description": "",
         "links": [],
@@ -153,7 +153,7 @@
     "cutover-payment-provider": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 1426089020,
         "title": "Payment provider p95 by op + authorization outcomes",
         "description": "",
         "links": [],
@@ -236,7 +236,7 @@
     "cutover-product-rpc-error": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 1288283242,
         "title": "Product gRPC error ratio by method",
         "description": "",
         "links": [],
@@ -299,7 +299,7 @@
     "cutover-product-rpc-p95": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 9952630,
         "title": "Product gRPC p95 by method",
         "description": "",
         "links": [],
@@ -362,7 +362,7 @@
     "cutover-saga-compensation": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 1172083257,
         "title": "Compensation runs by step and result",
         "description": "",
         "links": [],
@@ -425,7 +425,7 @@
     "cutover-saga-outcomes": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 1164072938,
         "title": "Saga terminal outcomes",
         "description": "",
         "links": [],
@@ -488,7 +488,7 @@
     "cutover-saga-reserve-stock": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 1073686362,
         "title": "Saga-side ReserveStock outcomes",
         "description": "",
         "links": [],

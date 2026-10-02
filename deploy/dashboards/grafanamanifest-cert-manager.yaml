@@ -47,7 +47,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.60483597e+08
                         links: []
                         title: ACME client avg request duration
                         vizConfig:
@@ -92,7 +92,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 2.42989504e+08
                         links: []
                         title: ACME client request rate
                         vizConfig:
@@ -136,7 +136,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.064311633e+09
                         links: []
                         title: Certificates expiring < 7d
                         vizConfig:
@@ -189,7 +189,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.562576652e+09
                         links: []
                         title: Certificates expiring < 24h
                         vizConfig:
@@ -242,7 +242,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 5.72624366e+08
                         links: []
                         title: Certificates NOT ready
                         vizConfig:
@@ -295,7 +295,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.245566518e+09
                         links: []
                         title: Certificates ready
                         vizConfig:
@@ -342,7 +342,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 7.80116378e+08
                         links: []
                         title: Controller sync error ratio
                         vizConfig:
@@ -387,7 +387,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.14035862e+09
                         links: []
                         title: Controller sync rate
                         vizConfig:
@@ -432,7 +432,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 8.3122603e+07
                         links: []
                         title: CPU by component
                         vizConfig:
@@ -502,7 +502,7 @@ spec:
                                                 - desc: false
                                                   field: Time to expiry
                         description: ""
-                        id: 0
+                        id: 2.22200931e+08
                         links: []
                         title: Time to expiry per certificate
                         vizConfig:
@@ -554,7 +554,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.760755258e+09
                         links: []
                         title: Memory (RSS) by component
                         vizConfig:
@@ -599,7 +599,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 4.1143786e+08
                         links: []
                         title: Not-ready certificates by namespace
                         vizConfig:
@@ -644,7 +644,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.84812597e+08
                         links: []
                         title: Certificate ready status by condition
                         vizConfig:
@@ -714,7 +714,7 @@ spec:
                                                 - desc: false
                                                   field: Time to renewal
                         description: ""
-                        id: 0
+                        id: 8.69089246e+08
                         links: []
                         title: Next scheduled renewal per certificate
                         vizConfig:
@@ -766,7 +766,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.216367914e+09
                         links: []
                         title: Work queue add rate
                         vizConfig:
@@ -811,7 +811,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 3.82055711e+08
                         links: []
                         title: Work queue depth
                         vizConfig:

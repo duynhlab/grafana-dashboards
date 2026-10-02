@@ -17,7 +17,7 @@
       "current-vs-max-replicas": {
         "kind": "Panel",
         "spec": {
-          "id": 0,
+          "id": 1236236365,
           "title": "Current vs max replicas",
           "description": "",
           "links": [],
@@ -100,7 +100,7 @@
       "desired-vs-target": {
         "kind": "Panel",
         "spec": {
-          "id": 0,
+          "id": 1786839955,
           "title": "Desired vs target (value ÷ targetQueueSize 5)",
           "description": "",
           "links": [],
@@ -183,7 +183,7 @@
       "keda-version": {
         "kind": "Panel",
         "spec": {
-          "id": 0,
+          "id": 798840963,
           "title": "KEDA version",
           "description": "",
           "links": [],
@@ -256,7 +256,7 @@
       "metrics-adapter-up": {
         "kind": "Panel",
         "spec": {
-          "id": 0,
+          "id": 2121930402,
           "title": "Metrics adapter up",
           "description": "",
           "links": [],
@@ -332,7 +332,7 @@
       "operator-up": {
         "kind": "Panel",
         "spec": {
-          "id": 0,
+          "id": 104067453,
           "title": "Operator up",
           "description": "",
           "links": [],
@@ -408,7 +408,7 @@
       "replica-changes": {
         "kind": "Panel",
         "spec": {
-          "id": 0,
+          "id": 1694549115,
           "title": "Replica changes",
           "description": "",
           "links": [],
@@ -471,7 +471,7 @@
       "scale-loop-latency": {
         "kind": "Panel",
         "spec": {
-          "id": 0,
+          "id": 307504025,
           "title": "Scale-loop latency (internal)",
           "description": "",
           "links": [],
@@ -534,7 +534,7 @@
       "scaledobject-errors": {
         "kind": "Panel",
         "spec": {
-          "id": 0,
+          "id": 267005848,
           "title": "ScaledObject errors (rate)",
           "description": "",
           "links": [],
@@ -597,7 +597,7 @@
       "scaledobjects-registered": {
         "kind": "Panel",
         "spec": {
-          "id": 0,
+          "id": 1230190560,
           "title": "ScaledObjects registered",
           "description": "",
           "links": [],
@@ -669,7 +669,7 @@
       "scaler-active": {
         "kind": "Panel",
         "spec": {
-          "id": 0,
+          "id": 895185774,
           "title": "Scaler active",
           "description": "",
           "links": [],
@@ -752,7 +752,7 @@
       "scaler-errors": {
         "kind": "Panel",
         "spec": {
-          "id": 0,
+          "id": 1759669115,
           "title": "Scaler errors (rate)",
           "description": "",
           "links": [],
@@ -815,7 +815,7 @@
       "scaler-metric-latency": {
         "kind": "Panel",
         "spec": {
-          "id": 0,
+          "id": 1808803647,
           "title": "Scaler metric latency (last fetch)",
           "description": "",
           "links": [],
@@ -878,7 +878,7 @@
       "scaler-metric-value": {
         "kind": "Panel",
         "spec": {
-          "id": 0,
+          "id": 1926395460,
           "title": "Scaler metric value (backlog per worker version)",
           "description": "",
           "links": [],
@@ -941,7 +941,7 @@
       "schedule-to-start-p99": {
         "kind": "Panel",
         "spec": {
-          "id": 0,
+          "id": 212130492,
           "title": "Schedule-to-start p99 by task type (SDK)",
           "description": "",
           "links": [],
@@ -1004,7 +1004,7 @@
       "taskqueue-backlog": {
         "kind": "Panel",
         "spec": {
-          "id": 0,
+          "id": 33316325,
           "title": "Task-queue backlog (server; summed over partition only)",
           "description": "",
           "links": [],
@@ -1067,7 +1067,7 @@
       "temporal-triggers-registered": {
         "kind": "Panel",
         "spec": {
-          "id": 0,
+          "id": 174052746,
           "title": "temporal triggers registered",
           "description": "",
           "links": [],
@@ -1139,7 +1139,7 @@
       "worker-replicas": {
         "kind": "Panel",
         "spec": {
-          "id": 0,
+          "id": 1818165407,
           "title": "Worker replicas (versioned Deployments)",
           "description": "",
           "links": [],

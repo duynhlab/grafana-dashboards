@@ -17,7 +17,7 @@
       "inventory-check-outcomes": {
         "kind": "Panel",
         "spec": {
-          "id": 0,
+          "id": 1746287740,
           "title": "Availability check outcomes",
           "description": "",
           "links": [],
@@ -80,7 +80,7 @@
       "inventory-db-p95": {
         "kind": "Panel",
         "spec": {
-          "id": 0,
+          "id": 1179269631,
           "title": "DB query p95",
           "description": "",
           "links": [],
@@ -143,7 +143,7 @@
       "inventory-grpc-error-ratio": {
         "kind": "Panel",
         "spec": {
-          "id": 0,
+          "id": 223596947,
           "title": "gRPC error ratio by method",
           "description": "",
           "links": [],
@@ -206,7 +206,7 @@
       "inventory-grpc-p95": {
         "kind": "Panel",
         "spec": {
-          "id": 0,
+          "id": 289635881,
           "title": "gRPC p95 by method",
           "description": "",
           "links": [],
@@ -269,7 +269,7 @@
       "inventory-grpc-rate": {
         "kind": "Panel",
         "spec": {
-          "id": 0,
+          "id": 2096553019,
           "title": "gRPC request rate by method",
           "description": "",
           "links": [],
@@ -332,7 +332,7 @@
       "inventory-readme": {
         "kind": "Panel",
         "spec": {
-          "id": 0,
+          "id": 2064881428,
           "title": "Read this panel before the flat lines",
           "description": "",
           "links": [],
@@ -364,7 +364,7 @@
       "inventory-reservation-outcomes": {
         "kind": "Panel",
         "spec": {
-          "id": 0,
+          "id": 67782186,
           "title": "Reservation outcomes by operation",
           "description": "",
           "links": [],

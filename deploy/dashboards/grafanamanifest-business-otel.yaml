@@ -47,7 +47,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.1308103e+07
                         links: []
                         title: bcrypt latency p95
                         vizConfig:
@@ -92,7 +92,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 2.4884303e+08
                         links: []
                         title: Token-family revocations by reason
                         vizConfig:
@@ -137,7 +137,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 8.88035503e+08
                         links: []
                         title: Refresh rotations by outcome
                         vizConfig:
@@ -182,7 +182,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 2.09972626e+09
                         links: []
                         title: Registrations by outcome
                         vizConfig:
@@ -227,7 +227,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.792001558e+09
                         links: []
                         title: Carts cleared by source
                         vizConfig:
@@ -272,7 +272,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 4.36439277e+08
                         links: []
                         title: Items added by result
                         vizConfig:
@@ -317,7 +317,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 2.054022947e+09
                         links: []
                         title: Snapshot requests by result
                         vizConfig:
@@ -391,7 +391,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 8.13317507e+08
                         links: []
                         title: Confirm latency p50 / p95 / p99
                         vizConfig:
@@ -436,7 +436,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.061884552e+09
                         links: []
                         title: Price-changed on confirm
                         vizConfig:
@@ -495,7 +495,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 8.9807315e+07
                         links: []
                         title: Promo redeemed vs rejected
                         vizConfig:
@@ -540,7 +540,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 2.114528701e+09
                         links: []
                         title: Sessions confirmed
                         vizConfig:
@@ -592,7 +592,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.522150389e+09
                         links: []
                         title: Expirations by reason
                         vizConfig:
@@ -637,7 +637,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 9.90268806e+08
                         links: []
                         title: Reads by mode
                         vizConfig:
@@ -711,7 +711,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.626142344e+09
                         links: []
                         title: Send latency p50 / p95 / p99 by channel
                         vizConfig:
@@ -799,7 +799,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.832471721e+09
                         links: []
                         title: Order value — average, p50 / p95 / p99
                         vizConfig:
@@ -851,7 +851,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.89398089e+09
                         links: []
                         title: Compensation steps
                         vizConfig:
@@ -896,7 +896,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.181602793e+09
                         links: []
                         title: Failed compensations (stuck money)
                         vizConfig:
@@ -950,7 +950,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.610258906e+09
                         links: []
                         title: Payment activity by op & result
                         vizConfig:
@@ -995,7 +995,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.87698064e+09
                         links: []
                         title: Saga outcomes
                         vizConfig:
@@ -1040,7 +1040,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 2.023803111e+09
                         links: []
                         title: Stock reservation outcomes
                         vizConfig:
@@ -1085,7 +1085,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 6.18677085e+08
                         links: []
                         title: Authorization outcomes
                         vizConfig:
@@ -1130,7 +1130,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 7.46553963e+08
                         links: []
                         title: Card decline rate
                         vizConfig:
@@ -1186,7 +1186,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.14510469e+09
                         links: []
                         title: Money operations by op & result
                         vizConfig:
@@ -1260,7 +1260,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.51467623e+09
                         links: []
                         title: Provider-hop latency p50 / p95 / p99 (mockpay)
                         vizConfig:
@@ -1305,7 +1305,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.567861329e+09
                         links: []
                         title: Reconciliation discrepancies
                         vizConfig:
@@ -1350,7 +1350,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.268740827e+09
                         links: []
                         title: Cache gets by result
                         vizConfig:
@@ -1395,7 +1395,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.971212685e+09
                         links: []
                         title: Cache hit ratio
                         vizConfig:
@@ -1451,7 +1451,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 2.05944514e+09
                         links: []
                         title: Cache pool usage (Valkey)
                         vizConfig:
@@ -1496,7 +1496,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.136605597e+09
                         links: []
                         title: Cache conn use-time p95 (Valkey)
                         vizConfig:
@@ -1541,7 +1541,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 3.2936152e+08
                         links: []
                         title: Stock reservation outcomes
                         vizConfig:
@@ -1586,7 +1586,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 8.77177859e+08
                         links: []
                         title: Average rating
                         vizConfig:
@@ -1652,7 +1652,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.963375229e+09
                         links: []
                         title: Quality signals
                         vizConfig:
@@ -1699,7 +1699,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.413928342e+09
                         links: []
                         title: Rating distribution
                         vizConfig:
@@ -1756,7 +1756,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 3.14387661e+08
                         links: []
                         title: Shipments cancelled by outcome
                         vizConfig:
@@ -1801,7 +1801,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.87594075e+09
                         links: []
                         title: Shipments created by outcome
                         vizConfig:
@@ -1846,7 +1846,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.625961453e+09
                         links: []
                         title: Lookups by kind & found
                         vizConfig:
@@ -1891,7 +1891,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.903597756e+09
                         links: []
                         title: Profile lookups by audience & found
                         vizConfig:
@@ -1936,7 +1936,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.394350185e+09
                         links: []
                         title: Profile updates by result
                         vizConfig:

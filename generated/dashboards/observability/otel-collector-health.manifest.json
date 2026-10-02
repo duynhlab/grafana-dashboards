@@ -17,7 +17,7 @@
       "batch-processor": {
         "kind": "Panel",
         "spec": {
-          "id": 0,
+          "id": 91391542,
           "title": "Batch processor",
           "description": "",
           "links": [],
@@ -119,7 +119,7 @@
       "collector-cpu": {
         "kind": "Panel",
         "spec": {
-          "id": 0,
+          "id": 917696427,
           "title": "Collector CPU",
           "description": "",
           "links": [],
@@ -182,7 +182,7 @@
       "collector-memory": {
         "kind": "Panel",
         "spec": {
-          "id": 0,
+          "id": 327941864,
           "title": "Collector memory",
           "description": "",
           "links": [],
@@ -265,7 +265,7 @@
       "collector-up": {
         "kind": "Panel",
         "spec": {
-          "id": 0,
+          "id": 760691386,
           "title": "Collector up",
           "description": "",
           "links": [],
@@ -341,7 +341,7 @@
       "deltatocumulative": {
         "kind": "Panel",
         "spec": {
-          "id": 0,
+          "id": 1728448275,
           "title": "deltatocumulative streams",
           "description": "",
           "links": [],
@@ -423,7 +423,7 @@
       "exporter-failed": {
         "kind": "Panel",
         "spec": {
-          "id": 0,
+          "id": 255351026,
           "title": "Exporter send-failure rate",
           "description": "",
           "links": [],
@@ -526,7 +526,7 @@
       "exporter-queue": {
         "kind": "Panel",
         "spec": {
-          "id": 0,
+          "id": 204806478,
           "title": "Exporter queue utilisation",
           "description": "",
           "links": [],
@@ -608,7 +608,7 @@
       "exporter-sent": {
         "kind": "Panel",
         "spec": {
-          "id": 0,
+          "id": 1868853313,
           "title": "Exporter sent rate by destination",
           "description": "",
           "links": [],
@@ -711,7 +711,7 @@
       "receiver-accepted": {
         "kind": "Panel",
         "spec": {
-          "id": 0,
+          "id": 262125930,
           "title": "Receiver accepted rate",
           "description": "",
           "links": [],
@@ -814,7 +814,7 @@
       "receiver-refused": {
         "kind": "Panel",
         "spec": {
-          "id": 0,
+          "id": 607966637,
           "title": "Receiver refused / failed rate",
           "description": "",
           "links": [],

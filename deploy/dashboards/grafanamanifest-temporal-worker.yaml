@@ -47,7 +47,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.65085136e+08
                         links: []
                         title: Activity failure ratio
                         vizConfig:
@@ -92,7 +92,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 5.43958288e+08
                         links: []
                         title: Activity execution latency (p95) by type
                         vizConfig:
@@ -137,7 +137,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 2.143130176e+09
                         links: []
                         title: Activity execution rate by type
                         vizConfig:
@@ -182,7 +182,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.416330528e+09
                         links: []
                         title: Activity schedule-to-start latency (p95)
                         vizConfig:
@@ -241,7 +241,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.342453168e+09
                         links: []
                         title: Task-queue backlog (server view)
                         vizConfig:
@@ -286,7 +286,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.81088471e+08
                         links: []
                         title: Service error ratio
                         vizConfig:
@@ -331,7 +331,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.73998781e+09
                         links: []
                         title: gRPC request rate by role
                         vizConfig:
@@ -376,7 +376,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.246936961e+09
                         links: []
                         title: Service latency (p95) by role
                         vizConfig:
@@ -435,7 +435,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.595718632e+09
                         links: []
                         title: Persistence request rate / error ratio
                         vizConfig:
@@ -480,7 +480,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.25457284e+09
                         links: []
                         title: Server up
                         vizConfig:
@@ -533,7 +533,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.501474601e+09
                         links: []
                         title: Workflow completion rate
                         vizConfig:
@@ -578,7 +578,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.350405631e+09
                         links: []
                         title: Workflow failure ratio
                         vizConfig:
@@ -637,7 +637,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.153148343e+09
                         links: []
                         title: Workflow end-to-end latency
                         vizConfig:
@@ -696,7 +696,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.809491262e+09
                         links: []
                         title: Workflow task poll outcome rate
                         vizConfig:
@@ -755,7 +755,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 8.44903339e+08
                         links: []
                         title: Workflow task schedule-to-start latency
                         vizConfig:
@@ -800,7 +800,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 7.293808e+06
                         links: []
                         title: Workflow task execution latency (p95)
                         vizConfig:
@@ -845,7 +845,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.6775765e+07
                         links: []
                         title: Pollers
                         vizConfig:
@@ -890,7 +890,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.895535205e+09
                         links: []
                         title: Worker → server request error ratio
                         vizConfig:
@@ -935,7 +935,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.495202653e+09
                         links: []
                         title: Worker → server request latency (p95)
                         vizConfig:
@@ -994,7 +994,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 4.7215099e+07
                         links: []
                         title: Worker task slots
                         vizConfig:
@@ -1067,7 +1067,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 8.5503905e+08
                         links: []
                         title: Sticky cache
                         vizConfig:

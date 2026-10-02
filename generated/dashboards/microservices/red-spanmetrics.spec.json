@@ -7,7 +7,7 @@
     "spanmetrics-error-by-service": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 1678463279,
         "title": "Error rate (%) by service",
         "description": "",
         "links": [],
@@ -70,7 +70,7 @@
     "spanmetrics-error-rate": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 868747118,
         "title": "Overall error rate",
         "description": "",
         "links": [],
@@ -151,7 +151,7 @@
     "spanmetrics-p50-p95-p99": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 254436326,
         "title": "Latency p50 / p95 / p99 (selected services)",
         "description": "",
         "links": [],
@@ -254,7 +254,7 @@
     "spanmetrics-p95": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 1707164413,
         "title": "Overall latency p95",
         "description": "",
         "links": [],
@@ -335,7 +335,7 @@
     "spanmetrics-p95-by-service": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 1724291843,
         "title": "Latency p95 (ms) by service",
         "description": "",
         "links": [],
@@ -398,7 +398,7 @@
     "spanmetrics-rps-by-service": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 1720634616,
         "title": "Request rate (req/s) by service",
         "description": "",
         "links": [],
@@ -461,7 +461,7 @@
     "spanmetrics-services-reporting": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 1830946374,
         "title": "Services reporting",
         "description": "",
         "links": [],
@@ -534,7 +534,7 @@
     "spanmetrics-total-rps": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 1992399371,
         "title": "Total request rate (SERVER)",
         "description": "",
         "links": [],

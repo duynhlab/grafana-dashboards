@@ -17,7 +17,7 @@
       "acme-avg-duration": {
         "kind": "Panel",
         "spec": {
-          "id": 0,
+          "id": 160483597,
           "title": "ACME client avg request duration",
           "description": "",
           "links": [],
@@ -80,7 +80,7 @@
       "acme-request-rate": {
         "kind": "Panel",
         "spec": {
-          "id": 0,
+          "id": 242989504,
           "title": "ACME client request rate",
           "description": "",
           "links": [],
@@ -143,7 +143,7 @@
       "certs-expiring-24h": {
         "kind": "Panel",
         "spec": {
-          "id": 0,
+          "id": 1562576652,
           "title": "Certificates expiring \u003c 24h",
           "description": "",
           "links": [],
@@ -220,7 +220,7 @@
       "certs-expiring-7d": {
         "kind": "Panel",
         "spec": {
-          "id": 0,
+          "id": 1064311633,
           "title": "Certificates expiring \u003c 7d",
           "description": "",
           "links": [],
@@ -297,7 +297,7 @@
       "certs-not-ready": {
         "kind": "Panel",
         "spec": {
-          "id": 0,
+          "id": 572624366,
           "title": "Certificates NOT ready",
           "description": "",
           "links": [],
@@ -374,7 +374,7 @@
       "certs-ready": {
         "kind": "Panel",
         "spec": {
-          "id": 0,
+          "id": 1245566518,
           "title": "Certificates ready",
           "description": "",
           "links": [],
@@ -438,7 +438,7 @@
       "controller-sync-error-ratio": {
         "kind": "Panel",
         "spec": {
-          "id": 0,
+          "id": 780116378,
           "title": "Controller sync error ratio",
           "description": "",
           "links": [],
@@ -501,7 +501,7 @@
       "controller-sync-rate": {
         "kind": "Panel",
         "spec": {
-          "id": 0,
+          "id": 1140358620,
           "title": "Controller sync rate",
           "description": "",
           "links": [],
@@ -564,7 +564,7 @@
       "cpu-by-component": {
         "kind": "Panel",
         "spec": {
-          "id": 0,
+          "id": 83122603,
           "title": "CPU by component",
           "description": "",
           "links": [],
@@ -627,7 +627,7 @@
       "expiry-table": {
         "kind": "Panel",
         "spec": {
-          "id": 0,
+          "id": 222200931,
           "title": "Time to expiry per certificate",
           "description": "",
           "links": [],
@@ -743,7 +743,7 @@
       "memory-by-component": {
         "kind": "Panel",
         "spec": {
-          "id": 0,
+          "id": 1760755258,
           "title": "Memory (RSS) by component",
           "description": "",
           "links": [],
@@ -806,7 +806,7 @@
       "not-ready-by-namespace": {
         "kind": "Panel",
         "spec": {
-          "id": 0,
+          "id": 411437860,
           "title": "Not-ready certificates by namespace",
           "description": "",
           "links": [],
@@ -869,7 +869,7 @@
       "ready-status-by-condition": {
         "kind": "Panel",
         "spec": {
-          "id": 0,
+          "id": 184812597,
           "title": "Certificate ready status by condition",
           "description": "",
           "links": [],
@@ -932,7 +932,7 @@
       "renewal-table": {
         "kind": "Panel",
         "spec": {
-          "id": 0,
+          "id": 869089246,
           "title": "Next scheduled renewal per certificate",
           "description": "",
           "links": [],
@@ -1048,7 +1048,7 @@
       "workqueue-add-rate": {
         "kind": "Panel",
         "spec": {
-          "id": 0,
+          "id": 1216367914,
           "title": "Work queue add rate",
           "description": "",
           "links": [],
@@ -1111,7 +1111,7 @@
       "workqueue-depth": {
         "kind": "Panel",
         "spec": {
-          "id": 0,
+          "id": 382055711,
           "title": "Work queue depth",
           "description": "",
           "links": [],

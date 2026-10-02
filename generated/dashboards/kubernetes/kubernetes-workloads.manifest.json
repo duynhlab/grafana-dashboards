@@ -17,7 +17,7 @@
       "cpu-by-pod": {
         "kind": "Panel",
         "spec": {
-          "id": 0,
+          "id": 2007189663,
           "title": "CPU by Pod",
           "description": "",
           "links": [],
@@ -80,7 +80,7 @@
       "cpu-by-workload": {
         "kind": "Panel",
         "spec": {
-          "id": 0,
+          "id": 408840565,
           "title": "CPU by Workload",
           "description": "",
           "links": [],
@@ -143,7 +143,7 @@
       "cpu-throttling": {
         "kind": "Panel",
         "spec": {
-          "id": 0,
+          "id": 1414488091,
           "title": "CPU Throttling by Pod",
           "description": "",
           "links": [],
@@ -206,7 +206,7 @@
       "cpu-vs-requests": {
         "kind": "Panel",
         "spec": {
-          "id": 0,
+          "id": 41623872,
           "title": "CPU Usage vs Requests by Pod",
           "description": "",
           "links": [],
@@ -269,7 +269,7 @@
       "memory-by-pod": {
         "kind": "Panel",
         "spec": {
-          "id": 0,
+          "id": 1876666550,
           "title": "Memory by Pod",
           "description": "",
           "links": [],
@@ -332,7 +332,7 @@
       "memory-by-workload": {
         "kind": "Panel",
         "spec": {
-          "id": 0,
+          "id": 1544012130,
           "title": "Memory by Workload",
           "description": "",
           "links": [],
@@ -395,7 +395,7 @@
       "memory-vs-limits": {
         "kind": "Panel",
         "spec": {
-          "id": 0,
+          "id": 206005189,
           "title": "Memory Usage vs Limits by Pod",
           "description": "",
           "links": [],
@@ -458,7 +458,7 @@
       "network-io": {
         "kind": "Panel",
         "spec": {
-          "id": 0,
+          "id": 926046084,
           "title": "Network I/O by Pod",
           "description": "",
           "links": [],
@@ -541,7 +541,7 @@
       "restarts-by-pod": {
         "kind": "Panel",
         "spec": {
-          "id": 0,
+          "id": 235179403,
           "title": "Restarts by Pod",
           "description": "",
           "links": [],
@@ -604,7 +604,7 @@
       "restarts-by-workload": {
         "kind": "Panel",
         "spec": {
-          "id": 0,
+          "id": 930693937,
           "title": "Restarts by Workload",
           "description": "",
           "links": [],
@@ -667,7 +667,7 @@
       "waiting-reasons": {
         "kind": "Panel",
         "spec": {
-          "id": 0,
+          "id": 2045595976,
           "title": "Containers Waiting by Reason",
           "description": "",
           "links": [],

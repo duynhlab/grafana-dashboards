@@ -17,7 +17,7 @@
       "active-vacuums": {
         "kind": "Panel",
         "spec": {
-          "id": 0,
+          "id": 1714861214,
           "title": "Active vacuums",
           "description": "",
           "links": [],
@@ -109,7 +109,7 @@
       "autovacuum-runs": {
         "kind": "Panel",
         "spec": {
-          "id": 0,
+          "id": 1760263086,
           "title": "Autovacuum runs / sec",
           "description": "",
           "links": [],
@@ -172,7 +172,7 @@
       "blocked": {
         "kind": "Panel",
         "spec": {
-          "id": 0,
+          "id": 1516072627,
           "title": "Blocked queries",
           "description": "",
           "links": [],
@@ -253,7 +253,7 @@
       "checkpoint-time": {
         "kind": "Panel",
         "spec": {
-          "id": 0,
+          "id": 500982863,
           "title": "Checkpoint write / sync time",
           "description": "",
           "links": [],
@@ -336,7 +336,7 @@
       "checkpoints": {
         "kind": "Panel",
         "spec": {
-          "id": 0,
+          "id": 1223676388,
           "title": "Checkpoints / sec (timed vs requested)",
           "description": "",
           "links": [],
@@ -419,7 +419,7 @@
       "dead-tuple-ratio": {
         "kind": "Panel",
         "spec": {
-          "id": 0,
+          "id": 67455434,
           "title": "Dead-tuple ratio — top tables",
           "description": "",
           "links": [],
@@ -482,7 +482,7 @@
       "idle-in-tx": {
         "kind": "Panel",
         "spec": {
-          "id": 0,
+          "id": 1063195828,
           "title": "Idle-in-tx sessions",
           "description": "",
           "links": [],
@@ -559,7 +559,7 @@
       "locks-by-db": {
         "kind": "Panel",
         "spec": {
-          "id": 0,
+          "id": 1813249000,
           "title": "Locks by database",
           "description": "",
           "links": [],
@@ -622,7 +622,7 @@
       "locks-by-mode": {
         "kind": "Panel",
         "spec": {
-          "id": 0,
+          "id": 1326175841,
           "title": "Locks by mode",
           "description": "",
           "links": [],
@@ -685,7 +685,7 @@
       "longest-query": {
         "kind": "Panel",
         "spec": {
-          "id": 0,
+          "id": 1755993452,
           "title": "Longest active query",
           "description": "",
           "links": [],
@@ -748,7 +748,7 @@
       "oldest-tx": {
         "kind": "Panel",
         "spec": {
-          "id": 0,
+          "id": 173043837,
           "title": "Oldest transaction / idle-in-transaction age",
           "description": "",
           "links": [],
@@ -848,7 +848,7 @@
       "top-tables": {
         "kind": "Panel",
         "spec": {
-          "id": 0,
+          "id": 1321756898,
           "title": "Top tables by size",
           "description": "",
           "links": [],
@@ -969,7 +969,7 @@
       "total-dead": {
         "kind": "Panel",
         "spec": {
-          "id": 0,
+          "id": 2077721630,
           "title": "Total dead tuples",
           "description": "",
           "links": [],
@@ -1033,7 +1033,7 @@
       "unused-indexes": {
         "kind": "Panel",
         "spec": {
-          "id": 0,
+          "id": 1125738510,
           "title": "Unused indexes (idx_scan = 0)",
           "description": "",
           "links": [],
@@ -1146,7 +1146,7 @@
       "vacuum-progress": {
         "kind": "Panel",
         "spec": {
-          "id": 0,
+          "id": 327644446,
           "title": "Running VACUUM progress",
           "description": "",
           "links": [],

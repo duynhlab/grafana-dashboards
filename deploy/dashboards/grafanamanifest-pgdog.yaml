@@ -47,7 +47,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 5.85851841e+08
                         links: []
                         title: Two-Phase Commit Transactions Rate
                         vizConfig:
@@ -92,7 +92,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.994513993e+09
                         links: []
                         title: Average Two-Phase Commit Transactions Count
                         vizConfig:
@@ -137,7 +137,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.482557877e+09
                         links: []
                         title: Average Prepared Statements Eviction Count
                         vizConfig:
@@ -182,7 +182,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 9.63032574e+08
                         links: []
                         title: Average Query Count
                         vizConfig:
@@ -227,7 +227,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.493049792e+09
                         links: []
                         title: Average Query Executing Time
                         vizConfig:
@@ -272,7 +272,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 7.76750361e+08
                         links: []
                         title: Average Traffic Received
                         vizConfig:
@@ -317,7 +317,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 4.70509392e+08
                         links: []
                         title: Average Traffic Sent
                         vizConfig:
@@ -362,7 +362,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 6.50822074e+08
                         links: []
                         title: Average Transactions Count
                         vizConfig:
@@ -407,7 +407,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 2.0429429e+09
                         links: []
                         title: Average Time Spent Executing Transactions
                         vizConfig:
@@ -494,7 +494,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.748737946e+09
                         links: []
                         title: Query Cache Rate
                         vizConfig:
@@ -538,7 +538,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.744415593e+09
                         links: []
                         title: Query Cache Size
                         vizConfig:
@@ -582,7 +582,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 2.96148992e+08
                         links: []
                         title: Clients Total
                         vizConfig:
@@ -627,7 +627,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.523756277e+09
                         links: []
                         title: Clients Waiting
                         vizConfig:
@@ -672,7 +672,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 2.04837543e+09
                         links: []
                         title: Connection Errors Rate
                         vizConfig:
@@ -717,7 +717,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 2.03719106e+09
                         links: []
                         title: Connection Max Wait Time
                         vizConfig:
@@ -762,7 +762,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 4.419856e+08
                         links: []
                         title: Mirror Queue Size
                         vizConfig:
@@ -849,7 +849,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.203764223e+09
                         links: []
                         title: Mirror Rate
                         vizConfig:
@@ -894,7 +894,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.155513149e+09
                         links: []
                         title: Connection Out Of Sync Rate
                         vizConfig:
@@ -938,7 +938,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.040984476e+09
                         links: []
                         title: Prepared Statements Count
                         vizConfig:
@@ -983,7 +983,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 4.70155547e+08
                         links: []
                         title: Prepared Statements Eviction Rate
                         vizConfig:
@@ -1027,7 +1027,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.016421254e+09
                         links: []
                         title: Prepared Statements Memory Used
                         vizConfig:
@@ -1072,7 +1072,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 3.5374e+06
                         links: []
                         title: Query Rate
                         vizConfig:
@@ -1117,7 +1117,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 8.27598251e+08
                         links: []
                         title: Query Executing Time Rate
                         vizConfig:
@@ -1162,7 +1162,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.408619023e+09
                         links: []
                         title: Traffic Received Rate
                         vizConfig:
@@ -1207,7 +1207,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.380300628e+09
                         links: []
                         title: Traffic Sent Rate
                         vizConfig:
@@ -1252,7 +1252,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 8.94618157e+08
                         links: []
                         title: Servers Active
                         vizConfig:
@@ -1297,7 +1297,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 3.98423289e+08
                         links: []
                         title: Servers Idle
                         vizConfig:
@@ -1342,7 +1342,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.346085176e+09
                         links: []
                         title: Servers Idle In Transaction
                         vizConfig:
@@ -1387,7 +1387,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.35031201e+09
                         links: []
                         title: Transactions Rate
                         vizConfig:
@@ -1432,7 +1432,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 3.32580609e+08
                         links: []
                         title: Transactions Executing Time Rate
                         vizConfig:

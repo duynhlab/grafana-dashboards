@@ -75,7 +75,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 9.1391542e+07
                         links: []
                         title: Batch processor
                         vizConfig:
@@ -119,7 +119,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 9.17696427e+08
                         links: []
                         title: Collector CPU
                         vizConfig:
@@ -178,7 +178,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 3.27941864e+08
                         links: []
                         title: Collector memory
                         vizConfig:
@@ -222,7 +222,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 7.60691386e+08
                         links: []
                         title: Collector up
                         vizConfig:
@@ -289,7 +289,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.728448275e+09
                         links: []
                         title: deltatocumulative streams
                         vizConfig:
@@ -361,7 +361,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 2.55351026e+08
                         links: []
                         title: Exporter send-failure rate
                         vizConfig:
@@ -420,7 +420,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 2.04806478e+08
                         links: []
                         title: Exporter queue utilisation
                         vizConfig:
@@ -492,7 +492,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.868853313e+09
                         links: []
                         title: Exporter sent rate by destination
                         vizConfig:
@@ -565,7 +565,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 2.6212593e+08
                         links: []
                         title: Receiver accepted rate
                         vizConfig:
@@ -680,7 +680,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 6.07966637e+08
                         links: []
                         title: Receiver refused / failed rate
                         vizConfig:
