@@ -24,6 +24,73 @@ spec:
             description: 'RED and resource view of the Go microservices from OpenTelemetry semantic-convention metrics: HTTP server (http_server_request_duration_seconds, request/response body size), gRPC client and server call duration, the OTel Go runtime (goroutines, memory, GC pacing) and the otelpgx DB client with its pgx pool. Ported from the helm-charts grafana-dashboards chart (dashboards/microservices/microservices-dashboard-otel.json).'
             editable: true
             elements:
+                otel-4xx-service:
+                    kind: Panel
+                    spec:
+                        data:
+                            kind: QueryGroup
+                            spec:
+                                queries:
+                                    - kind: PanelQuery
+                                      spec:
+                                        hidden: false
+                                        query:
+                                            datasource:
+                                                name: prometheus
+                                            group: prometheus
+                                            kind: DataQuery
+                                            spec:
+                                                expr: sum(rate(http_server_request_duration_seconds_count{service_name=~"$app", http_response_status_code=~"4.."}[$__rate_interval])) by (service_name)
+                                                legendFormat: '{{service_name}}'
+                                            version: v0
+                                        refId: A
+                                queryOptions: {}
+                                transformations: []
+                        description: 'Client-side errors (400-499) in req/sec by service. High 4xx rates indicate API misuse, invalid requests, authentication issues, or bad client behavior. Common codes: 400 (Bad Request), 401 (Unauthorized), 403 (Forbidden), 404 (Not Found), 429 (Rate Limited).'
+                        id: 1.819296328e+09
+                        links: []
+                        title: Client Errors (4xx)
+                        vizConfig:
+                            group: timeseries
+                            kind: VizConfig
+                            spec:
+                                fieldConfig:
+                                    defaults:
+                                        color:
+                                            mode: thresholds
+                                        custom:
+                                            fillOpacity: 10
+                                            lineWidth: 2
+                                            showPoints: never
+                                            spanNulls: false
+                                            thresholdsStyle:
+                                                mode: "off"
+                                        thresholds:
+                                            mode: absolute
+                                            steps:
+                                                - color: green
+                                                  value: null
+                                                - color: yellow
+                                                  value: 1
+                                                - color: orange
+                                                  value: 5
+                                        unit: reqps
+                                    overrides: []
+                                options:
+                                    legend:
+                                        calcs:
+                                            - mean
+                                            - last
+                                            - max
+                                        displayMode: table
+                                        placement: right
+                                        showLegend: true
+                                        sortBy: Max
+                                        sortDesc: true
+                                    tooltip:
+                                        mode: multi
+                                        sort: none
+                            version: ""
                 otel-5xx-ratio:
                     kind: Panel
                     spec:
@@ -46,17 +113,23 @@ spec:
                                         refId: A
                                 queryOptions: {}
                                 transformations: []
-                        description: ""
+                        description: 5xx ratio per method+route — continuous series (0 baseline) so legend means are honest. Client 4xx per endpoint live in the Client Errors (4xx) panel.
                         id: 8.47352343e+08
                         links: []
-                        title: 5xx ratio by method and endpoint
+                        title: Server Error Rate by Method and Endpoint (5xx)
                         vizConfig:
                             group: timeseries
                             kind: VizConfig
                             spec:
                                 fieldConfig:
                                     defaults:
+                                        color:
+                                            mode: palette-classic
                                         custom:
+                                            fillOpacity: 10
+                                            lineWidth: 2
+                                            showPoints: never
+                                            spanNulls: false
                                             thresholdsStyle:
                                                 mode: line
                                         thresholds:
@@ -64,19 +137,92 @@ spec:
                                             steps:
                                                 - color: green
                                                   value: null
+                                                - color: yellow
+                                                  value: 1
                                                 - color: red
                                                   value: 5
                                         unit: percent
                                     overrides: []
                                 options:
                                     legend:
-                                        calcs: []
-                                        displayMode: list
-                                        placement: bottom
-                                        showLegend: false
+                                        calcs:
+                                            - mean
+                                            - max
+                                        displayMode: table
+                                        placement: right
+                                        showLegend: true
+                                        sortBy: Max
+                                        sortDesc: true
                                     tooltip:
-                                        mode: ""
-                                        sort: ""
+                                        mode: multi
+                                        sort: none
+                            version: ""
+                otel-5xx-service:
+                    kind: Panel
+                    spec:
+                        data:
+                            kind: QueryGroup
+                            spec:
+                                queries:
+                                    - kind: PanelQuery
+                                      spec:
+                                        hidden: false
+                                        query:
+                                            datasource:
+                                                name: prometheus
+                                            group: prometheus
+                                            kind: DataQuery
+                                            spec:
+                                                expr: sum(rate(http_server_request_duration_seconds_count{service_name=~"$app", http_response_status_code=~"5.."}[$__rate_interval])) by (service_name)
+                                                legendFormat: '{{service_name}}'
+                                            version: v0
+                                        refId: A
+                                queryOptions: {}
+                                transformations: []
+                        description: 'Server-side errors (500-599) in req/sec by service. High 5xx rates indicate service degradation, bugs, infrastructure issues, or dependency failures. Common codes: 500 (Internal Server Error), 502 (Bad Gateway), 503 (Service Unavailable), 504 (Gateway Timeout). Requires immediate investigation.'
+                        id: 2.94609999e+08
+                        links: []
+                        title: Server Errors (5xx)
+                        vizConfig:
+                            group: timeseries
+                            kind: VizConfig
+                            spec:
+                                fieldConfig:
+                                    defaults:
+                                        color:
+                                            mode: thresholds
+                                        custom:
+                                            fillOpacity: 10
+                                            lineWidth: 2
+                                            showPoints: never
+                                            spanNulls: false
+                                            thresholdsStyle:
+                                                mode: "off"
+                                        thresholds:
+                                            mode: absolute
+                                            steps:
+                                                - color: green
+                                                  value: null
+                                                - color: orange
+                                                  value: 0.5
+                                                - color: red
+                                                  value: 2
+                                        unit: reqps
+                                    overrides: []
+                                options:
+                                    legend:
+                                        calcs:
+                                            - mean
+                                            - last
+                                            - max
+                                        displayMode: table
+                                        placement: right
+                                        showLegend: true
+                                        sortBy: Max
+                                        sortDesc: true
+                                    tooltip:
+                                        mode: multi
+                                        sort: none
                             version: ""
                 otel-apdex:
                     kind: Panel
@@ -99,16 +245,18 @@ spec:
                                         refId: A
                                 queryOptions: {}
                                 transformations: []
-                        description: ""
+                        description: 'User satisfaction score (0-1). Satisfying: <0.5s, Tolerating: 0.5-2s, Frustrated: >2s. Formula: (satisfying + 0.5 * tolerating) / total requests. Handles zero traffic gracefully.'
                         id: 7.05660148e+08
                         links: []
-                        title: Apdex score
+                        title: Apdex Score
                         vizConfig:
                             group: stat
                             kind: VizConfig
                             spec:
                                 fieldConfig:
                                     defaults:
+                                        color:
+                                            mode: thresholds
                                         thresholds:
                                             mode: absolute
                                             steps:
@@ -124,11 +272,13 @@ spec:
                                     colorMode: value
                                     graphMode: area
                                     justifyMode: auto
-                                    orientation: ""
+                                    orientation: auto
                                     percentChangeColorMode: standard
                                     reduceOptions:
                                         calcs:
                                             - lastNotNull
+                                        fields: ""
+                                        values: false
                                     showPercentChange: false
                                     textMode: auto
                                     wideLayout: true
@@ -155,7 +305,7 @@ spec:
                                         refId: A
                                 queryOptions: {}
                                 transformations: []
-                        description: ""
+                        description: otelpgx non-ErrNoRows operation errors. Healthy = no series/0.
                         id: 1.961012176e+09
                         links: []
                         title: DB operation errors
@@ -165,18 +315,23 @@ spec:
                             spec:
                                 fieldConfig:
                                     defaults:
-                                        custom: {}
+                                        custom:
+                                            fillOpacity: 12
+                                            lineWidth: 1
+                                            showPoints: never
                                         unit: ops
                                     overrides: []
                                 options:
                                     legend:
-                                        calcs: []
-                                        displayMode: list
+                                        calcs:
+                                            - lastNotNull
+                                            - max
+                                        displayMode: table
                                         placement: bottom
-                                        showLegend: false
+                                        showLegend: true
                                     tooltip:
-                                        mode: ""
-                                        sort: ""
+                                        mode: multi
+                                        sort: desc
                             version: ""
                 otel-db-p95-op:
                     kind: Panel
@@ -194,13 +349,13 @@ spec:
                                             group: prometheus
                                             kind: DataQuery
                                             spec:
-                                                expr: histogram_quantile(0.95, sum by (le, pgx_operation_type) (rate(db_client_operation_duration_seconds_bucket{service_name=~"$app"}[$__rate_interval])))
+                                                expr: histogram_quantile(0.95, sum by (le,pgx_operation_type) (rate(db_client_operation_duration_seconds_bucket{service_name=~"$app"}[$__rate_interval])))
                                                 legendFormat: '{{pgx_operation_type}}'
                                             version: v0
                                         refId: A
                                 queryOptions: {}
                                 transformations: []
-                        description: ""
+                        description: query / batch / prepare / connect / acquire — split by op.
                         id: 8.44548569e+08
                         links: []
                         title: DB p95 by operation type
@@ -210,18 +365,23 @@ spec:
                             spec:
                                 fieldConfig:
                                     defaults:
-                                        custom: {}
+                                        custom:
+                                            fillOpacity: 12
+                                            lineWidth: 1
+                                            showPoints: never
                                         unit: s
                                     overrides: []
                                 options:
                                     legend:
-                                        calcs: []
-                                        displayMode: list
+                                        calcs:
+                                            - lastNotNull
+                                            - max
+                                        displayMode: table
                                         placement: bottom
-                                        showLegend: false
+                                        showLegend: true
                                     tooltip:
-                                        mode: ""
-                                        sort: ""
+                                        mode: multi
+                                        sort: desc
                             version: ""
                 otel-db-p95-service:
                     kind: Panel
@@ -239,13 +399,13 @@ spec:
                                             group: prometheus
                                             kind: DataQuery
                                             spec:
-                                                expr: histogram_quantile(0.95, sum by (le, service_name) (rate(db_client_operation_duration_seconds_bucket{service_name=~"$app", pgx_operation_type="query"}[$__rate_interval])))
+                                                expr: histogram_quantile(0.95, sum by (le,service_name) (rate(db_client_operation_duration_seconds_bucket{service_name=~"$app", pgx_operation_type="query"}[$__rate_interval])))
                                                 legendFormat: '{{service_name}}'
                                             version: v0
                                         refId: A
                                 queryOptions: {}
                                 transformations: []
-                        description: ""
+                        description: otelpgx per-statement latency (DB-scale buckets, pkg v0.24.0). Query ops only.
                         id: 1.099104709e+09
                         links: []
                         title: DB query p95 by service
@@ -255,18 +415,23 @@ spec:
                             spec:
                                 fieldConfig:
                                     defaults:
-                                        custom: {}
+                                        custom:
+                                            fillOpacity: 12
+                                            lineWidth: 1
+                                            showPoints: never
                                         unit: s
                                     overrides: []
                                 options:
                                     legend:
-                                        calcs: []
-                                        displayMode: list
+                                        calcs:
+                                            - lastNotNull
+                                            - max
+                                        displayMode: table
                                         placement: bottom
-                                        showLegend: false
+                                        showLegend: true
                                     tooltip:
-                                        mode: ""
-                                        sort: ""
+                                        mode: multi
+                                        sort: desc
                             version: ""
                 otel-error-rate:
                     kind: Panel
@@ -294,21 +459,23 @@ spec:
                                         refId: A
                                 queryOptions: {}
                                 transformations: []
-                        description: ""
+                        description: Server-fault error ratio — matches the MicroserviceHighErrorRate alert and the availability SLO (both 5xx-only). Client 4xx are the service answering correctly; they stay visible in Error RPS (4xx/5xx), the status pie, and Client Errors (4xx).
                         id: 1.558175093e+09
                         links: []
-                        title: Error rate % (5xx)
+                        title: Error Rate % (5xx)
                         vizConfig:
                             group: stat
                             kind: VizConfig
                             spec:
                                 fieldConfig:
                                     defaults:
+                                        color:
+                                            mode: thresholds
                                         thresholds:
                                             mode: absolute
                                             steps:
                                                 - color: green
-                                                  value: null
+                                                  value: 0
                                                 - color: yellow
                                                   value: 1
                                                 - color: red
@@ -319,11 +486,13 @@ spec:
                                     colorMode: value
                                     graphMode: area
                                     justifyMode: auto
-                                    orientation: ""
+                                    orientation: auto
                                     percentChangeColorMode: standard
                                     reduceOptions:
                                         calcs:
                                             - lastNotNull
+                                        fields: ""
+                                        values: false
                                     showPercentChange: false
                                     textMode: auto
                                     wideLayout: true
@@ -349,7 +518,7 @@ spec:
                                         refId: A
                                 queryOptions: {}
                                 transformations: []
-                        description: ""
+                        description: Failed requests per second (HTTP 4xx/5xx responses). Monitor this to detect issues quickly.
                         id: 1.641249906e+09
                         links: []
                         title: Error RPS (4xx/5xx)
@@ -359,6 +528,8 @@ spec:
                             spec:
                                 fieldConfig:
                                     defaults:
+                                        color:
+                                            mode: thresholds
                                         thresholds:
                                             mode: absolute
                                             steps:
@@ -370,73 +541,16 @@ spec:
                                     colorMode: value
                                     graphMode: area
                                     justifyMode: auto
-                                    orientation: ""
+                                    orientation: auto
                                     percentChangeColorMode: standard
                                     reduceOptions:
                                         calcs:
                                             - lastNotNull
+                                        fields: ""
+                                        values: false
                                     showPercentChange: false
                                     textMode: auto
                                     wideLayout: true
-                            version: ""
-                otel-errors-by-service:
-                    kind: Panel
-                    spec:
-                        data:
-                            kind: QueryGroup
-                            spec:
-                                queries:
-                                    - kind: PanelQuery
-                                      spec:
-                                        hidden: false
-                                        query:
-                                            datasource:
-                                                name: prometheus
-                                            group: prometheus
-                                            kind: DataQuery
-                                            spec:
-                                                expr: sum(rate(http_server_request_duration_seconds_count{service_name=~"$app", http_response_status_code=~"4.."}[$__rate_interval])) by (service_name)
-                                                legendFormat: 4xx {{service_name}}
-                                            version: v0
-                                        refId: A
-                                    - kind: PanelQuery
-                                      spec:
-                                        hidden: false
-                                        query:
-                                            datasource:
-                                                name: prometheus
-                                            group: prometheus
-                                            kind: DataQuery
-                                            spec:
-                                                expr: sum(rate(http_server_request_duration_seconds_count{service_name=~"$app", http_response_status_code=~"5.."}[$__rate_interval])) by (service_name)
-                                                legendFormat: 5xx {{service_name}}
-                                                range: true
-                                            version: v0
-                                        refId: B
-                                queryOptions: {}
-                                transformations: []
-                        description: ""
-                        id: 8.4597687e+07
-                        links: []
-                        title: Client and server errors by service
-                        vizConfig:
-                            group: timeseries
-                            kind: VizConfig
-                            spec:
-                                fieldConfig:
-                                    defaults:
-                                        custom: {}
-                                        unit: reqps
-                                    overrides: []
-                                options:
-                                    legend:
-                                        calcs: []
-                                        displayMode: list
-                                        placement: bottom
-                                        showLegend: false
-                                    tooltip:
-                                        mode: ""
-                                        sort: ""
                             version: ""
                 otel-go-alloc:
                     kind: Panel
@@ -460,28 +574,45 @@ spec:
                                         refId: A
                                 queryOptions: {}
                                 transformations: []
-                        description: ""
+                        description: Heap allocation rate (objects/s) from the OTel Go runtime. The OTel runtime emits no GC-pause metric; rising allocation rate is the leading indicator of GC pressure.
                         id: 2.10405176e+08
                         links: []
-                        title: Allocation rate
+                        title: Memory Allocation Rate
                         vizConfig:
                             group: timeseries
                             kind: VizConfig
                             spec:
                                 fieldConfig:
                                     defaults:
-                                        custom: {}
+                                        color:
+                                            mode: palette-classic
+                                        custom:
+                                            fillOpacity: 10
+                                            lineWidth: 1
+                                            showPoints: never
+                                            spanNulls: false
+                                            thresholdsStyle:
+                                                mode: "off"
+                                        thresholds:
+                                            mode: absolute
+                                            steps:
+                                                - color: green
+                                                  value: null
                                         unit: short
                                     overrides: []
                                 options:
                                     legend:
-                                        calcs: []
-                                        displayMode: list
-                                        placement: bottom
-                                        showLegend: false
+                                        calcs:
+                                            - mean
+                                            - max
+                                        displayMode: table
+                                        placement: right
+                                        showLegend: true
+                                        sortBy: Max
+                                        sortDesc: true
                                     tooltip:
-                                        mode: ""
-                                        sort: ""
+                                        mode: multi
+                                        sort: none
                             version: ""
                 otel-go-gc:
                     kind: Panel
@@ -505,17 +636,23 @@ spec:
                                         refId: A
                                 queryOptions: {}
                                 transformations: []
-                        description: ""
+                        description: Heap used vs the GC pacer goal from the OTel Go runtime. Sustained values near 1.0 mean the heap keeps hitting the GC goal — memory pressure / frequent GC cycles.
                         id: 6.97966221e+08
                         links: []
-                        title: GC pacing pressure (used / goal)
+                        title: GC Pacing Pressure (used / goal)
                         vizConfig:
                             group: timeseries
                             kind: VizConfig
                             spec:
                                 fieldConfig:
                                     defaults:
+                                        color:
+                                            mode: palette-classic
                                         custom:
+                                            fillOpacity: 10
+                                            lineWidth: 1
+                                            showPoints: never
+                                            spanNulls: false
                                             thresholdsStyle:
                                                 mode: line
                                         thresholds:
@@ -529,13 +666,17 @@ spec:
                                     overrides: []
                                 options:
                                     legend:
-                                        calcs: []
-                                        displayMode: list
-                                        placement: bottom
-                                        showLegend: false
+                                        calcs:
+                                            - mean
+                                            - max
+                                        displayMode: table
+                                        placement: right
+                                        showLegend: true
+                                        sortBy: Max
+                                        sortDesc: true
                                     tooltip:
-                                        mode: ""
-                                        sort: ""
+                                        mode: multi
+                                        sort: none
                             version: ""
                 otel-go-goroutines:
                     kind: Panel
@@ -559,7 +700,7 @@ spec:
                                         refId: A
                                 queryOptions: {}
                                 transformations: []
-                        description: ""
+                        description: Goroutine and OS thread count. Steadily increasing goroutines indicates goroutine leak (forgotten defer, unclosed channels). Stable count is normal.
                         id: 1.015627e+08
                         links: []
                         title: Goroutines
@@ -569,18 +710,35 @@ spec:
                             spec:
                                 fieldConfig:
                                     defaults:
-                                        custom: {}
+                                        color:
+                                            mode: palette-classic
+                                        custom:
+                                            fillOpacity: 10
+                                            lineWidth: 1
+                                            showPoints: never
+                                            spanNulls: false
+                                            thresholdsStyle:
+                                                mode: "off"
+                                        thresholds:
+                                            mode: absolute
+                                            steps:
+                                                - color: green
+                                                  value: null
                                         unit: short
                                     overrides: []
                                 options:
                                     legend:
-                                        calcs: []
-                                        displayMode: list
-                                        placement: bottom
-                                        showLegend: false
+                                        calcs:
+                                            - mean
+                                            - max
+                                        displayMode: table
+                                        placement: right
+                                        showLegend: true
+                                        sortBy: Max
+                                        sortDesc: true
                                     tooltip:
-                                        mode: ""
-                                        sort: ""
+                                        mode: multi
+                                        sort: none
                             version: ""
                 otel-go-memory:
                     kind: Panel
@@ -604,30 +762,419 @@ spec:
                                         refId: A
                                 queryOptions: {}
                                 transformations: []
-                        description: ""
+                        description: 'OTel Go runtime: bytes currently in use (go.memory.used).'
                         id: 1.258850316e+09
                         links: []
-                        title: Memory in use
+                        title: Memory In-Use
                         vizConfig:
                             group: timeseries
                             kind: VizConfig
                             spec:
                                 fieldConfig:
                                     defaults:
-                                        custom: {}
+                                        color:
+                                            mode: palette-classic
+                                        custom:
+                                            fillOpacity: 10
+                                            lineWidth: 1
+                                            showPoints: never
+                                            spanNulls: false
+                                            thresholdsStyle:
+                                                mode: "off"
+                                        thresholds:
+                                            mode: absolute
+                                            steps:
+                                                - color: green
+                                                  value: null
                                         unit: bytes
                                     overrides: []
                                 options:
                                     legend:
-                                        calcs: []
-                                        displayMode: list
-                                        placement: bottom
-                                        showLegend: false
+                                        calcs:
+                                            - mean
+                                            - max
+                                        displayMode: table
+                                        placement: right
+                                        showLegend: true
+                                        sortBy: Max
+                                        sortDesc: true
                                     tooltip:
-                                        mode: ""
-                                        sort: ""
+                                        mode: multi
+                                        sort: none
                             version: ""
-                otel-grpc-errors:
+                otel-grpc-callee-error-ratio:
+                    kind: Panel
+                    spec:
+                        data:
+                            kind: QueryGroup
+                            spec:
+                                queries:
+                                    - kind: PanelQuery
+                                      spec:
+                                        hidden: false
+                                        query:
+                                            datasource:
+                                                name: prometheus
+                                            group: prometheus
+                                            kind: DataQuery
+                                            spec:
+                                                expr: sum by (service_name) (rate(rpc_server_call_duration_seconds_count{service_name=~"$app", rpc_response_status_code!="OK"}[$__rate_interval])) / sum by (service_name) (rate(rpc_server_call_duration_seconds_count{service_name=~"$app"}[$__rate_interval]))
+                                                legendFormat: '{{service_name}}'
+                                            version: v0
+                                        refId: A
+                                queryOptions: {}
+                                transformations: []
+                        description: 'Share of server-side gRPC calls with rpc_response_status_code != OK, per callee service (app). Source: rpc_server_call_duration_seconds_count.'
+                        id: 9.476482e+06
+                        links: []
+                        title: gRPC Server Error Ratio per Callee
+                        vizConfig:
+                            group: timeseries
+                            kind: VizConfig
+                            spec:
+                                fieldConfig:
+                                    defaults:
+                                        color:
+                                            mode: palette-classic
+                                        custom:
+                                            fillOpacity: 10
+                                            lineWidth: 1
+                                            showPoints: never
+                                            spanNulls: false
+                                            thresholdsStyle:
+                                                mode: "off"
+                                        thresholds:
+                                            mode: absolute
+                                            steps:
+                                                - color: green
+                                                  value: null
+                                        unit: percentunit
+                                    overrides: []
+                                options:
+                                    legend:
+                                        calcs:
+                                            - mean
+                                            - max
+                                        displayMode: table
+                                        placement: right
+                                        showLegend: true
+                                        sortBy: Max
+                                        sortDesc: true
+                                    tooltip:
+                                        mode: multi
+                                        sort: none
+                            version: ""
+                otel-grpc-callee-p95:
+                    kind: Panel
+                    spec:
+                        data:
+                            kind: QueryGroup
+                            spec:
+                                queries:
+                                    - kind: PanelQuery
+                                      spec:
+                                        hidden: false
+                                        query:
+                                            datasource:
+                                                name: prometheus
+                                            group: prometheus
+                                            kind: DataQuery
+                                            spec:
+                                                expr: histogram_quantile(0.95, sum by (service_name, le) (rate(rpc_server_call_duration_seconds_bucket{service_name=~"$app"}[$__rate_interval])))
+                                                legendFormat: '{{service_name}}'
+                                            version: v0
+                                        refId: A
+                                queryOptions: {}
+                                transformations: []
+                        description: 'Server-side gRPC 95th percentile call duration per callee service (app). Source: rpc_server_call_duration_seconds_bucket.'
+                        id: 1.215691916e+09
+                        links: []
+                        title: gRPC Server P95 Latency per Callee
+                        vizConfig:
+                            group: timeseries
+                            kind: VizConfig
+                            spec:
+                                fieldConfig:
+                                    defaults:
+                                        color:
+                                            mode: palette-classic
+                                        custom:
+                                            fillOpacity: 10
+                                            lineWidth: 1
+                                            showPoints: never
+                                            spanNulls: false
+                                            thresholdsStyle:
+                                                mode: "off"
+                                        thresholds:
+                                            mode: absolute
+                                            steps:
+                                                - color: green
+                                                  value: null
+                                        unit: s
+                                    overrides: []
+                                options:
+                                    legend:
+                                        calcs:
+                                            - mean
+                                            - max
+                                        displayMode: table
+                                        placement: right
+                                        showLegend: true
+                                        sortBy: Max
+                                        sortDesc: true
+                                    tooltip:
+                                        mode: multi
+                                        sort: none
+                            version: ""
+                otel-grpc-callee-rps:
+                    kind: Panel
+                    spec:
+                        data:
+                            kind: QueryGroup
+                            spec:
+                                queries:
+                                    - kind: PanelQuery
+                                      spec:
+                                        hidden: false
+                                        query:
+                                            datasource:
+                                                name: prometheus
+                                            group: prometheus
+                                            kind: DataQuery
+                                            spec:
+                                                expr: sum by (service_name) (rate(rpc_server_call_duration_seconds_count{service_name=~"$app"}[$__rate_interval]))
+                                                legendFormat: '{{service_name}}'
+                                            version: v0
+                                        refId: A
+                                queryOptions: {}
+                                transformations: []
+                        description: 'Server-side gRPC request rate aggregated per callee service (app). Source: rpc_server_call_duration_seconds_count.'
+                        id: 8.87199077e+08
+                        links: []
+                        title: gRPC Server RPS per Callee
+                        vizConfig:
+                            group: timeseries
+                            kind: VizConfig
+                            spec:
+                                fieldConfig:
+                                    defaults:
+                                        color:
+                                            mode: palette-classic
+                                        custom:
+                                            fillOpacity: 10
+                                            lineWidth: 1
+                                            showPoints: never
+                                            spanNulls: false
+                                            thresholdsStyle:
+                                                mode: "off"
+                                        thresholds:
+                                            mode: absolute
+                                            steps:
+                                                - color: green
+                                                  value: null
+                                        unit: reqps
+                                    overrides: []
+                                options:
+                                    legend:
+                                        calcs:
+                                            - mean
+                                            - max
+                                        displayMode: table
+                                        placement: right
+                                        showLegend: true
+                                        sortBy: Max
+                                        sortDesc: true
+                                    tooltip:
+                                        mode: multi
+                                        sort: none
+                            version: ""
+                otel-grpc-client-errors:
+                    kind: Panel
+                    spec:
+                        data:
+                            kind: QueryGroup
+                            spec:
+                                queries:
+                                    - kind: PanelQuery
+                                      spec:
+                                        hidden: false
+                                        query:
+                                            datasource:
+                                                name: prometheus
+                                            group: prometheus
+                                            kind: DataQuery
+                                            spec:
+                                                expr: sum by (rpc_method, server_address) (rate(rpc_client_call_duration_seconds_count{service_name=~"$app", rpc_response_status_code!="OK"}[$__rate_interval]))
+                                                legendFormat: '{{rpc_method}} → {{server_address}}'
+                                            version: v0
+                                        refId: A
+                                queryOptions: {}
+                                transformations: []
+                        description: 'Client-side gRPC error rate per method and upstream, counting calls where rpc_response_status_code != OK. Source: rpc_client_call_duration_seconds_count.'
+                        id: 1.286897254e+09
+                        links: []
+                        title: gRPC Client Error Rate (non-OK)
+                        vizConfig:
+                            group: timeseries
+                            kind: VizConfig
+                            spec:
+                                fieldConfig:
+                                    defaults:
+                                        color:
+                                            mode: palette-classic
+                                        custom:
+                                            fillOpacity: 10
+                                            lineWidth: 1
+                                            showPoints: never
+                                            spanNulls: false
+                                            thresholdsStyle:
+                                                mode: "off"
+                                        thresholds:
+                                            mode: absolute
+                                            steps:
+                                                - color: green
+                                                  value: null
+                                        unit: reqps
+                                    overrides: []
+                                options:
+                                    legend:
+                                        calcs:
+                                            - mean
+                                            - max
+                                        displayMode: table
+                                        placement: right
+                                        showLegend: true
+                                        sortBy: Max
+                                        sortDesc: true
+                                    tooltip:
+                                        mode: multi
+                                        sort: none
+                            version: ""
+                otel-grpc-client-p95:
+                    kind: Panel
+                    spec:
+                        data:
+                            kind: QueryGroup
+                            spec:
+                                queries:
+                                    - kind: PanelQuery
+                                      spec:
+                                        hidden: false
+                                        query:
+                                            datasource:
+                                                name: prometheus
+                                            group: prometheus
+                                            kind: DataQuery
+                                            spec:
+                                                expr: histogram_quantile(0.95, sum by (le, rpc_method, server_address) (rate(rpc_client_call_duration_seconds_bucket{service_name=~"$app"}[$__rate_interval])))
+                                                legendFormat: '{{rpc_method}} → {{server_address}}'
+                                            version: v0
+                                        refId: A
+                                queryOptions: {}
+                                transformations: []
+                        description: 'Client-side gRPC 95th percentile call duration per method and upstream. Source: rpc_client_call_duration_seconds_bucket.'
+                        id: 1.219043285e+09
+                        links: []
+                        title: gRPC Client P95 Latency
+                        vizConfig:
+                            group: timeseries
+                            kind: VizConfig
+                            spec:
+                                fieldConfig:
+                                    defaults:
+                                        color:
+                                            mode: palette-classic
+                                        custom:
+                                            fillOpacity: 10
+                                            lineWidth: 1
+                                            showPoints: never
+                                            spanNulls: false
+                                            thresholdsStyle:
+                                                mode: "off"
+                                        thresholds:
+                                            mode: absolute
+                                            steps:
+                                                - color: green
+                                                  value: null
+                                        unit: s
+                                    overrides: []
+                                options:
+                                    legend:
+                                        calcs:
+                                            - mean
+                                            - max
+                                        displayMode: table
+                                        placement: right
+                                        showLegend: true
+                                        sortBy: Max
+                                        sortDesc: true
+                                    tooltip:
+                                        mode: multi
+                                        sort: none
+                            version: ""
+                otel-grpc-client-rps:
+                    kind: Panel
+                    spec:
+                        data:
+                            kind: QueryGroup
+                            spec:
+                                queries:
+                                    - kind: PanelQuery
+                                      spec:
+                                        hidden: false
+                                        query:
+                                            datasource:
+                                                name: prometheus
+                                            group: prometheus
+                                            kind: DataQuery
+                                            spec:
+                                                expr: sum by (rpc_method, server_address) (rate(rpc_client_call_duration_seconds_count{service_name=~"$app"}[$__rate_interval]))
+                                                legendFormat: '{{rpc_method}} → {{server_address}}'
+                                            version: v0
+                                        refId: A
+                                queryOptions: {}
+                                transformations: []
+                        description: 'Client-side gRPC request rate per method and upstream (server_address). Source: rpc_client_call_duration_seconds_count.'
+                        id: 1.929359044e+09
+                        links: []
+                        title: gRPC Client RPS by Method
+                        vizConfig:
+                            group: timeseries
+                            kind: VizConfig
+                            spec:
+                                fieldConfig:
+                                    defaults:
+                                        color:
+                                            mode: palette-classic
+                                        custom:
+                                            fillOpacity: 10
+                                            lineWidth: 1
+                                            showPoints: never
+                                            spanNulls: false
+                                            thresholdsStyle:
+                                                mode: "off"
+                                        thresholds:
+                                            mode: absolute
+                                            steps:
+                                                - color: green
+                                                  value: null
+                                        unit: reqps
+                                    overrides: []
+                                options:
+                                    legend:
+                                        calcs:
+                                            - mean
+                                            - max
+                                        displayMode: table
+                                        placement: right
+                                        showLegend: true
+                                        sortBy: Max
+                                        sortDesc: true
+                                    tooltip:
+                                        mode: multi
+                                        sort: none
+                            version: ""
+                otel-grpc-server-errors:
                     kind: Panel
                     spec:
                         data:
@@ -644,49 +1191,52 @@ spec:
                                             kind: DataQuery
                                             spec:
                                                 expr: sum by (rpc_method) (rate(rpc_server_call_duration_seconds_count{service_name=~"$app", rpc_response_status_code!="OK"}[$__rate_interval]))
-                                                legendFormat: server {{rpc_method}}
+                                                legendFormat: '{{rpc_method}}'
                                             version: v0
                                         refId: A
-                                    - kind: PanelQuery
-                                      spec:
-                                        hidden: false
-                                        query:
-                                            datasource:
-                                                name: prometheus
-                                            group: prometheus
-                                            kind: DataQuery
-                                            spec:
-                                                expr: sum by (rpc_method, server_address) (rate(rpc_client_call_duration_seconds_count{service_name=~"$app", rpc_response_status_code!="OK"}[$__rate_interval]))
-                                                legendFormat: client {{rpc_method}} → {{server_address}}
-                                                range: true
-                                            version: v0
-                                        refId: B
                                 queryOptions: {}
                                 transformations: []
-                        description: ""
-                        id: 1.834885058e+09
+                        description: 'Server-side gRPC error rate per method, counting calls where rpc_response_status_code != OK. Source: rpc_server_call_duration_seconds_count.'
+                        id: 1.360680882e+09
                         links: []
-                        title: gRPC non-OK error rate
+                        title: gRPC Server Error Rate (non-OK)
                         vizConfig:
                             group: timeseries
                             kind: VizConfig
                             spec:
                                 fieldConfig:
                                     defaults:
-                                        custom: {}
+                                        color:
+                                            mode: palette-classic
+                                        custom:
+                                            fillOpacity: 10
+                                            lineWidth: 1
+                                            showPoints: never
+                                            spanNulls: false
+                                            thresholdsStyle:
+                                                mode: "off"
+                                        thresholds:
+                                            mode: absolute
+                                            steps:
+                                                - color: green
+                                                  value: null
                                         unit: reqps
                                     overrides: []
                                 options:
                                     legend:
-                                        calcs: []
-                                        displayMode: list
-                                        placement: bottom
-                                        showLegend: false
+                                        calcs:
+                                            - mean
+                                            - max
+                                        displayMode: table
+                                        placement: right
+                                        showLegend: true
+                                        sortBy: Max
+                                        sortDesc: true
                                     tooltip:
-                                        mode: ""
-                                        sort: ""
+                                        mode: multi
+                                        sort: none
                             version: ""
-                otel-grpc-p95:
+                otel-grpc-server-p95:
                     kind: Panel
                     spec:
                         data:
@@ -703,49 +1253,52 @@ spec:
                                             kind: DataQuery
                                             spec:
                                                 expr: histogram_quantile(0.95, sum by (le, rpc_method) (rate(rpc_server_call_duration_seconds_bucket{service_name=~"$app"}[$__rate_interval])))
-                                                legendFormat: server {{rpc_method}}
+                                                legendFormat: '{{rpc_method}}'
                                             version: v0
                                         refId: A
-                                    - kind: PanelQuery
-                                      spec:
-                                        hidden: false
-                                        query:
-                                            datasource:
-                                                name: prometheus
-                                            group: prometheus
-                                            kind: DataQuery
-                                            spec:
-                                                expr: histogram_quantile(0.95, sum by (le, rpc_method, server_address) (rate(rpc_client_call_duration_seconds_bucket{service_name=~"$app"}[$__rate_interval])))
-                                                legendFormat: client {{rpc_method}} → {{server_address}}
-                                                range: true
-                                            version: v0
-                                        refId: B
                                 queryOptions: {}
                                 transformations: []
-                        description: ""
-                        id: 6.00792801e+08
+                        description: 'Server-side gRPC 95th percentile call duration per method. Source: rpc_server_call_duration_seconds_bucket.'
+                        id: 2.32005649e+08
                         links: []
-                        title: gRPC p95 latency
+                        title: gRPC Server P95 Latency
                         vizConfig:
                             group: timeseries
                             kind: VizConfig
                             spec:
                                 fieldConfig:
                                     defaults:
-                                        custom: {}
+                                        color:
+                                            mode: palette-classic
+                                        custom:
+                                            fillOpacity: 10
+                                            lineWidth: 1
+                                            showPoints: never
+                                            spanNulls: false
+                                            thresholdsStyle:
+                                                mode: "off"
+                                        thresholds:
+                                            mode: absolute
+                                            steps:
+                                                - color: green
+                                                  value: null
                                         unit: s
                                     overrides: []
                                 options:
                                     legend:
-                                        calcs: []
-                                        displayMode: list
-                                        placement: bottom
-                                        showLegend: false
+                                        calcs:
+                                            - mean
+                                            - max
+                                        displayMode: table
+                                        placement: right
+                                        showLegend: true
+                                        sortBy: Max
+                                        sortDesc: true
                                     tooltip:
-                                        mode: ""
-                                        sort: ""
+                                        mode: multi
+                                        sort: none
                             version: ""
-                otel-grpc-rps:
+                otel-grpc-server-rps:
                     kind: Panel
                     spec:
                         data:
@@ -762,47 +1315,50 @@ spec:
                                             kind: DataQuery
                                             spec:
                                                 expr: sum by (rpc_method) (rate(rpc_server_call_duration_seconds_count{service_name=~"$app"}[$__rate_interval]))
-                                                legendFormat: server {{rpc_method}}
+                                                legendFormat: '{{rpc_method}}'
                                             version: v0
                                         refId: A
-                                    - kind: PanelQuery
-                                      spec:
-                                        hidden: false
-                                        query:
-                                            datasource:
-                                                name: prometheus
-                                            group: prometheus
-                                            kind: DataQuery
-                                            spec:
-                                                expr: sum by (rpc_method, server_address) (rate(rpc_client_call_duration_seconds_count{service_name=~"$app"}[$__rate_interval]))
-                                                legendFormat: client {{rpc_method}} → {{server_address}}
-                                                range: true
-                                            version: v0
-                                        refId: B
                                 queryOptions: {}
                                 transformations: []
-                        description: ""
-                        id: 9.11057144e+08
+                        description: 'Server-side gRPC request rate per method (rpc_method, e.g. auth.v1.AuthService/GetMe). Source: rpc_server_call_duration_seconds_count.'
+                        id: 5.8389828e+08
                         links: []
-                        title: gRPC RPS
+                        title: gRPC Server RPS by Method
                         vizConfig:
                             group: timeseries
                             kind: VizConfig
                             spec:
                                 fieldConfig:
                                     defaults:
-                                        custom: {}
+                                        color:
+                                            mode: palette-classic
+                                        custom:
+                                            fillOpacity: 10
+                                            lineWidth: 1
+                                            showPoints: never
+                                            spanNulls: false
+                                            thresholdsStyle:
+                                                mode: "off"
+                                        thresholds:
+                                            mode: absolute
+                                            steps:
+                                                - color: green
+                                                  value: null
                                         unit: reqps
                                     overrides: []
                                 options:
                                     legend:
-                                        calcs: []
-                                        displayMode: list
-                                        placement: bottom
-                                        showLegend: false
+                                        calcs:
+                                            - mean
+                                            - max
+                                        displayMode: table
+                                        placement: right
+                                        showLegend: true
+                                        sortBy: Max
+                                        sortDesc: true
                                     tooltip:
-                                        mode: ""
-                                        sort: ""
+                                        mode: multi
+                                        sort: none
                             version: ""
                 otel-http-bytes:
                     kind: Panel
@@ -840,28 +1396,44 @@ spec:
                                         refId: B
                                 queryOptions: {}
                                 transformations: []
-                        description: ""
+                        description: 'Total HTTP traffic (TX/RX) by ALL pods in the service. Use for bandwidth planning and cost estimation. Note: Only HTTP body size, not TCP/IP overhead.'
                         id: 1.691329096e+09
                         links: []
-                        title: HTTP body throughput per service
+                        title: Total Network Traffic per Service
                         vizConfig:
                             group: timeseries
                             kind: VizConfig
                             spec:
                                 fieldConfig:
                                     defaults:
-                                        custom: {}
+                                        color:
+                                            mode: palette-classic
+                                        custom:
+                                            fillOpacity: 10
+                                            lineWidth: 1
+                                            showPoints: never
+                                            spanNulls: false
+                                            thresholdsStyle:
+                                                mode: "off"
+                                        thresholds:
+                                            mode: absolute
+                                            steps:
+                                                - color: green
+                                                  value: null
                                         unit: Bps
                                     overrides: []
                                 options:
                                     legend:
-                                        calcs: []
-                                        displayMode: list
-                                        placement: bottom
-                                        showLegend: false
+                                        calcs:
+                                            - mean
+                                        displayMode: table
+                                        placement: right
+                                        showLegend: true
+                                        sortBy: Mean
+                                        sortDesc: true
                                     tooltip:
-                                        mode: ""
-                                        sort: ""
+                                        mode: multi
+                                        sort: none
                             version: ""
                 otel-p50:
                     kind: Panel
@@ -884,16 +1456,18 @@ spec:
                                         refId: A
                                 queryOptions: {}
                                 transformations: []
-                        description: ""
+                        description: Median response time. Represents typical user experience.
                         id: 1.9108631e+07
                         links: []
-                        title: p50 latency (2xx)
+                        title: 50th Percentile Response Success
                         vizConfig:
                             group: stat
                             kind: VizConfig
                             spec:
                                 fieldConfig:
                                     defaults:
+                                        color:
+                                            mode: thresholds
                                         thresholds:
                                             mode: absolute
                                             steps:
@@ -909,11 +1483,13 @@ spec:
                                     colorMode: value
                                     graphMode: area
                                     justifyMode: auto
-                                    orientation: ""
+                                    orientation: auto
                                     percentChangeColorMode: standard
                                     reduceOptions:
                                         calcs:
                                             - lastNotNull
+                                        fields: ""
+                                        values: false
                                     showPercentChange: false
                                     textMode: auto
                                     wideLayout: true
@@ -939,16 +1515,18 @@ spec:
                                         refId: A
                                 queryOptions: {}
                                 transformations: []
-                        description: ""
+                        description: 95% of requests complete faster than this. Key metric for user experience.
                         id: 2.080732708e+09
                         links: []
-                        title: p95 latency (2xx)
+                        title: 95th Percentile Response Success
                         vizConfig:
                             group: stat
                             kind: VizConfig
                             spec:
                                 fieldConfig:
                                     defaults:
+                                        color:
+                                            mode: thresholds
                                         thresholds:
                                             mode: absolute
                                             steps:
@@ -964,11 +1542,13 @@ spec:
                                     colorMode: value
                                     graphMode: area
                                     justifyMode: auto
-                                    orientation: ""
+                                    orientation: auto
                                     percentChangeColorMode: standard
                                     reduceOptions:
                                         calcs:
                                             - lastNotNull
+                                        fields: ""
+                                        values: false
                                     showPercentChange: false
                                     textMode: auto
                                     wideLayout: true
@@ -994,16 +1574,18 @@ spec:
                                         refId: A
                                 queryOptions: {}
                                 transformations: []
-                        description: ""
+                        description: 99% of requests complete faster than this. Detects worst-case latency and outliers.
                         id: 1.87940128e+09
                         links: []
-                        title: p99 latency (2xx)
+                        title: 99th Percentile Response Success
                         vizConfig:
                             group: stat
                             kind: VizConfig
                             spec:
                                 fieldConfig:
                                     defaults:
+                                        color:
+                                            mode: thresholds
                                         thresholds:
                                             mode: absolute
                                             steps:
@@ -1019,11 +1601,13 @@ spec:
                                     colorMode: value
                                     graphMode: area
                                     justifyMode: auto
-                                    orientation: ""
+                                    orientation: auto
                                     percentChangeColorMode: standard
                                     reduceOptions:
                                         calcs:
                                             - lastNotNull
+                                        fields: ""
+                                        values: false
                                     showPercentChange: false
                                     textMode: auto
                                     wideLayout: true
@@ -1064,7 +1648,7 @@ spec:
                                         refId: B
                                 queryOptions: {}
                                 transformations: []
-                        description: ""
+                        description: Acquires that had to wait for a free conn — earliest saturation signal.
                         id: 8.94404378e+08
                         links: []
                         title: Pool contention (waiting acquires)
@@ -1074,18 +1658,31 @@ spec:
                             spec:
                                 fieldConfig:
                                     defaults:
-                                        custom: {}
+                                        custom:
+                                            fillOpacity: 12
+                                            lineWidth: 1
+                                            showPoints: never
                                         unit: short
-                                    overrides: []
+                                    overrides:
+                                        - matcher:
+                                            id: byFrameRefID
+                                            options: B
+                                          properties:
+                                            - id: custom.axisPlacement
+                                              value: right
+                                            - id: custom.axisLabel
+                                              value: wait-time s/s
                                 options:
                                     legend:
-                                        calcs: []
-                                        displayMode: list
+                                        calcs:
+                                            - lastNotNull
+                                            - max
+                                        displayMode: table
                                         placement: bottom
-                                        showLegend: false
+                                        showLegend: true
                                     tooltip:
-                                        mode: ""
-                                        sort: ""
+                                        mode: multi
+                                        sort: desc
                             version: ""
                 otel-pool-inflight:
                     kind: Panel
@@ -1109,7 +1706,7 @@ spec:
                                         refId: A
                                 queryOptions: {}
                                 transformations: []
-                        description: ""
+                        description: Connections currently checked out ≈ concurrent DB work in flight.
                         id: 5.32859454e+08
                         links: []
                         title: Pool in-flight (acquired conns)
@@ -1119,18 +1716,23 @@ spec:
                             spec:
                                 fieldConfig:
                                     defaults:
-                                        custom: {}
+                                        custom:
+                                            fillOpacity: 12
+                                            lineWidth: 1
+                                            showPoints: never
                                         unit: short
                                     overrides: []
                                 options:
                                     legend:
-                                        calcs: []
-                                        displayMode: list
+                                        calcs:
+                                            - lastNotNull
+                                            - max
+                                        displayMode: table
                                         placement: bottom
-                                        showLegend: false
+                                        showLegend: true
                                     tooltip:
-                                        mode: ""
-                                        sort: ""
+                                        mode: multi
+                                        sort: desc
                             version: ""
                 otel-pool-saturation:
                     kind: Panel
@@ -1154,7 +1756,7 @@ spec:
                                         refId: A
                                 queryOptions: {}
                                 transformations: []
-                        description: ""
+                        description: Sustained ≥80% = acquires start queueing (PgxPoolNearExhaustion).
                         id: 5.86645087e+08
                         links: []
                         title: Pool saturation (acquired / max)
@@ -1164,20 +1766,27 @@ spec:
                             spec:
                                 fieldConfig:
                                     defaults:
-                                        custom: {}
+                                        custom:
+                                            fillOpacity: 12
+                                            lineWidth: 1
+                                            showPoints: never
+                                        max: 1
+                                        min: 0
                                         unit: percentunit
                                     overrides: []
                                 options:
                                     legend:
-                                        calcs: []
-                                        displayMode: list
+                                        calcs:
+                                            - lastNotNull
+                                            - max
+                                        displayMode: table
                                         placement: bottom
-                                        showLegend: false
+                                        showLegend: true
                                     tooltip:
-                                        mode: ""
-                                        sort: ""
+                                        mode: multi
+                                        sort: desc
                             version: ""
-                otel-route-latency:
+                otel-route-p50:
                     kind: Panel
                     spec:
                         data:
@@ -1193,59 +1802,232 @@ spec:
                                             group: prometheus
                                             kind: DataQuery
                                             spec:
-                                                expr: histogram_quantile(0.50, sum(rate(http_server_request_duration_seconds_bucket{service_name=~"$app", http_route!=""}[$__rate_interval])) by (le, http_route))
-                                                legendFormat: p50 {{http_route}}
+                                                expr: histogram_quantile(0.50, sum(rate(http_server_request_duration_seconds_bucket{service_name=~"$app", http_route!=""}[$__rate_interval])) by (le, http_route, http_response_status_code))
+                                                legendFormat: '{{http_response_status_code}} {{http_route}}'
                                             version: v0
                                         refId: A
-                                    - kind: PanelQuery
-                                      spec:
-                                        hidden: false
-                                        query:
-                                            datasource:
-                                                name: prometheus
-                                            group: prometheus
-                                            kind: DataQuery
-                                            spec:
-                                                expr: histogram_quantile(0.95, sum(rate(http_server_request_duration_seconds_bucket{service_name=~"$app", http_route!=""}[$__rate_interval])) by (le, http_route))
-                                                legendFormat: p95 {{http_route}}
-                                                range: true
-                                            version: v0
-                                        refId: B
-                                    - kind: PanelQuery
-                                      spec:
-                                        hidden: false
-                                        query:
-                                            datasource:
-                                                name: prometheus
-                                            group: prometheus
-                                            kind: DataQuery
-                                            spec:
-                                                expr: histogram_quantile(0.99, sum(rate(http_server_request_duration_seconds_bucket{service_name=~"$app", http_route!=""}[$__rate_interval])) by (le, http_route))
-                                                legendFormat: p99 {{http_route}}
-                                                range: true
-                                            version: v0
-                                        refId: C
                                 queryOptions: {}
                                 transformations: []
-                        description: ""
-                        id: 1.860408468e+09
+                        description: Median response time per endpoint. Shows typical performance baseline.
+                        id: 1.982310151e+09
                         links: []
-                        title: Route latency
+                        title: Response time 50th percentile
                         vizConfig:
                             group: timeseries
                             kind: VizConfig
                             spec:
                                 fieldConfig:
                                     defaults:
-                                        custom: {}
+                                        color:
+                                            mode: palette-classic
+                                        custom:
+                                            fillOpacity: 10
+                                            lineWidth: 1
+                                            showPoints: never
+                                            spanNulls: false
+                                            thresholdsStyle:
+                                                mode: "off"
+                                        thresholds:
+                                            mode: absolute
+                                            steps:
+                                                - color: green
+                                                  value: null
                                         unit: s
                                     overrides: []
                                 options:
                                     legend:
+                                        calcs:
+                                            - mean
+                                            - max
+                                        displayMode: table
+                                        placement: right
+                                        showLegend: true
+                                        sortBy: Max
+                                        sortDesc: true
+                                    tooltip:
+                                        mode: multi
+                                        sort: none
+                            version: ""
+                otel-route-p95:
+                    kind: Panel
+                    spec:
+                        data:
+                            kind: QueryGroup
+                            spec:
+                                queries:
+                                    - kind: PanelQuery
+                                      spec:
+                                        hidden: false
+                                        query:
+                                            datasource:
+                                                name: prometheus
+                                            group: prometheus
+                                            kind: DataQuery
+                                            spec:
+                                                expr: histogram_quantile(0.95, sum(rate(http_server_request_duration_seconds_bucket{service_name=~"$app", http_route!=""}[$__rate_interval])) by (le, http_route, http_response_status_code))
+                                                legendFormat: '{{http_response_status_code}} {{http_route}}'
+                                            version: v0
+                                        refId: A
+                                queryOptions: {}
+                                transformations: []
+                        description: p95 response time per endpoint. Identifies slow APIs.
+                        id: 1.89645058e+09
+                        links: []
+                        title: Response time 95th percentile
+                        vizConfig:
+                            group: timeseries
+                            kind: VizConfig
+                            spec:
+                                fieldConfig:
+                                    defaults:
+                                        color:
+                                            mode: palette-classic
+                                        custom:
+                                            fillOpacity: 10
+                                            lineWidth: 1
+                                            showPoints: never
+                                            spanNulls: false
+                                            thresholdsStyle:
+                                                mode: "off"
+                                        thresholds:
+                                            mode: absolute
+                                            steps:
+                                                - color: green
+                                                  value: null
+                                        unit: s
+                                    overrides: []
+                                options:
+                                    legend:
+                                        calcs:
+                                            - mean
+                                            - max
+                                        displayMode: table
+                                        placement: right
+                                        showLegend: true
+                                        sortBy: Max
+                                        sortDesc: true
+                                    tooltip:
+                                        mode: multi
+                                        sort: none
+                            version: ""
+                otel-route-p99:
+                    kind: Panel
+                    spec:
+                        data:
+                            kind: QueryGroup
+                            spec:
+                                queries:
+                                    - kind: PanelQuery
+                                      spec:
+                                        hidden: false
+                                        query:
+                                            datasource:
+                                                name: prometheus
+                                            group: prometheus
+                                            kind: DataQuery
+                                            spec:
+                                                expr: histogram_quantile(0.99, sum(rate(http_server_request_duration_seconds_bucket{service_name=~"$app", http_route!=""}[$__rate_interval])) by (le, http_route, http_response_status_code))
+                                                legendFormat: '{{http_response_status_code}} {{http_route}}'
+                                            version: v0
+                                        refId: A
+                                queryOptions: {}
+                                transformations: []
+                        description: p99 response time per endpoint. Highlights tail latency issues.
+                        id: 1.695119152e+09
+                        links: []
+                        title: Response time 99th percentile
+                        vizConfig:
+                            group: timeseries
+                            kind: VizConfig
+                            spec:
+                                fieldConfig:
+                                    defaults:
+                                        color:
+                                            mode: palette-classic
+                                        custom:
+                                            fillOpacity: 10
+                                            lineWidth: 1
+                                            showPoints: never
+                                            spanNulls: false
+                                            thresholdsStyle:
+                                                mode: "off"
+                                        thresholds:
+                                            mode: absolute
+                                            steps:
+                                                - color: green
+                                                  value: null
+                                        unit: s
+                                    overrides: []
+                                options:
+                                    legend:
+                                        calcs:
+                                            - mean
+                                            - max
+                                        displayMode: table
+                                        placement: right
+                                        showLegend: true
+                                        sortBy: Max
+                                        sortDesc: true
+                                    tooltip:
+                                        mode: multi
+                                        sort: none
+                            version: ""
+                otel-route-pie:
+                    kind: Panel
+                    spec:
+                        data:
+                            kind: QueryGroup
+                            spec:
+                                queries:
+                                    - kind: PanelQuery
+                                      spec:
+                                        hidden: false
+                                        query:
+                                            datasource:
+                                                name: prometheus
+                                            group: prometheus
+                                            kind: DataQuery
+                                            spec:
+                                                expr: sum(increase(http_server_request_duration_seconds_count{service_name=~"$app", http_route!=""}[$__range])) by (http_route)
+                                                legendFormat: '{{http_route}}'
+                                            version: v0
+                                        refId: A
+                                queryOptions: {}
+                                transformations: []
+                        description: Request distribution across endpoints. Identifies hot paths and traffic patterns.
+                        id: 1.078170836e+09
+                        links: []
+                        title: Total Requests by Endpoint
+                        vizConfig:
+                            group: piechart
+                            kind: VizConfig
+                            spec:
+                                fieldConfig:
+                                    defaults:
+                                        color:
+                                            mode: palette-classic
+                                        custom:
+                                            hideFrom:
+                                                legend: false
+                                                tooltip: false
+                                                viz: false
+                                    overrides: []
+                                options:
+                                    legend:
                                         calcs: []
-                                        displayMode: list
-                                        placement: bottom
+                                        displayMode: table
+                                        placement: right
                                         showLegend: false
+                                        values:
+                                            - value
+                                            - percent
+                                    orientation: ""
+                                    pieType: pie
+                                    reduceOptions:
+                                        calcs:
+                                            - lastNotNull
+                                        fields: ""
+                                        values: false
                                     tooltip:
                                         mode: ""
                                         sort: ""
@@ -1272,28 +2054,45 @@ spec:
                                         refId: A
                                 queryOptions: {}
                                 transformations: []
-                        description: ""
+                        description: Breakdown of request rate by HTTP method (GET, POST, PUT, DELETE) and endpoint path. Helps identify traffic patterns and detect unusual method-specific spikes.
                         id: 1.769746889e+09
                         links: []
-                        title: Request rate by method and endpoint
+                        title: Request Rate by Method and Endpoint
                         vizConfig:
                             group: timeseries
                             kind: VizConfig
                             spec:
                                 fieldConfig:
                                     defaults:
-                                        custom: {}
+                                        color:
+                                            mode: palette-classic
+                                        custom:
+                                            fillOpacity: 10
+                                            lineWidth: 1
+                                            showPoints: never
+                                            spanNulls: false
+                                            thresholdsStyle:
+                                                mode: "off"
+                                        thresholds:
+                                            mode: absolute
+                                            steps:
+                                                - color: green
+                                                  value: null
                                         unit: reqps
                                     overrides: []
                                 options:
                                     legend:
-                                        calcs: []
-                                        displayMode: list
-                                        placement: bottom
-                                        showLegend: false
+                                        calcs:
+                                            - mean
+                                            - max
+                                        displayMode: table
+                                        placement: right
+                                        showLegend: true
+                                        sortBy: Max
+                                        sortDesc: true
                                     tooltip:
-                                        mode: ""
-                                        sort: ""
+                                        mode: multi
+                                        sort: none
                             version: ""
                 otel-rps-route:
                     kind: Panel
@@ -1317,28 +2116,45 @@ spec:
                                         refId: A
                                 queryOptions: {}
                                 transformations: []
-                        description: ""
+                        description: Request rate per endpoint over time. Detects traffic spikes per API.
                         id: 1.640247533e+09
                         links: []
-                        title: Request rate by endpoint
+                        title: Request Rate by Endpoint
                         vizConfig:
                             group: timeseries
                             kind: VizConfig
                             spec:
                                 fieldConfig:
                                     defaults:
-                                        custom: {}
+                                        color:
+                                            mode: palette-classic
+                                        custom:
+                                            fillOpacity: 10
+                                            lineWidth: 1
+                                            showPoints: never
+                                            spanNulls: false
+                                            thresholdsStyle:
+                                                mode: "off"
+                                        thresholds:
+                                            mode: absolute
+                                            steps:
+                                                - color: green
+                                                  value: null
                                         unit: reqps
                                     overrides: []
                                 options:
                                     legend:
-                                        calcs: []
-                                        displayMode: list
-                                        placement: bottom
-                                        showLegend: false
+                                        calcs:
+                                            - mean
+                                            - max
+                                        displayMode: table
+                                        placement: right
+                                        showLegend: true
+                                        sortBy: Max
+                                        sortDesc: true
                                     tooltip:
-                                        mode: ""
-                                        sort: ""
+                                        mode: multi
+                                        sort: none
                             version: ""
                 otel-status-pie:
                     kind: Panel
@@ -1357,22 +2173,28 @@ spec:
                                             kind: DataQuery
                                             spec:
                                                 expr: sum(rate(http_server_request_duration_seconds_count{service_name=~"$app"}[$__rate_interval])) by (http_response_status_code)
-                                                legendFormat: '{{http_response_status_code}}'
+                                                legendFormat: REST.{{http_response_status_code}}
                                             version: v0
                                         refId: A
                                 queryOptions: {}
                                 transformations: []
-                        description: ""
+                        description: 'HTTP status code distribution by rate (req/sec). Shows real-time traffic breakdown by response code. Expected: ~95% codes 2xx.'
                         id: 9.17806947e+08
                         links: []
-                        title: Status code distribution
+                        title: Status Code Distribution
                         vizConfig:
                             group: piechart
                             kind: VizConfig
                             spec:
                                 fieldConfig:
                                     defaults:
-                                        custom: {}
+                                        color:
+                                            mode: palette-classic
+                                        custom:
+                                            hideFrom:
+                                                legend: false
+                                                tooltip: false
+                                                viz: false
                                     overrides: []
                                 options:
                                     legend:
@@ -1386,7 +2208,10 @@ spec:
                                     orientation: ""
                                     pieType: pie
                                     reduceOptions:
-                                        calcs: []
+                                        calcs:
+                                            - lastNotNull
+                                        fields: ""
+                                        values: false
                                     tooltip:
                                         mode: ""
                                         sort: ""
@@ -1417,21 +2242,23 @@ spec:
                                         refId: A
                                 queryOptions: {}
                                 transformations: []
-                        description: ""
+                        description: 'Complement of Error Rate % (5xx): every request the service handled correctly, including 3xx/4xx responses to client mistakes. Success + Error = 100%.'
                         id: 1.364395806e+09
                         links: []
-                        title: Success rate % (non-5xx)
+                        title: Success Rate % (non-5xx)
                         vizConfig:
                             group: stat
                             kind: VizConfig
                             spec:
                                 fieldConfig:
                                     defaults:
+                                        color:
+                                            mode: thresholds
                                         thresholds:
                                             mode: absolute
                                             steps:
                                                 - color: red
-                                                  value: null
+                                                  value: 0
                                                 - color: yellow
                                                   value: 95
                                                 - color: green
@@ -1442,11 +2269,123 @@ spec:
                                     colorMode: value
                                     graphMode: area
                                     justifyMode: auto
-                                    orientation: ""
+                                    orientation: auto
                                     percentChangeColorMode: standard
                                     reduceOptions:
                                         calcs:
                                             - lastNotNull
+                                        fields: ""
+                                        values: false
+                                    showPercentChange: false
+                                    textMode: auto
+                                    wideLayout: true
+                            version: ""
+                otel-success-rps:
+                    kind: Panel
+                    spec:
+                        data:
+                            kind: QueryGroup
+                            spec:
+                                queries:
+                                    - kind: PanelQuery
+                                      spec:
+                                        hidden: false
+                                        query:
+                                            datasource:
+                                                name: prometheus
+                                            group: prometheus
+                                            kind: DataQuery
+                                            spec:
+                                                expr: sum(rate(http_server_request_duration_seconds_count{service_name=~"$app", http_response_status_code=~"2.."}[$__rate_interval]))
+                                            version: v0
+                                        refId: A
+                                queryOptions: {}
+                                transformations: []
+                        description: Successful requests per second (HTTP 2xx responses). This represents productive traffic.
+                        id: 1.816561495e+09
+                        links: []
+                        title: Success RPS (2xx)
+                        vizConfig:
+                            group: stat
+                            kind: VizConfig
+                            spec:
+                                fieldConfig:
+                                    defaults:
+                                        color:
+                                            mode: thresholds
+                                        thresholds:
+                                            mode: absolute
+                                            steps:
+                                                - color: green
+                                                  value: null
+                                        unit: reqps
+                                    overrides: []
+                                options:
+                                    colorMode: value
+                                    graphMode: area
+                                    justifyMode: auto
+                                    orientation: auto
+                                    percentChangeColorMode: standard
+                                    reduceOptions:
+                                        calcs:
+                                            - lastNotNull
+                                        fields: ""
+                                        values: false
+                                    showPercentChange: false
+                                    textMode: auto
+                                    wideLayout: true
+                            version: ""
+                otel-total-requests:
+                    kind: Panel
+                    spec:
+                        data:
+                            kind: QueryGroup
+                            spec:
+                                queries:
+                                    - kind: PanelQuery
+                                      spec:
+                                        hidden: false
+                                        query:
+                                            datasource:
+                                                name: prometheus
+                                            group: prometheus
+                                            kind: DataQuery
+                                            spec:
+                                                expr: sum(increase(http_server_request_duration_seconds_count{service_name=~"$app"}[$__range]))
+                                            version: v0
+                                        refId: A
+                                queryOptions: {}
+                                transformations: []
+                        description: Total requests in selected time range. Correlate with traffic spikes or incidents.
+                        id: 1.919668513e+09
+                        links: []
+                        title: Total Request
+                        vizConfig:
+                            group: stat
+                            kind: VizConfig
+                            spec:
+                                fieldConfig:
+                                    defaults:
+                                        color:
+                                            mode: thresholds
+                                        thresholds:
+                                            mode: absolute
+                                            steps:
+                                                - color: blue
+                                                  value: null
+                                        unit: short
+                                    overrides: []
+                                options:
+                                    colorMode: value
+                                    graphMode: area
+                                    justifyMode: auto
+                                    orientation: auto
+                                    percentChangeColorMode: standard
+                                    reduceOptions:
+                                        calcs:
+                                            - lastNotNull
+                                        fields: ""
+                                        values: false
                                     showPercentChange: false
                                     textMode: auto
                                     wideLayout: true
@@ -1472,16 +2411,18 @@ spec:
                                         refId: A
                                 queryOptions: {}
                                 transformations: []
-                        description: ""
+                        description: Total requests per second including all HTTP status codes (2xx, 4xx, 5xx). Use this to monitor overall traffic volume.
                         id: 1.801498186e+09
                         links: []
-                        title: Total RPS
+                        title: Total RPS (All Requests)
                         vizConfig:
                             group: stat
                             kind: VizConfig
                             spec:
                                 fieldConfig:
                                     defaults:
+                                        color:
+                                            mode: thresholds
                                         thresholds:
                                             mode: absolute
                                             steps:
@@ -1493,11 +2434,13 @@ spec:
                                     colorMode: value
                                     graphMode: area
                                     justifyMode: auto
-                                    orientation: ""
+                                    orientation: auto
                                     percentChangeColorMode: standard
                                     reduceOptions:
                                         calcs:
                                             - lastNotNull
+                                        fields: ""
+                                        values: false
                                     showPercentChange: false
                                     textMode: auto
                                     wideLayout: true
@@ -1518,7 +2461,7 @@ spec:
                                                 kind: ElementReference
                                                 name: otel-p99
                                             height: 4
-                                            width: 3
+                                            width: 5
                                             x: 0
                                             "y": 0
                                         - kind: GridLayoutItem
@@ -1527,8 +2470,8 @@ spec:
                                                 kind: ElementReference
                                                 name: otel-p95
                                             height: 4
-                                            width: 3
-                                            x: 3
+                                            width: 5
+                                            x: 5
                                             "y": 0
                                         - kind: GridLayoutItem
                                           spec:
@@ -1536,8 +2479,8 @@ spec:
                                                 kind: ElementReference
                                                 name: otel-p50
                                             height: 4
-                                            width: 3
-                                            x: 6
+                                            width: 5
+                                            x: 10
                                             "y": 0
                                         - kind: GridLayoutItem
                                           spec:
@@ -1545,8 +2488,17 @@ spec:
                                                 kind: ElementReference
                                                 name: otel-total-rps
                                             height: 4
-                                            width: 3
-                                            x: 9
+                                            width: 5
+                                            x: 15
+                                            "y": 0
+                                        - kind: GridLayoutItem
+                                          spec:
+                                            element:
+                                                kind: ElementReference
+                                                name: otel-success-rps
+                                            height: 4
+                                            width: 4
+                                            x: 20
                                             "y": 0
                                         - kind: GridLayoutItem
                                           spec:
@@ -1554,37 +2506,46 @@ spec:
                                                 kind: ElementReference
                                                 name: otel-error-rps
                                             height: 4
-                                            width: 3
-                                            x: 12
-                                            "y": 0
+                                            width: 5
+                                            x: 0
+                                            "y": 4
                                         - kind: GridLayoutItem
                                           spec:
                                             element:
                                                 kind: ElementReference
                                                 name: otel-success-rate
                                             height: 4
-                                            width: 3
-                                            x: 15
-                                            "y": 0
+                                            width: 5
+                                            x: 5
+                                            "y": 4
                                         - kind: GridLayoutItem
                                           spec:
                                             element:
                                                 kind: ElementReference
                                                 name: otel-error-rate
                                             height: 4
-                                            width: 3
-                                            x: 18
-                                            "y": 0
+                                            width: 5
+                                            x: 10
+                                            "y": 4
                                         - kind: GridLayoutItem
                                           spec:
                                             element:
                                                 kind: ElementReference
                                                 name: otel-apdex
                                             height: 4
-                                            width: 3
-                                            x: 21
-                                            "y": 0
-                            title: Overview
+                                            width: 5
+                                            x: 15
+                                            "y": 4
+                                        - kind: GridLayoutItem
+                                          spec:
+                                            element:
+                                                kind: ElementReference
+                                                name: otel-total-requests
+                                            height: 4
+                                            width: 4
+                                            x: 20
+                                            "y": 4
+                            title: Overview & Key Metrics
                         - kind: RowsLayoutRow
                           spec:
                             layout:
@@ -1596,7 +2557,7 @@ spec:
                                             element:
                                                 kind: ElementReference
                                                 name: otel-status-pie
-                                            height: 8
+                                            height: 9
                                             width: 12
                                             x: 0
                                             "y": 0
@@ -1604,8 +2565,8 @@ spec:
                                           spec:
                                             element:
                                                 kind: ElementReference
-                                                name: otel-rps-route
-                                            height: 8
+                                                name: otel-route-pie
+                                            height: 9
                                             width: 12
                                             x: 12
                                             "y": 0
@@ -1613,12 +2574,12 @@ spec:
                                           spec:
                                             element:
                                                 kind: ElementReference
-                                                name: otel-rps-method-route
+                                                name: otel-rps-route
                                             height: 8
                                             width: 24
                                             x: 0
-                                            "y": 8
-                            title: Traffic
+                                            "y": 9
+                            title: Traffic & Requests
                         - kind: RowsLayoutRow
                           spec:
                             layout:
@@ -1629,7 +2590,7 @@ spec:
                                           spec:
                                             element:
                                                 kind: ElementReference
-                                                name: otel-5xx-ratio
+                                                name: otel-rps-method-route
                                             height: 8
                                             width: 24
                                             x: 0
@@ -1638,21 +2599,57 @@ spec:
                                           spec:
                                             element:
                                                 kind: ElementReference
-                                                name: otel-errors-by-service
+                                                name: otel-5xx-ratio
                                             height: 8
-                                            width: 12
+                                            width: 24
                                             x: 0
                                             "y": 8
                                         - kind: GridLayoutItem
                                           spec:
                                             element:
                                                 kind: ElementReference
-                                                name: otel-route-latency
+                                                name: otel-4xx-service
+                                            height: 8
+                                            width: 12
+                                            x: 0
+                                            "y": 16
+                                        - kind: GridLayoutItem
+                                          spec:
+                                            element:
+                                                kind: ElementReference
+                                                name: otel-5xx-service
                                             height: 8
                                             width: 12
                                             x: 12
-                                            "y": 8
-                            title: Errors and latency
+                                            "y": 16
+                                        - kind: GridLayoutItem
+                                          spec:
+                                            element:
+                                                kind: ElementReference
+                                                name: otel-route-p95
+                                            height: 8
+                                            width: 12
+                                            x: 0
+                                            "y": 24
+                                        - kind: GridLayoutItem
+                                          spec:
+                                            element:
+                                                kind: ElementReference
+                                                name: otel-route-p50
+                                            height: 8
+                                            width: 12
+                                            x: 12
+                                            "y": 24
+                                        - kind: GridLayoutItem
+                                          spec:
+                                            element:
+                                                kind: ElementReference
+                                                name: otel-route-p99
+                                            height: 8
+                                            width: 24
+                                            x: 0
+                                            "y": 32
+                            title: Errors & Performance
                         - kind: RowsLayoutRow
                           spec:
                             layout:
@@ -1704,7 +2701,7 @@ spec:
                                             width: 24
                                             x: 0
                                             "y": 16
-                            title: Go runtime
+                            title: Go Runtime & HTTP I/O (OTel)
                         - kind: RowsLayoutRow
                           spec:
                             layout:
@@ -1715,7 +2712,7 @@ spec:
                                           spec:
                                             element:
                                                 kind: ElementReference
-                                                name: otel-grpc-rps
+                                                name: otel-grpc-server-rps
                                             height: 8
                                             width: 12
                                             x: 0
@@ -1724,7 +2721,7 @@ spec:
                                           spec:
                                             element:
                                                 kind: ElementReference
-                                                name: otel-grpc-errors
+                                                name: otel-grpc-client-rps
                                             height: 8
                                             width: 12
                                             x: 12
@@ -1733,12 +2730,73 @@ spec:
                                           spec:
                                             element:
                                                 kind: ElementReference
-                                                name: otel-grpc-p95
+                                                name: otel-grpc-server-errors
+                                            height: 8
+                                            width: 12
+                                            x: 0
+                                            "y": 8
+                                        - kind: GridLayoutItem
+                                          spec:
+                                            element:
+                                                kind: ElementReference
+                                                name: otel-grpc-client-errors
+                                            height: 8
+                                            width: 12
+                                            x: 12
+                                            "y": 8
+                                        - kind: GridLayoutItem
+                                          spec:
+                                            element:
+                                                kind: ElementReference
+                                                name: otel-grpc-server-p95
+                                            height: 8
+                                            width: 12
+                                            x: 0
+                                            "y": 16
+                                        - kind: GridLayoutItem
+                                          spec:
+                                            element:
+                                                kind: ElementReference
+                                                name: otel-grpc-client-p95
+                                            height: 8
+                                            width: 12
+                                            x: 12
+                                            "y": 16
+                            title: gRPC East-West (RED)
+                        - kind: RowsLayoutRow
+                          spec:
+                            layout:
+                                kind: GridLayout
+                                spec:
+                                    items:
+                                        - kind: GridLayoutItem
+                                          spec:
+                                            element:
+                                                kind: ElementReference
+                                                name: otel-grpc-callee-rps
+                                            height: 8
+                                            width: 12
+                                            x: 0
+                                            "y": 0
+                                        - kind: GridLayoutItem
+                                          spec:
+                                            element:
+                                                kind: ElementReference
+                                                name: otel-grpc-callee-error-ratio
+                                            height: 8
+                                            width: 12
+                                            x: 12
+                                            "y": 0
+                                        - kind: GridLayoutItem
+                                          spec:
+                                            element:
+                                                kind: ElementReference
+                                                name: otel-grpc-callee-p95
                                             height: 8
                                             width: 24
                                             x: 0
                                             "y": 8
-                            title: gRPC east-west
+                            title: gRPC East-West (RED) — Per Callee
                         - kind: RowsLayoutRow
                           spec:
                             layout:
@@ -1799,19 +2857,20 @@ spec:
                                             width: 12
                                             x: 12
                                             "y": 16
-                            title: Database (otelpgx)
+                            title: Database (client — otelpgx)
             links: []
             preload: false
             tags:
+                - prometheus
+                - kubernetes
                 - microservices
-                - otel
                 - go
-                - http
-                - grpc
+                - observability
+                - rfc-0014
                 - generated
                 - foundation-sdk
             timeSettings:
-                autoRefresh: 1m
+                autoRefresh: ""
                 autoRefreshIntervals:
                     - 5s
                     - 10s
