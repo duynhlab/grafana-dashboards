@@ -92,6 +92,7 @@ type otelPanel struct {
 		} `json:"data"`
 		VizConfig struct {
 			Spec struct {
+				Options     json.RawMessage `json:"options"`
 				FieldConfig struct {
 					Defaults struct {
 						Min *float64 `json:"min"`
@@ -203,6 +204,20 @@ func TestMicroservicesOTel(t *testing.T) {
 		expr := byTitle[title].Spec.Data.Spec.Queries[0].Spec.Query.Spec.Expr
 		if !strings.Contains(expr, "by (le, http_route, http_response_status_code)") {
 			t.Errorf("%q: grouping lost http_response_status_code: %s", title, expr)
+		}
+	}
+
+	// Both pies show their table legend (the SDK serializes an unset showLegend
+	// as false), count over the selected range, and leave out the /health probes.
+	for _, title := range []string{"Status Code Distribution", "Total Requests by Endpoint"} {
+		panel := byTitle[title]
+		options := panel.Spec.VizConfig.Spec.Options
+		if !strings.Contains(string(options), `"showLegend":true`) {
+			t.Errorf("%q: legend hidden: %s", title, options)
+		}
+		expr := panel.Spec.Data.Spec.Queries[0].Spec.Query.Spec.Expr
+		if !strings.Contains(expr, "[$__range]") || !strings.Contains(expr, `http_route!="/health"`) {
+			t.Errorf("%q: expected an increase over $__range without /health: %s", title, expr)
 		}
 	}
 

@@ -70,7 +70,10 @@ func otelPie(title, description, expr, legend string) cog.Builder[dashboardv2.Pa
 		ColorScheme(otelColor(dashboardv2.FieldColorModeIdPaletteClassic)).
 		HideFrom(common.NewHideSeriesConfigBuilder().Legend(false).Tooltip(false).Viz(false)).
 		PieType(piechart.PieChartTypePie).
+		// ShowLegend must be explicit: the SDK serializes an unset value as false,
+		// while the source JSON omitted the key and so got Grafana's default true.
 		Legend(piechart.NewPieChartLegendOptionsBuilder().
+			ShowLegend(true).
 			DisplayMode(common.LegendDisplayModeTable).
 			Placement(common.LegendPlacementRight).
 			Values([]piechart.PieChartLegendValues{

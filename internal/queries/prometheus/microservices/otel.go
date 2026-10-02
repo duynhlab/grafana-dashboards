@@ -77,8 +77,11 @@ const OTelApdex = `(sum(rate(http_server_request_duration_seconds_bucket{service
 // series that the instrumentation emits for requests which never matched a mux
 // pattern; without it a single 404 scanner dominates the per-endpoint views.
 const (
-	OTelStatusCodeDistribution   = `sum(rate(http_server_request_duration_seconds_count{service_name=~"$app"}[$__rate_interval])) by (http_response_status_code)`
-	OTelTotalRequestsByRoute     = `sum(increase(http_server_request_duration_seconds_count{service_name=~"$app", http_route!=""}[$__range])) by (http_route)`
+	// The two pies count requests over the selected range and leave out the
+	// kubelet probes: a rate pie showed only the last few minutes, so an idle
+	// board read ~100% 200 from /health and hid every 201 and 409 of the range.
+	OTelStatusCodeDistribution   = `sum(increase(http_server_request_duration_seconds_count{service_name=~"$app", http_route!="/health"}[$__range])) by (http_response_status_code)`
+	OTelTotalRequestsByRoute     = `sum(increase(http_server_request_duration_seconds_count{service_name=~"$app", http_route!="", http_route!="/health"}[$__range])) by (http_route)`
 	OTelRequestRateByRoute       = `sum(rate(http_server_request_duration_seconds_count{service_name=~"$app", http_route!=""}[$__rate_interval])) by (http_route)`
 	OTelRequestRateByMethodRoute = `sum(rate(http_server_request_duration_seconds_count{service_name=~"$app", http_route!=""}[$__rate_interval])) by (http_request_method, http_route)`
 )
