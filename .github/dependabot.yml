@@ -1,0 +1,16 @@
+version: 2
+
+updates:
+  # grafana-foundation-sdk pins the Dashboard V2 schema the generated JSON
+  # follows; a bump that changes output fails CI's generated-diff check, so
+  # it arrives as a PR with the regenerated tree, never silently.
+  - package-ecosystem: "gomod"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
