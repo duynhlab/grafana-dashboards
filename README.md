@@ -1,330 +1,343 @@
 # Grafana Observability as Code
 
-Strongly typed Grafana dashboards and alert rules built with Go and the
-[Grafana Foundation SDK](https://github.com/grafana/grafana-foundation-sdk).
+Typed Grafana dashboards and alert rules written in Go with the
+[Grafana Foundation SDK](https://github.com/grafana/grafana-foundation-sdk),
+generated into Grafana Operator resources and shipped to the cluster as one
+OCI artifact.
 
-The project uses the Dashboard v2 model and targets Grafana 13 or newer:
-`dashboard.grafana.app/v2` is not served on 12.0 or 12.1.
-Generated Kubernetes resources are published as an OCI artifact for GitOps
-delivery with Flux and the Grafana Operator.
+| | |
+|---|---|
+| **Dashboard model** | Dashboard v2 (`dashboard.grafana.app/v2`), so **Grafana 13 or newer**; 12.0 and 12.1 serve no higher than `v2alpha1` |
+| **Delivery** | `GrafanaManifest` + `GrafanaAlertRuleGroup` CRs, published to `ghcr.io/duynhlab/grafana-dashboards-as-code`, applied by Flux |
+| **Inventory** | 18 dashboards · 6 folders · 4 alert rules |
+| **Toolchain** | Go `1.27.1` (`go.mod`), Foundation SDK `v0.0.20` |
+| **Tested against** | Grafana `13.2.0` on Grafana Operator `5.25.0` in Kind (`make e2e-kind`) |
+| **Quality gates** | `gofmt` + `go vet`, 90% coverage, byte-identical regeneration, read-back of every board |
+| **Latest release** | tag `v0.2.2` (there are no GitHub Releases; tags are the versions) |
+| **Consumer** | [`duynhlab/homelab`](https://github.com/duynhlab/homelab), pinned to `semver: "0.2.2"` |
+
+## Contents
+
+- [Architecture](#architecture)
+- [Dashboards](#dashboards) · [Folders](#folders) · [Alert rules](#alert-rules)
+- [Requirements](#requirements) · [Make targets](#make-targets)
+- [Repository layout](#repository-layout) · [Development](#development)
+- [Kubernetes delivery](#kubernetes-delivery) · [Testing](#testing)
+- [CI and publishing](#ci-and-publishing) · [Consumers](#consumers)
+- [Agent configuration](#agent-configuration)
 
 ## Architecture
 
-```text
-Go source
-  internal/dashboards
-  internal/alerts
-  internal/queries
-  internal/panels
-  internal/standards
-        |
-        v
-  cmd/generate
-        |
-        +--> generated/       dashboard and alert artifacts
-        |
-        +--> deploy/          Grafana Operator resources
-                 |
-                 v
-       Flux OCI artifact on GHCR
-                 |
-                 v
-           Grafana Operator
-                 |
-                 v
-              Grafana
+```mermaid
+flowchart LR
+  subgraph src["Go source — the source of truth"]
+    std["internal/standards<br/>folders · domains · labels · datasource"]
+    q["internal/queries/prometheus<br/>PromQL by domain"]
+    p["internal/panels<br/>visualization builders"]
+    d["internal/dashboards/&lt;domain&gt;"]
+    a["internal/alerts"]
+    r["internal/registry<br/>dashboards.go · alerts.go"]
+    std --> d & a
+    q --> d & a
+    p --> d
+    d --> r
+    a --> r
+  end
+  gen["cmd/generate<br/>(internal/generate)"]
+  out1[("generated/<br/>specs — the review surface")]
+  out2[("deploy/folders · deploy/dashboards<br/>Grafana Operator CRs")]
+  oci[("GHCR OCI artifact<br/>grafana-dashboards-as-code")]
+  flux["Flux<br/>two Kustomizations"]
+  op["Grafana Operator"]
+  g["Grafana 13"]
+  r --> gen --> out1
+  gen --> out2 --> oci --> flux --> op --> g
 ```
 
-Go files under `internal/` are the source of truth. Files under `generated/`
-and `deploy/` are reproducible generator output and must not be edited by hand.
+Everything under `internal/` is hand-written. `generated/` and `deploy/` are
+reproducible generator output: never edit them by hand. CI regenerates and fails
+on any difference.
 
-## Current resources
+## Dashboards
 
-Grafana folders:
+Every query uses the logical datasource `prometheus`, resolved at deploy time
+(homelab maps it to VictoriaMetrics). *Elements* is the number of panels and
+other elements in the generated spec.
 
-- `Kubernetes`
-- `Databases`
-- `Observability`
-- `Microservices`
-- `Platform`
-- `API Gateway`
+| Folder | UID | Title | Elements | What it shows |
+|---|---|---|---:|---|
+| Kubernetes | `kubernetes-cluster-overview` | Kubernetes Cluster Overview | 24 | Cluster health by the USE method: node and pod counts, workload health, utilization, persistent-volume storage |
+| Kubernetes | `kubernetes-workloads` | Kubernetes Workloads | 11 | Per-workload and per-pod CPU, memory, network and reliability, filtered by namespace and owner |
+| Kubernetes | `keda` | KEDA — Worker Autoscaling | 17 | What the Temporal scaler computed per worker version, what the HPA did, the backlog it scales on, KEDA's own health |
+| Databases | `pg-io-waits` | PostgreSQL — IO & Waits (pg_stat_io) | 10 | IO attribution from PostgreSQL 18 `pg_stat_io` and sampled wait classes |
+| Databases | `pg-maintenance` | PostgreSQL — Maintenance (CNPG) | 15 | Locks and blocking, checkpointer, autovacuum and bloat, long transactions, VACUUM progress |
+| Databases | `pg-query-performance` | PostgreSQL — Query Performance (pg_stat_statements) | 14 | Throughput, latency, cache efficiency, block I/O, top statements |
+| Databases | `pg-exporter-instance` | PG Exporter Instance | 61 | Remote/RDS instances via the Pigsty `postgres_exporter` model (`pg_*` metrics, `pg:*` rules, `ins`/`cls` labels — not `cnpg_*`) |
+| Databases | `pgdog` | PGDog | 30 | PGDog pooler: clients, servers, transactions, queries, traffic, prepared statements, mirroring |
+| Observability | `temporal-worker` | Temporal — Workflows & Activities | 21 | Both halves of Temporal: SDK/worker metrics over OTLP and server metrics (gRPC by role, persistence, task-queue backlog) |
+| Observability | `otel-collector-health` | OTel Collector Health | 10 | Collector pipeline throughput, exporter fan-out, self resource usage |
+| Microservices | `microservices-monitoring-001-otel` | Microservices (OTel) | 28 | Go services RED, runtime, east-west gRPC and `otelpgx` pool, from OpenTelemetry semantic-convention metrics keyed on `service_name` |
+| Microservices | `business-otel` | Microservices — Business KPIs | 38 | Business KPIs, one row per domain: payments, orders and saga, auth, product, cart, shipping, user, review, notification, checkout |
+| Microservices | `red-spanmetrics` | Microservices — RED Span Metrics | 8 | RED per service from the Collector's spanmetrics connector — distinct from the board above, which reads `http_server_*`/`rpc_server_*` directly |
+| Microservices | `rfc0021-baseline` | Order Saga & Payment — Cutover Baseline | 8 | The order-saga and payment signals every cutover gate is judged against |
+| Microservices | `inventory-overview` | Inventory Service — Stock Authority | 7 | Reservation FSM outcomes, availability checks, gRPC RED, DB latency |
+| Platform | `cert-manager` | cert-manager | 16 | Certificate readiness and time to expiry, controller sync, work queues, ACME traffic |
+| Platform | `keycloak-identity` | Keycloak — Identity | 18 | Auth event rates and failure ratio, realm and token endpoint latency against a 250 ms SLO, JVM and DB pool |
+| API Gateway | `eg-edge` | Envoy Gateway — Edge Overview | 21 | Edge golden signals on the data plane, control-plane health, process-level resources |
 
-Dashboards:
+Notes:
 
-- `kubernetes-cluster-overview`
-- `pg-io-waits` — tested on PostgreSQL 18 (`pg_stat_io`)
-- `pg-maintenance` — CNPG locks, checkpointer, autovacuum/bloat, long transactions
-- `pg-query-performance` — CNPG `pg_stat_statements` throughput, latency, top statements
-- `pg-exporter-instance` — Pigsty PGRDS instance board (uses the Pigsty
-  `postgres_exporter` metric model: `pg_*` metrics and `pg:*` recording rules
-  with `ins`/`cls` labels, not `cnpg_*`)
-- `pgdog` — PGDog connection pooler (ported from Grafana.com dashboard 24583)
-- `keda` — KEDA scaler value and errors, the HPA it drives, and the Temporal backlog
-  it scales on. The source board hardcoded the namespaces and Deployments it watched;
-  those are template variables here
-- `temporal-worker` — Temporal workflow/activity RED metrics plus the server row
-  (gRPC by role, persistence, task-queue backlog)
-- `otel-collector-health` — OTel Collector receiver/exporter/processor pipeline
-- `microservices-monitoring-001-otel` — Go services RED, runtime, gRPC east-west and
-  otelpgx pool metrics, using the OpenTelemetry semantic conventions
-  (`http_server_*`, `rpc_*`, `go_*`, `db_client_*`) keyed on `service_name`
-- `business-otel` — per-domain business KPIs (payments, orders and saga, auth, product,
-  cart, shipping, user, review, notification, checkout)
-- `red-spanmetrics` — RED from the OTel spanmetrics connector, keyed on `service_name`.
-  Distinct from `microservices-monitoring-001-otel`, which reads `http_server_*` and
-  `rpc_server_*` directly
-- `rfc0021-baseline` — order saga and payment cutover gate
-- `inventory-overview` — inventory reservation FSM and gRPC RED
-- `cert-manager` — certificate expiry and renewal, controller sync, ACME, workqueue
-- `keycloak-identity` — login and token KPIs, realm latency, auth events, JVM and DB pool
-- `eg-edge` — Envoy Gateway edge golden signals, data plane, and control plane
+- **Recording rules required.** `rfc0021-baseline` and `inventory-overview` read
+  `rfc0021:*` and `inventory:*` recording rules, not raw metrics. They live in
+  homelab under
+  `kubernetes/infra/configs/observability/metrics/prometheusrules/microservices/`;
+  without them the two boards are empty.
+- **PostgreSQL version.** The PostgreSQL boards are tested on PostgreSQL 18.
+- **Provenance.** Ported boards record the source path and the commit they were
+  read at in their query file. `microservices-monitoring-001-otel` and
+  `business-otel` came from the `duynhlab/helm-charts` `grafana-dashboards` chart,
+  `pgdog` from Grafana.com dashboard 24583, and the rest from JSON that homelab
+  used to vendor.
 
-`microservices-monitoring-001-otel` and `business-otel` were ported from the
-`duynhlab/helm-charts` `grafana-dashboards` chart, which still serves its own copies
-through ConfigMaps. See the cutover note below. The rest of the boards above were ported
-from JSON vendored in `duynhlab/homelab`; each query file records the source path and the
-commit it was read at.
+## Folders
 
-`rfc0021-baseline` and `inventory-overview` read `rfc0021:*` and `inventory:*` **recording
-rules**, not raw metrics. Those rules live in homelab under
-`kubernetes/infra/configs/observability/metrics/prometheusrules/microservices/`; without
-them the two boards are empty.
+| Title | UID | Dashboards | Alert groups |
+|---|---|---|---|
+| Kubernetes | `kubernetes` | `kubernetes-cluster-overview`, `kubernetes-workloads`, `keda` | `kubernetes` |
+| Databases | `databases` | `pg-io-waits`, `pg-maintenance`, `pg-query-performance`, `pg-exporter-instance`, `pgdog` | `databases` |
+| Observability | `observability` | `temporal-worker`, `otel-collector-health` | — |
+| Microservices | `microservices` | `microservices-monitoring-001-otel`, `business-otel`, `red-spanmetrics`, `rfc0021-baseline`, `inventory-overview` | — |
+| Platform | `platform` | `cert-manager`, `keycloak-identity` | — |
+| API Gateway | `api-gateway` | `eg-edge` | — |
 
-The PostgreSQL dashboards are tested on **PostgreSQL 18**.
+The folder UID is the slug of its title. Other dashboards can share these folders
+by UID; homelab files its Envoy Gateway, service-graph and Vector boards into
+`api-gateway`, `microservices` and `observability`.
 
-Alert rules:
+## Alert rules
 
-- `kubernetes_crashlooping_pods`
-- `kubernetes_pending_pods`
-- `kubernetes_pvcs_at_risk`
-- `postgres_backends_waiting`
+| UID | Title | Group / folder | Severity | For | Linked dashboard | Fires when |
+|---|---|---|---|---|---|---|
+| `kubernetes_crashlooping_pods` | Kubernetes crashlooping pods | `kubernetes` / Kubernetes | warning | 5m | `kubernetes-cluster-overview` | any container is waiting in `CrashLoopBackOff` |
+| `kubernetes_pending_pods` | Kubernetes pending pods | `kubernetes` / Kubernetes | warning | 15m | `kubernetes-cluster-overview` | any pod is `Pending` |
+| `kubernetes_pvcs_at_risk` | Kubernetes PVCs above 80% used | `kubernetes` / Kubernetes | warning | 15m | `kubernetes-cluster-overview` | any PVC is more than 80% full |
+| `postgres_backends_waiting` | PostgreSQL backends waiting | `databases` / Databases | warning | 10m | `pg-io-waits` | CNPG reports waiting backends |
+
+Every rule shares one shape: a 1-minute group interval, an instant query over the
+last 10 minutes against datasource UID `prometheus`, a threshold of `> 0`, and
+`NoData` / `Error` as the no-data and error states. Each rule carries the
+`dashboard_uid` annotation of the board that explains it.
 
 ## Requirements
 
-- Go 1.27 or newer (the version in `go.mod`)
-- Grafana 13 or newer (12.x does not serve `dashboard.grafana.app/v2`)
-- Grafana Operator for Kubernetes delivery
-- Flux CLI for OCI publishing
-- Kind, kubectl, and Helm for end-to-end tests
+| Tool | Version | Needed for |
+|---|---|---|
+| Go | as in `go.mod` (`1.27.1`) | everything |
+| Grafana | 13 or newer | serving `dashboard.grafana.app/v2` |
+| Grafana Operator | 5.x (tested on `5.25.0`) | applying the CRs |
+| Flux CLI | 2.x | publishing the OCI artifact |
+| Kind, kubectl, Helm, python3 | recent | `make e2e-kind` |
 
-## Quick start
+## Make targets
 
-Generate all artifacts:
+| Target | What it does |
+|---|---|
+| `make generate` | Runs `cmd/generate`: writes `generated/` and `deploy/` from the registries |
+| `make test` | `go test ./...` |
+| `make coverage` | Repository-wide coverage with a **90%** gate. Profiles are merged per block (highest count wins), so the figure does not swing with the test cache |
+| `make fmt` | `gofmt -w .` |
+| `make lint` | `gofmt` check and `go vet` |
+| `make generated-check` | Regenerates and fails if `generated/` or `deploy/` changed |
+| `make validate` | `lint` + `coverage` + `generated-check` — **the definition of done** |
+| `make e2e-kind` | The Kind smoke test (see [Testing](#testing)); needs Docker |
 
-```bash
-make generate
-```
-
-Run unit tests:
-
-```bash
-make test
-```
-
-Run the repository-wide 90% coverage gate:
-
-```bash
-make coverage
-```
-
-To inspect the coverage report directly:
+The everyday loop:
 
 ```bash
-go test ./... -coverpkg=./... -coverprofile=/tmp/grafana-dashboards-coverage.out
-go tool cover -func=/tmp/grafana-dashboards-coverage.out
-```
-
-Run formatting, vet, coverage, generation, and the generated-diff check:
-
-```bash
-make validate
-```
-
-Format Go files:
-
-```bash
-make fmt
+make generate        # after editing internal/
+make validate        # before every commit
+make e2e-kind        # before a release, or after touching delivery
 ```
 
 ## Repository layout
 
 ```text
-cmd/generate/                 generation entry point
+cmd/generate/              entry point of the generator
 internal/
-  alerts/                     alert rule definitions
-  dashboards/                 dashboard composition by domain
-  generate/                   deterministic artifact renderer
-  panels/                     reusable visualization builders
-  queries/prometheus/         reusable PromQL by domain
-  registry/                   dashboard and alert registration
-  standards/                  folders, labels, datasources, time settings
+  standards/               folders, domains, labels, the datasource, time settings
+  queries/prometheus/      PromQL by domain
+  panels/                  reusable visualization builders
+  dashboards/<domain>/     dashboard composition: gateway, kubernetes, microservices,
+                           observability, platform, postgres
+  alerts/                  alert rule definitions
+  registry/                dashboards.go and alerts.go — what gets generated
+  generate/                the deterministic renderer
 generated/
-  alerts/<domain>/            generated alert definitions, grouped by Go package
-  dashboards/<domain>/        Dashboard v2 specs and manifests, grouped by Go package
+  dashboards/<domain>/     Dashboard v2 specs and manifests (review surface)
+  alerts/<domain>/         alert definitions
 deploy/
-  manifests/                  Grafana Operator custom resources
-  kustomization.yaml          OCI bundle entry point
+  folders/                 wave 1: one GrafanaManifest per folder
+  dashboards/              wave 2: one GrafanaManifest per dashboard, the alert groups
+  kustomization.yaml       both waves, for a single apply
 test/
-  dashboards/                 cross-resource contract tests
-  e2e/kind/                   Grafana Operator smoke test
+  dashboards/              cross-resource contract tests
+  e2e/kind/                the Grafana Operator smoke test
+dashboard/                 two hand-made boards homelab still fetches by raw URL
+  redis/redis.json             (GrafanaDashboard "redis")
+  postgresql/cloudnative-pg-cluster.json   (GrafanaDashboard "cloudnative-pg")
+docs/audit-as-code.md      the as-code design audit
+.github/                   workflows/as-code.yml, dependabot.yml
+.agents/skills/            the project Agent Skill (see below)
+AGENTS.md                  repository-wide agent instructions
 ```
 
-## Agent configuration
-
-The project Agent Skill is located at
-[`.agents/skills/grafana-foundation-sdk/`](.agents/skills/grafana-foundation-sdk/SKILL.md).
-It follows the [Agent Skills](https://agentskills.io) format and contains the
-architecture, domain, alerting, testing, CI/CD, end-to-end, and multi-agent
-conventions used by this repository.
-
-`.agents/skills/` is the canonical location, which OpenAI Codex discovers natively.
-`.claude/skills/grafana-foundation-sdk` and `.cursor/skills/grafana-foundation-sdk`
-are symlinks to it, so Claude Code and Cursor load the same files.
-
-[`AGENTS.md`](AGENTS.md) holds the repository-wide agent instructions; `CLAUDE.md`
-imports it.
+> **Do not move or rename the two files under `dashboard/`.** homelab reads them
+> from `main` by raw URL, so a rename breaks both boards on the next resync.
 
 ## Development
 
-Use the following workflow to onboard resources while preserving shared
-standards, generated output, and dashboard-alert relationships.
+### Add a dashboard
 
-### Adding a dashboard
-
-1. Add or reuse queries under `internal/queries/`.
+1. Add or reuse queries under `internal/queries/prometheus/<domain>/`.
 2. Compose panels and rows under `internal/dashboards/<domain>/`.
-3. Register the dashboard and its domain folder in
-   `internal/registry/dashboards.go`.
-4. Add operational alert rules when appropriate.
-5. Run `make validate`.
+3. Register it in `internal/registry/dashboards.go` with its `Domain` (required)
+   and its folder.
+4. Add an alert rule when the board answers an operational question.
+5. Run `make validate` and commit the regenerated `generated/` and `deploy/`.
 
-### Adding an alert rule
+### Add an alert rule
 
-1. Reuse the dashboard's query semantics.
-2. Define the rule under `internal/alerts/`.
-3. Apply standard labels and annotations, including `dashboard_uid`.
-4. Register it in `internal/registry/alerts.go`.
-5. Run `make validate`.
+1. Reuse the query the dashboard already plots, so the rule and the board agree.
+2. Define it under `internal/alerts/` with the standard labels and the
+   `dashboard_uid` annotation.
+3. Give it a `Group`: the generator emits one `GrafanaAlertRuleGroup` per group.
+4. Register it in `internal/registry/alerts.go`, then run `make validate`.
 
-### Adding a domain
+### Add a domain
 
-Define the folder in `internal/standards/folders.go`, then register resources
-with that folder. The generator discovers folders from the registries, so adding
-a domain does not require generator changes.
+1. Add a `Domain*` constant in `internal/standards/domains.go`.
+2. Add or reuse its folder in `internal/standards/folders.go`. A domain is not a
+   folder: the `postgres` domain's five boards land in the `Databases` folder, so
+   neither name is derived from the other.
+3. Register resources with them. The generator discovers folders from the
+   registries, so `cmd/generate` does not change.
 
 ## Kubernetes delivery
 
-Build the complete manifest bundle:
+`kubectl kustomize deploy/` renders the whole bundle:
 
-```bash
-kubectl kustomize deploy/
-```
-
-The bundle contains:
-
-- one `GrafanaManifest` wrapping a `folder.grafana.app/v1` `Folder` per domain
-- one `GrafanaManifest` wrapping a `dashboard.grafana.app/v2` `Dashboard` per dashboard
-- one `GrafanaAlertRuleGroup` per alert domain
+| Resource | One per | Applies |
+|---|---|---|
+| `GrafanaManifest` → `folder.grafana.app/v1` `Folder` | folder | wave 1, `deploy/folders/` |
+| `GrafanaManifest` → `dashboard.grafana.app/v2` `Dashboard` | dashboard | wave 2, `deploy/dashboards/` |
+| `GrafanaAlertRuleGroup` | alert group | wave 2, `deploy/dashboards/` |
 
 ### Why `GrafanaManifest` and not `GrafanaDashboard`
 
-`GrafanaDashboard` posts through the legacy `/api/dashboards/db` envelope, and
-that is what the controller does rather than a setting — its content sources
-(`oci`, `url`, `configMapRef`, `json`, `grafanaCom`, `jsonnet`) are only
-transports for the bytes. A Dashboard v2 payload is refused twice over: the bare
-spec returns `400 dashboard appears to be in v2 format`, and the wrapped object
-that error asks for returns `400 The k8s style dashboard must not include an id
-on the root element` — unfixable from here, because the operator's content
-resolver sets an `id` on every model before posting.
+`GrafanaDashboard` always posts through the legacy `/api/dashboards/db`
+envelope; its content sources (`oci`, `url`, `configMapRef`, `json`,
+`grafanaCom`, `jsonnet`) only change how the bytes arrive. A Dashboard v2 payload
+is refused either way: the bare spec returns `400 dashboard appears to be in v2
+format`, and the wrapped object that error asks for returns `400 The k8s style
+dashboard must not include an id on the root element`. The operator sets an `id`
+on every model before posting, so that cannot be fixed from this side.
 
 `GrafanaManifest` applies its payload with a discovery-based dynamic client
-against `/apis`, so it speaks the same protocol as the schema. The trade is that
-it has **no content sources at all**, so the dashboard spec is inlined and the
-object is bounded by the etcd limit near 1 MiB. Grafana must serve
-`dashboard.grafana.app/v2`, which means **13.x**; 12.0 and 12.1 serve no higher
-than `v2alpha1`.
+against `/apis`, the protocol the schema speaks. The trade-off is that it has no
+content sources: each spec is inlined, so one object is bounded by the etcd limit
+of about 1 MiB.
 
 ### Two waves
 
-`deploy/` is split because a dashboard whose `grafana.app/folder` annotation
-names a folder that does not exist yet fails outright and then waits for the
-operator's next resync — long enough that a Flux wave times out red. Listing the
-folder first inside one kustomization does not help; kustomize ordering is not
-apply ordering for independent controllers.
+A dashboard whose `grafana.app/folder` names a folder that does not exist yet
+fails, then waits for the operator's next resync — long enough for a Flux wave to
+time out red. Ordering inside one kustomization does not help, because kustomize
+order is not apply order across independent controllers. So the folders apply
+first:
 
-```text
-deploy/folders/      GrafanaManifest -> folder.grafana.app/v1 Folder
-deploy/dashboards/   GrafanaManifest -> dashboard.grafana.app/v2 Dashboard, plus alert groups
-deploy/              both, for a single apply where nothing is racing
+```mermaid
+flowchart LR
+  art[("OCI artifact<br/>root = deploy/")]
+  k1["Kustomization 1<br/>path ./folders"]
+  k2["Kustomization 2<br/>path ./dashboards<br/>dependsOn: Kustomization 1"]
+  g["Grafana"]
+  art --> k1 --> g
+  art --> k2 --> g
+  k1 -. "Ready first" .-> k2
 ```
 
-A consumer points one Flux `Kustomization` at `./deploy/folders` and a second at
-`./deploy/dashboards` with `dependsOn`. The second also needs `healthCheckExprs`:
-`GrafanaManifest` reports `ManifestSynchronized`, not the `Ready` condition
-kstatus expects.
+Paths are relative to the artifact, whose root is `deploy/`. Both Kustomizations
+need `healthCheckExprs` on the `ManifestSynchronized` condition (with
+`observedGeneration`), because `GrafanaManifest` does not report the `Ready`
+condition kstatus expects.
 
-Run the local end-to-end smoke test:
+## Testing
 
-```bash
-make e2e-kind
-```
+| Layer | Command | What it proves |
+|---|---|---|
+| Unit and contract tests | `make test` | Builders, queries and cross-resource invariants (e.g. every alert's `dashboard_uid` exists) |
+| Coverage | `make coverage` | At least 90% of statements, measured over the whole module |
+| Determinism | `make generated-check` | Regeneration is byte-identical to what is committed |
+| End to end | `make e2e-kind` | The bundle works on a real Grafana Operator |
 
-The test creates a Kind cluster, installs Grafana Operator 5.25.0, deploys
-Grafana 13, applies the two waves in order, waits for every `GrafanaManifest` to
-report `ManifestSynchronized`, and then **reads each board back** through
-`/apis/dashboard.grafana.app/v2/namespaces/default/dashboards/<uid>`, comparing
-title and element count against the generated spec. The read-back is the point:
-on Grafana 12.0.0 the legacy save path accepts fairly arbitrary JSON and reports
-a synchronized condition while storing something unusable, so an assertion on
-the CR condition alone proves nothing. The expected resource set is read from
-`deploy/`, so a newly registered dashboard is covered automatically.
+`make e2e-kind` creates a Kind cluster, installs Grafana Operator `5.25.0` and
+Grafana `13.2.0`, applies `deploy/folders` and then `deploy/dashboards`, and
+waits for every `GrafanaManifest` to report `ManifestSynchronized`. It then
+**reads every board back** through
+`/apis/dashboard.grafana.app/v2/namespaces/default/dashboards/<uid>` and compares
+the title and element count with the generated spec. The read-back is the real
+test: Grafana 12.0's legacy save path accepts nearly arbitrary JSON and still
+reports a synchronized condition, so a CR condition alone proves nothing. The
+expected set comes from `deploy/`, so a newly registered board is covered with
+no test change.
 
-## OCI publishing
+## CI and publishing
 
-GitHub Actions publishes one artifact, the `deploy/` bundle, on every push to
-`main` and on `v*` tags:
+`.github/workflows/as-code.yml` runs on pull requests to `main`, pushes to
+`main`, and `v*` tags.
 
-```text
-ghcr.io/duynhlab/grafana-dashboards-as-code:latest
-ghcr.io/duynhlab/grafana-dashboards-as-code:sha-<commit>   # branch push
-ghcr.io/duynhlab/grafana-dashboards-as-code:v<x.y.z>       # tag push, pin this
-```
+| Job | Runs on | Checks |
+|---|---|---|
+| `validate` | every run | `gofmt`, `go vet`, 90% coverage, regeneration diff, `kustomize build` of `deploy`, `deploy/folders` and `deploy/dashboards` (no `GrafanaDashboard` may appear), one CR per generated spec |
+| `e2e-kind` | every run | `make e2e-kind`'s script |
+| `publish-oci` | pushes only (`main`, tags) | pushes `deploy/` as a reproducible Flux OCI artifact |
 
-There is no separate dashboard-JSON artifact. `GrafanaManifest` cannot fetch
-content, so nothing would pull one; the specs under `generated/dashboards/` stay
-committed as the review surface, not as a delivery mechanism.
+Tags on `ghcr.io/duynhlab/grafana-dashboards-as-code`:
 
+| Tag | Moves on | Use |
+|---|---|---|
+| `vX.Y.Z` | a `vX.Y.Z` git tag | **pin this** |
+| `sha-<7-char sha>` | each push to `main` | an exact build of `main` |
+| `latest` | every push to `main` and every tag | inspection only, never pin |
 
-The `latest` tag follows the `as-code` branch. Commit tags provide immutable
-references for GitOps consumers.
+`generated/dashboards/` is not published separately. `GrafanaManifest` cannot
+fetch content, so nothing would pull it; the specs stay committed as the review
+surface.
 
-### Microservices boards: two delivery paths
+## Consumers
 
-`microservices-monitoring-001-otel` and `business-otel` are also served by the
-`duynhlab/helm-charts` `grafana-dashboards` chart, which renders them as ConfigMaps
-that homelab consumes through `GrafanaDashboard.configMapRef`. Nothing consumes the
-as-code copies yet, so the two paths coexist safely today.
+| Consumer | Object | Reads |
+|---|---|---|
+| homelab | `OCIRepository` `grafana-dashboards-as-code-oci` | this artifact, `semver: "0.2.2"` |
+| homelab | `Kustomization` `grafana-dashboards-as-code-folders-local` | `./folders`, health-checked on the six folder manifests |
+| homelab | `Kustomization` `grafana-dashboards-as-code-dashboards-local` | `./dashboards`, `dependsOn` the folders wave, health-checked on all 18 boards |
+| homelab | `GrafanaDashboard` `redis`, `cloudnative-pg` | `dashboard/redis/redis.json` and `dashboard/postgresql/cloudnative-pg-cluster.json` by raw URL on `main` |
 
-They must never both be active against the same Grafana: the UIDs collide. A cutover
-means pointing a Flux `OCIRepository` at the `deploy/` bundle, removing the boards from
-the chart values, and deleting the two `configMapRef` CRs. Two differences to expect:
-the as-code copies land in the `Microservices` folder rather than
-"Microservices / Golden Signals" and "Business & Product", and they resolve a datasource
-named `prometheus` instead of the chart's `DS_PROMETHEUS` input mapped to
-`VictoriaMetrics`.
+All 18 boards reach the cluster only through this artifact. Historically,
+`microservices-monitoring-001-otel` and `business-otel` were also served by the
+`duynhlab/helm-charts` `grafana-dashboards` chart; homelab removed those
+`configMapRef` dashboards when it moved to this artifact (homelab #1085), and the
+two must never be active against one Grafana at the same time, because their UIDs
+collide.
 
-## CI
+## Agent configuration
 
-Pull requests run:
-
-- formatting verification
-- `go vet`
-- repository-wide test coverage with a minimum of 90%
-- deterministic artifact generation and diff verification
-- Kustomize rendering checks on each of the three overlays, including a guard
-  that `deploy/` never emits a `GrafanaDashboard` again
-- a guard that every generated `*.spec.json` has a matching `GrafanaManifest` CR
-- Kind end-to-end smoke tests that read every board back through `/apis`
-
-Pushes to `main` and `v*` tags additionally publish the Flux deploy bundle to
-GHCR.
+The project Agent Skill lives in
+[`.agents/skills/grafana-foundation-sdk/`](.agents/skills/grafana-foundation-sdk/SKILL.md),
+in the [Agent Skills](https://agentskills.io) format. It holds the architecture,
+domain, alerting, testing, CI/CD, end-to-end and multi-agent conventions of this
+repository. `.agents/skills/` is the canonical location (OpenAI Codex reads it
+natively); `.claude/skills/grafana-foundation-sdk` and
+`.cursor/skills/grafana-foundation-sdk` are symlinks to it.
+[`AGENTS.md`](AGENTS.md) holds the repository-wide instructions, and `CLAUDE.md`
+imports it.
