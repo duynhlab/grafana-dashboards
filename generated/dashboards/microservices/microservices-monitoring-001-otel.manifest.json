@@ -14,12 +14,109 @@
     "description": "RED and resource view of the Go microservices from OpenTelemetry semantic-convention metrics: HTTP server (http_server_request_duration_seconds, request/response body size), gRPC client and server call duration, the OTel Go runtime (goroutines, memory, GC pacing) and the otelpgx DB client with its pgx pool. Ported from the helm-charts grafana-dashboards chart (dashboards/microservices/microservices-dashboard-otel.json).",
     "editable": true,
     "elements": {
+      "otel-4xx-service": {
+        "kind": "Panel",
+        "spec": {
+          "id": 1819296328,
+          "title": "Client Errors (4xx)",
+          "description": "Client-side errors (400-499) in req/sec by service. High 4xx rates indicate API misuse, invalid requests, authentication issues, or bad client behavior. Common codes: 400 (Bad Request), 401 (Unauthorized), 403 (Forbidden), 404 (Not Found), 429 (Rate Limited).",
+          "links": [],
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "prometheus",
+                      "version": "v0",
+                      "datasource": {
+                        "name": "prometheus"
+                      },
+                      "spec": {
+                        "expr": "sum(rate(http_server_request_duration_seconds_count{service_name=~\"$app\", http_response_status_code=~\"4..\"}[$__rate_interval])) by (service_name)",
+                        "legendFormat": "{{service_name}}"
+                      }
+                    },
+                    "refId": "A",
+                    "hidden": false
+                  }
+                }
+              ],
+              "transformations": [],
+              "queryOptions": {}
+            }
+          },
+          "vizConfig": {
+            "kind": "VizConfig",
+            "group": "timeseries",
+            "version": "",
+            "spec": {
+              "options": {
+                "legend": {
+                  "displayMode": "table",
+                  "placement": "right",
+                  "showLegend": true,
+                  "sortBy": "Max",
+                  "sortDesc": true,
+                  "calcs": [
+                    "mean",
+                    "last",
+                    "max"
+                  ]
+                },
+                "tooltip": {
+                  "mode": "multi",
+                  "sort": "none"
+                }
+              },
+              "fieldConfig": {
+                "defaults": {
+                  "unit": "reqps",
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "value": null,
+                        "color": "green"
+                      },
+                      {
+                        "value": 1,
+                        "color": "yellow"
+                      },
+                      {
+                        "value": 5,
+                        "color": "orange"
+                      }
+                    ]
+                  },
+                  "color": {
+                    "mode": "thresholds"
+                  },
+                  "custom": {
+                    "thresholdsStyle": {
+                      "mode": "off"
+                    },
+                    "lineWidth": 2,
+                    "fillOpacity": 10,
+                    "showPoints": "never",
+                    "spanNulls": false
+                  }
+                },
+                "overrides": []
+              }
+            }
+          }
+        }
+      },
       "otel-5xx-ratio": {
         "kind": "Panel",
         "spec": {
           "id": 847352343,
-          "title": "5xx ratio by method and endpoint",
-          "description": "",
+          "title": "Server Error Rate by Method and Endpoint (5xx)",
+          "description": "5xx ratio per method+route — continuous series (0 baseline) so legend means are honest. Client 4xx per endpoint live in the Client Errors (4xx) panel.",
           "links": [],
           "data": {
             "kind": "QueryGroup",
@@ -56,14 +153,19 @@
             "spec": {
               "options": {
                 "legend": {
-                  "displayMode": "list",
-                  "placement": "bottom",
-                  "showLegend": false,
-                  "calcs": []
+                  "displayMode": "table",
+                  "placement": "right",
+                  "showLegend": true,
+                  "sortBy": "Max",
+                  "sortDesc": true,
+                  "calcs": [
+                    "mean",
+                    "max"
+                  ]
                 },
                 "tooltip": {
-                  "mode": "",
-                  "sort": ""
+                  "mode": "multi",
+                  "sort": "none"
                 }
               },
               "fieldConfig": {
@@ -77,15 +179,123 @@
                         "color": "green"
                       },
                       {
+                        "value": 1,
+                        "color": "yellow"
+                      },
+                      {
                         "value": 5,
                         "color": "red"
                       }
                     ]
                   },
+                  "color": {
+                    "mode": "palette-classic"
+                  },
                   "custom": {
                     "thresholdsStyle": {
                       "mode": "line"
-                    }
+                    },
+                    "lineWidth": 2,
+                    "fillOpacity": 10,
+                    "showPoints": "never",
+                    "spanNulls": false
+                  }
+                },
+                "overrides": []
+              }
+            }
+          }
+        }
+      },
+      "otel-5xx-service": {
+        "kind": "Panel",
+        "spec": {
+          "id": 294609999,
+          "title": "Server Errors (5xx)",
+          "description": "Server-side errors (500-599) in req/sec by service. High 5xx rates indicate service degradation, bugs, infrastructure issues, or dependency failures. Common codes: 500 (Internal Server Error), 502 (Bad Gateway), 503 (Service Unavailable), 504 (Gateway Timeout). Requires immediate investigation.",
+          "links": [],
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "prometheus",
+                      "version": "v0",
+                      "datasource": {
+                        "name": "prometheus"
+                      },
+                      "spec": {
+                        "expr": "sum(rate(http_server_request_duration_seconds_count{service_name=~\"$app\", http_response_status_code=~\"5..\"}[$__rate_interval])) by (service_name)",
+                        "legendFormat": "{{service_name}}"
+                      }
+                    },
+                    "refId": "A",
+                    "hidden": false
+                  }
+                }
+              ],
+              "transformations": [],
+              "queryOptions": {}
+            }
+          },
+          "vizConfig": {
+            "kind": "VizConfig",
+            "group": "timeseries",
+            "version": "",
+            "spec": {
+              "options": {
+                "legend": {
+                  "displayMode": "table",
+                  "placement": "right",
+                  "showLegend": true,
+                  "sortBy": "Max",
+                  "sortDesc": true,
+                  "calcs": [
+                    "mean",
+                    "last",
+                    "max"
+                  ]
+                },
+                "tooltip": {
+                  "mode": "multi",
+                  "sort": "none"
+                }
+              },
+              "fieldConfig": {
+                "defaults": {
+                  "unit": "reqps",
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "value": null,
+                        "color": "green"
+                      },
+                      {
+                        "value": 0.5,
+                        "color": "orange"
+                      },
+                      {
+                        "value": 2,
+                        "color": "red"
+                      }
+                    ]
+                  },
+                  "color": {
+                    "mode": "thresholds"
+                  },
+                  "custom": {
+                    "thresholdsStyle": {
+                      "mode": "off"
+                    },
+                    "lineWidth": 2,
+                    "fillOpacity": 10,
+                    "showPoints": "never",
+                    "spanNulls": false
                   }
                 },
                 "overrides": []
@@ -98,8 +308,8 @@
         "kind": "Panel",
         "spec": {
           "id": 705660148,
-          "title": "Apdex score",
-          "description": "",
+          "title": "Apdex Score",
+          "description": "User satisfaction score (0-1). Satisfying: \u003c0.5s, Tolerating: 0.5-2s, Frustrated: \u003e2s. Formula: (satisfying + 0.5 * tolerating) / total requests. Handles zero traffic gracefully.",
           "links": [],
           "data": {
             "kind": "QueryGroup",
@@ -141,12 +351,14 @@
                 "wideLayout": true,
                 "showPercentChange": false,
                 "reduceOptions": {
+                  "values": false,
                   "calcs": [
                     "lastNotNull"
-                  ]
+                  ],
+                  "fields": ""
                 },
                 "percentChangeColorMode": "standard",
-                "orientation": ""
+                "orientation": "auto"
               },
               "fieldConfig": {
                 "defaults": {
@@ -167,6 +379,9 @@
                         "color": "green"
                       }
                     ]
+                  },
+                  "color": {
+                    "mode": "thresholds"
                   }
                 },
                 "overrides": []
@@ -180,7 +395,7 @@
         "spec": {
           "id": 1961012176,
           "title": "DB operation errors",
-          "description": "",
+          "description": "otelpgx non-ErrNoRows operation errors. Healthy = no series/0.",
           "links": [],
           "data": {
             "kind": "QueryGroup",
@@ -217,20 +432,27 @@
             "spec": {
               "options": {
                 "legend": {
-                  "displayMode": "list",
+                  "displayMode": "table",
                   "placement": "bottom",
-                  "showLegend": false,
-                  "calcs": []
+                  "showLegend": true,
+                  "calcs": [
+                    "lastNotNull",
+                    "max"
+                  ]
                 },
                 "tooltip": {
-                  "mode": "",
-                  "sort": ""
+                  "mode": "multi",
+                  "sort": "desc"
                 }
               },
               "fieldConfig": {
                 "defaults": {
                   "unit": "ops",
-                  "custom": {}
+                  "custom": {
+                    "lineWidth": 1,
+                    "fillOpacity": 12,
+                    "showPoints": "never"
+                  }
                 },
                 "overrides": []
               }
@@ -243,7 +465,7 @@
         "spec": {
           "id": 844548569,
           "title": "DB p95 by operation type",
-          "description": "",
+          "description": "query / batch / prepare / connect / acquire — split by op.",
           "links": [],
           "data": {
             "kind": "QueryGroup",
@@ -260,7 +482,7 @@
                         "name": "prometheus"
                       },
                       "spec": {
-                        "expr": "histogram_quantile(0.95, sum by (le, pgx_operation_type) (rate(db_client_operation_duration_seconds_bucket{service_name=~\"$app\"}[$__rate_interval])))",
+                        "expr": "histogram_quantile(0.95, sum by (le,pgx_operation_type) (rate(db_client_operation_duration_seconds_bucket{service_name=~\"$app\"}[$__rate_interval])))",
                         "legendFormat": "{{pgx_operation_type}}"
                       }
                     },
@@ -280,20 +502,27 @@
             "spec": {
               "options": {
                 "legend": {
-                  "displayMode": "list",
+                  "displayMode": "table",
                   "placement": "bottom",
-                  "showLegend": false,
-                  "calcs": []
+                  "showLegend": true,
+                  "calcs": [
+                    "lastNotNull",
+                    "max"
+                  ]
                 },
                 "tooltip": {
-                  "mode": "",
-                  "sort": ""
+                  "mode": "multi",
+                  "sort": "desc"
                 }
               },
               "fieldConfig": {
                 "defaults": {
                   "unit": "s",
-                  "custom": {}
+                  "custom": {
+                    "lineWidth": 1,
+                    "fillOpacity": 12,
+                    "showPoints": "never"
+                  }
                 },
                 "overrides": []
               }
@@ -306,7 +535,7 @@
         "spec": {
           "id": 1099104709,
           "title": "DB query p95 by service",
-          "description": "",
+          "description": "otelpgx per-statement latency (DB-scale buckets, pkg v0.24.0). Query ops only.",
           "links": [],
           "data": {
             "kind": "QueryGroup",
@@ -323,7 +552,7 @@
                         "name": "prometheus"
                       },
                       "spec": {
-                        "expr": "histogram_quantile(0.95, sum by (le, service_name) (rate(db_client_operation_duration_seconds_bucket{service_name=~\"$app\", pgx_operation_type=\"query\"}[$__rate_interval])))",
+                        "expr": "histogram_quantile(0.95, sum by (le,service_name) (rate(db_client_operation_duration_seconds_bucket{service_name=~\"$app\", pgx_operation_type=\"query\"}[$__rate_interval])))",
                         "legendFormat": "{{service_name}}"
                       }
                     },
@@ -343,20 +572,27 @@
             "spec": {
               "options": {
                 "legend": {
-                  "displayMode": "list",
+                  "displayMode": "table",
                   "placement": "bottom",
-                  "showLegend": false,
-                  "calcs": []
+                  "showLegend": true,
+                  "calcs": [
+                    "lastNotNull",
+                    "max"
+                  ]
                 },
                 "tooltip": {
-                  "mode": "",
-                  "sort": ""
+                  "mode": "multi",
+                  "sort": "desc"
                 }
               },
               "fieldConfig": {
                 "defaults": {
                   "unit": "s",
-                  "custom": {}
+                  "custom": {
+                    "lineWidth": 1,
+                    "fillOpacity": 12,
+                    "showPoints": "never"
+                  }
                 },
                 "overrides": []
               }
@@ -368,8 +604,8 @@
         "kind": "Panel",
         "spec": {
           "id": 1558175093,
-          "title": "Error rate % (5xx)",
-          "description": "",
+          "title": "Error Rate % (5xx)",
+          "description": "Server-fault error ratio — matches the MicroserviceHighErrorRate alert and the availability SLO (both 5xx-only). Client 4xx are the service answering correctly; they stay visible in Error RPS (4xx/5xx), the status pie, and Client Errors (4xx).",
           "links": [],
           "data": {
             "kind": "QueryGroup",
@@ -411,12 +647,14 @@
                 "wideLayout": true,
                 "showPercentChange": false,
                 "reduceOptions": {
+                  "values": false,
                   "calcs": [
                     "lastNotNull"
-                  ]
+                  ],
+                  "fields": ""
                 },
                 "percentChangeColorMode": "standard",
-                "orientation": ""
+                "orientation": "auto"
               },
               "fieldConfig": {
                 "defaults": {
@@ -425,7 +663,7 @@
                     "mode": "absolute",
                     "steps": [
                       {
-                        "value": null,
+                        "value": 0,
                         "color": "green"
                       },
                       {
@@ -437,6 +675,9 @@
                         "color": "red"
                       }
                     ]
+                  },
+                  "color": {
+                    "mode": "thresholds"
                   }
                 },
                 "overrides": []
@@ -450,7 +691,7 @@
         "spec": {
           "id": 1641249906,
           "title": "Error RPS (4xx/5xx)",
-          "description": "",
+          "description": "Failed requests per second (HTTP 4xx/5xx responses). Monitor this to detect issues quickly.",
           "links": [],
           "data": {
             "kind": "QueryGroup",
@@ -492,12 +733,14 @@
                 "wideLayout": true,
                 "showPercentChange": false,
                 "reduceOptions": {
+                  "values": false,
                   "calcs": [
                     "lastNotNull"
-                  ]
+                  ],
+                  "fields": ""
                 },
                 "percentChangeColorMode": "standard",
-                "orientation": ""
+                "orientation": "auto"
               },
               "fieldConfig": {
                 "defaults": {
@@ -510,90 +753,10 @@
                         "color": "red"
                       }
                     ]
+                  },
+                  "color": {
+                    "mode": "thresholds"
                   }
-                },
-                "overrides": []
-              }
-            }
-          }
-        }
-      },
-      "otel-errors-by-service": {
-        "kind": "Panel",
-        "spec": {
-          "id": 84597687,
-          "title": "Client and server errors by service",
-          "description": "",
-          "links": [],
-          "data": {
-            "kind": "QueryGroup",
-            "spec": {
-              "queries": [
-                {
-                  "kind": "PanelQuery",
-                  "spec": {
-                    "query": {
-                      "kind": "DataQuery",
-                      "group": "prometheus",
-                      "version": "v0",
-                      "datasource": {
-                        "name": "prometheus"
-                      },
-                      "spec": {
-                        "expr": "sum(rate(http_server_request_duration_seconds_count{service_name=~\"$app\", http_response_status_code=~\"4..\"}[$__rate_interval])) by (service_name)",
-                        "legendFormat": "4xx {{service_name}}"
-                      }
-                    },
-                    "refId": "A",
-                    "hidden": false
-                  }
-                },
-                {
-                  "kind": "PanelQuery",
-                  "spec": {
-                    "query": {
-                      "kind": "DataQuery",
-                      "group": "prometheus",
-                      "version": "v0",
-                      "datasource": {
-                        "name": "prometheus"
-                      },
-                      "spec": {
-                        "expr": "sum(rate(http_server_request_duration_seconds_count{service_name=~\"$app\", http_response_status_code=~\"5..\"}[$__rate_interval])) by (service_name)",
-                        "legendFormat": "5xx {{service_name}}",
-                        "range": true
-                      }
-                    },
-                    "refId": "B",
-                    "hidden": false
-                  }
-                }
-              ],
-              "transformations": [],
-              "queryOptions": {}
-            }
-          },
-          "vizConfig": {
-            "kind": "VizConfig",
-            "group": "timeseries",
-            "version": "",
-            "spec": {
-              "options": {
-                "legend": {
-                  "displayMode": "list",
-                  "placement": "bottom",
-                  "showLegend": false,
-                  "calcs": []
-                },
-                "tooltip": {
-                  "mode": "",
-                  "sort": ""
-                }
-              },
-              "fieldConfig": {
-                "defaults": {
-                  "unit": "reqps",
-                  "custom": {}
                 },
                 "overrides": []
               }
@@ -605,8 +768,8 @@
         "kind": "Panel",
         "spec": {
           "id": 210405176,
-          "title": "Allocation rate",
-          "description": "",
+          "title": "Memory Allocation Rate",
+          "description": "Heap allocation rate (objects/s) from the OTel Go runtime. The OTel runtime emits no GC-pause metric; rising allocation rate is the leading indicator of GC pressure.",
           "links": [],
           "data": {
             "kind": "QueryGroup",
@@ -643,20 +806,45 @@
             "spec": {
               "options": {
                 "legend": {
-                  "displayMode": "list",
-                  "placement": "bottom",
-                  "showLegend": false,
-                  "calcs": []
+                  "displayMode": "table",
+                  "placement": "right",
+                  "showLegend": true,
+                  "sortBy": "Max",
+                  "sortDesc": true,
+                  "calcs": [
+                    "mean",
+                    "max"
+                  ]
                 },
                 "tooltip": {
-                  "mode": "",
-                  "sort": ""
+                  "mode": "multi",
+                  "sort": "none"
                 }
               },
               "fieldConfig": {
                 "defaults": {
                   "unit": "short",
-                  "custom": {}
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "value": null,
+                        "color": "green"
+                      }
+                    ]
+                  },
+                  "color": {
+                    "mode": "palette-classic"
+                  },
+                  "custom": {
+                    "thresholdsStyle": {
+                      "mode": "off"
+                    },
+                    "lineWidth": 1,
+                    "fillOpacity": 10,
+                    "showPoints": "never",
+                    "spanNulls": false
+                  }
                 },
                 "overrides": []
               }
@@ -668,8 +856,8 @@
         "kind": "Panel",
         "spec": {
           "id": 697966221,
-          "title": "GC pacing pressure (used / goal)",
-          "description": "",
+          "title": "GC Pacing Pressure (used / goal)",
+          "description": "Heap used vs the GC pacer goal from the OTel Go runtime. Sustained values near 1.0 mean the heap keeps hitting the GC goal — memory pressure / frequent GC cycles.",
           "links": [],
           "data": {
             "kind": "QueryGroup",
@@ -706,14 +894,19 @@
             "spec": {
               "options": {
                 "legend": {
-                  "displayMode": "list",
-                  "placement": "bottom",
-                  "showLegend": false,
-                  "calcs": []
+                  "displayMode": "table",
+                  "placement": "right",
+                  "showLegend": true,
+                  "sortBy": "Max",
+                  "sortDesc": true,
+                  "calcs": [
+                    "mean",
+                    "max"
+                  ]
                 },
                 "tooltip": {
-                  "mode": "",
-                  "sort": ""
+                  "mode": "multi",
+                  "sort": "none"
                 }
               },
               "fieldConfig": {
@@ -732,10 +925,17 @@
                       }
                     ]
                   },
+                  "color": {
+                    "mode": "palette-classic"
+                  },
                   "custom": {
                     "thresholdsStyle": {
                       "mode": "line"
-                    }
+                    },
+                    "lineWidth": 1,
+                    "fillOpacity": 10,
+                    "showPoints": "never",
+                    "spanNulls": false
                   }
                 },
                 "overrides": []
@@ -749,7 +949,7 @@
         "spec": {
           "id": 101562700,
           "title": "Goroutines",
-          "description": "",
+          "description": "Goroutine and OS thread count. Steadily increasing goroutines indicates goroutine leak (forgotten defer, unclosed channels). Stable count is normal.",
           "links": [],
           "data": {
             "kind": "QueryGroup",
@@ -786,20 +986,45 @@
             "spec": {
               "options": {
                 "legend": {
-                  "displayMode": "list",
-                  "placement": "bottom",
-                  "showLegend": false,
-                  "calcs": []
+                  "displayMode": "table",
+                  "placement": "right",
+                  "showLegend": true,
+                  "sortBy": "Max",
+                  "sortDesc": true,
+                  "calcs": [
+                    "mean",
+                    "max"
+                  ]
                 },
                 "tooltip": {
-                  "mode": "",
-                  "sort": ""
+                  "mode": "multi",
+                  "sort": "none"
                 }
               },
               "fieldConfig": {
                 "defaults": {
                   "unit": "short",
-                  "custom": {}
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "value": null,
+                        "color": "green"
+                      }
+                    ]
+                  },
+                  "color": {
+                    "mode": "palette-classic"
+                  },
+                  "custom": {
+                    "thresholdsStyle": {
+                      "mode": "off"
+                    },
+                    "lineWidth": 1,
+                    "fillOpacity": 10,
+                    "showPoints": "never",
+                    "spanNulls": false
+                  }
                 },
                 "overrides": []
               }
@@ -811,8 +1036,8 @@
         "kind": "Panel",
         "spec": {
           "id": 1258850316,
-          "title": "Memory in use",
-          "description": "",
+          "title": "Memory In-Use",
+          "description": "OTel Go runtime: bytes currently in use (go.memory.used).",
           "links": [],
           "data": {
             "kind": "QueryGroup",
@@ -849,20 +1074,45 @@
             "spec": {
               "options": {
                 "legend": {
-                  "displayMode": "list",
-                  "placement": "bottom",
-                  "showLegend": false,
-                  "calcs": []
+                  "displayMode": "table",
+                  "placement": "right",
+                  "showLegend": true,
+                  "sortBy": "Max",
+                  "sortDesc": true,
+                  "calcs": [
+                    "mean",
+                    "max"
+                  ]
                 },
                 "tooltip": {
-                  "mode": "",
-                  "sort": ""
+                  "mode": "multi",
+                  "sort": "none"
                 }
               },
               "fieldConfig": {
                 "defaults": {
                   "unit": "bytes",
-                  "custom": {}
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "value": null,
+                        "color": "green"
+                      }
+                    ]
+                  },
+                  "color": {
+                    "mode": "palette-classic"
+                  },
+                  "custom": {
+                    "thresholdsStyle": {
+                      "mode": "off"
+                    },
+                    "lineWidth": 1,
+                    "fillOpacity": 10,
+                    "showPoints": "never",
+                    "spanNulls": false
+                  }
                 },
                 "overrides": []
               }
@@ -870,12 +1120,540 @@
           }
         }
       },
-      "otel-grpc-errors": {
+      "otel-grpc-callee-error-ratio": {
         "kind": "Panel",
         "spec": {
-          "id": 1834885058,
-          "title": "gRPC non-OK error rate",
-          "description": "",
+          "id": 9476482,
+          "title": "gRPC Server Error Ratio per Callee",
+          "description": "Share of server-side gRPC calls with rpc_response_status_code != OK, per callee service (app). Source: rpc_server_call_duration_seconds_count.",
+          "links": [],
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "prometheus",
+                      "version": "v0",
+                      "datasource": {
+                        "name": "prometheus"
+                      },
+                      "spec": {
+                        "expr": "sum by (service_name) (rate(rpc_server_call_duration_seconds_count{service_name=~\"$app\", rpc_response_status_code!=\"OK\"}[$__rate_interval])) / sum by (service_name) (rate(rpc_server_call_duration_seconds_count{service_name=~\"$app\"}[$__rate_interval]))",
+                        "legendFormat": "{{service_name}}"
+                      }
+                    },
+                    "refId": "A",
+                    "hidden": false
+                  }
+                }
+              ],
+              "transformations": [],
+              "queryOptions": {}
+            }
+          },
+          "vizConfig": {
+            "kind": "VizConfig",
+            "group": "timeseries",
+            "version": "",
+            "spec": {
+              "options": {
+                "legend": {
+                  "displayMode": "table",
+                  "placement": "right",
+                  "showLegend": true,
+                  "sortBy": "Max",
+                  "sortDesc": true,
+                  "calcs": [
+                    "mean",
+                    "max"
+                  ]
+                },
+                "tooltip": {
+                  "mode": "multi",
+                  "sort": "none"
+                }
+              },
+              "fieldConfig": {
+                "defaults": {
+                  "unit": "percentunit",
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "value": null,
+                        "color": "green"
+                      }
+                    ]
+                  },
+                  "color": {
+                    "mode": "palette-classic"
+                  },
+                  "custom": {
+                    "thresholdsStyle": {
+                      "mode": "off"
+                    },
+                    "lineWidth": 1,
+                    "fillOpacity": 10,
+                    "showPoints": "never",
+                    "spanNulls": false
+                  }
+                },
+                "overrides": []
+              }
+            }
+          }
+        }
+      },
+      "otel-grpc-callee-p95": {
+        "kind": "Panel",
+        "spec": {
+          "id": 1215691916,
+          "title": "gRPC Server P95 Latency per Callee",
+          "description": "Server-side gRPC 95th percentile call duration per callee service (app). Source: rpc_server_call_duration_seconds_bucket.",
+          "links": [],
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "prometheus",
+                      "version": "v0",
+                      "datasource": {
+                        "name": "prometheus"
+                      },
+                      "spec": {
+                        "expr": "histogram_quantile(0.95, sum by (service_name, le) (rate(rpc_server_call_duration_seconds_bucket{service_name=~\"$app\"}[$__rate_interval])))",
+                        "legendFormat": "{{service_name}}"
+                      }
+                    },
+                    "refId": "A",
+                    "hidden": false
+                  }
+                }
+              ],
+              "transformations": [],
+              "queryOptions": {}
+            }
+          },
+          "vizConfig": {
+            "kind": "VizConfig",
+            "group": "timeseries",
+            "version": "",
+            "spec": {
+              "options": {
+                "legend": {
+                  "displayMode": "table",
+                  "placement": "right",
+                  "showLegend": true,
+                  "sortBy": "Max",
+                  "sortDesc": true,
+                  "calcs": [
+                    "mean",
+                    "max"
+                  ]
+                },
+                "tooltip": {
+                  "mode": "multi",
+                  "sort": "none"
+                }
+              },
+              "fieldConfig": {
+                "defaults": {
+                  "unit": "s",
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "value": null,
+                        "color": "green"
+                      }
+                    ]
+                  },
+                  "color": {
+                    "mode": "palette-classic"
+                  },
+                  "custom": {
+                    "thresholdsStyle": {
+                      "mode": "off"
+                    },
+                    "lineWidth": 1,
+                    "fillOpacity": 10,
+                    "showPoints": "never",
+                    "spanNulls": false
+                  }
+                },
+                "overrides": []
+              }
+            }
+          }
+        }
+      },
+      "otel-grpc-callee-rps": {
+        "kind": "Panel",
+        "spec": {
+          "id": 887199077,
+          "title": "gRPC Server RPS per Callee",
+          "description": "Server-side gRPC request rate aggregated per callee service (app). Source: rpc_server_call_duration_seconds_count.",
+          "links": [],
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "prometheus",
+                      "version": "v0",
+                      "datasource": {
+                        "name": "prometheus"
+                      },
+                      "spec": {
+                        "expr": "sum by (service_name) (rate(rpc_server_call_duration_seconds_count{service_name=~\"$app\"}[$__rate_interval]))",
+                        "legendFormat": "{{service_name}}"
+                      }
+                    },
+                    "refId": "A",
+                    "hidden": false
+                  }
+                }
+              ],
+              "transformations": [],
+              "queryOptions": {}
+            }
+          },
+          "vizConfig": {
+            "kind": "VizConfig",
+            "group": "timeseries",
+            "version": "",
+            "spec": {
+              "options": {
+                "legend": {
+                  "displayMode": "table",
+                  "placement": "right",
+                  "showLegend": true,
+                  "sortBy": "Max",
+                  "sortDesc": true,
+                  "calcs": [
+                    "mean",
+                    "max"
+                  ]
+                },
+                "tooltip": {
+                  "mode": "multi",
+                  "sort": "none"
+                }
+              },
+              "fieldConfig": {
+                "defaults": {
+                  "unit": "reqps",
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "value": null,
+                        "color": "green"
+                      }
+                    ]
+                  },
+                  "color": {
+                    "mode": "palette-classic"
+                  },
+                  "custom": {
+                    "thresholdsStyle": {
+                      "mode": "off"
+                    },
+                    "lineWidth": 1,
+                    "fillOpacity": 10,
+                    "showPoints": "never",
+                    "spanNulls": false
+                  }
+                },
+                "overrides": []
+              }
+            }
+          }
+        }
+      },
+      "otel-grpc-client-errors": {
+        "kind": "Panel",
+        "spec": {
+          "id": 1286897254,
+          "title": "gRPC Client Error Rate (non-OK)",
+          "description": "Client-side gRPC error rate per method and upstream, counting calls where rpc_response_status_code != OK. Source: rpc_client_call_duration_seconds_count.",
+          "links": [],
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "prometheus",
+                      "version": "v0",
+                      "datasource": {
+                        "name": "prometheus"
+                      },
+                      "spec": {
+                        "expr": "sum by (rpc_method, server_address) (rate(rpc_client_call_duration_seconds_count{service_name=~\"$app\", rpc_response_status_code!=\"OK\"}[$__rate_interval]))",
+                        "legendFormat": "{{rpc_method}} → {{server_address}}"
+                      }
+                    },
+                    "refId": "A",
+                    "hidden": false
+                  }
+                }
+              ],
+              "transformations": [],
+              "queryOptions": {}
+            }
+          },
+          "vizConfig": {
+            "kind": "VizConfig",
+            "group": "timeseries",
+            "version": "",
+            "spec": {
+              "options": {
+                "legend": {
+                  "displayMode": "table",
+                  "placement": "right",
+                  "showLegend": true,
+                  "sortBy": "Max",
+                  "sortDesc": true,
+                  "calcs": [
+                    "mean",
+                    "max"
+                  ]
+                },
+                "tooltip": {
+                  "mode": "multi",
+                  "sort": "none"
+                }
+              },
+              "fieldConfig": {
+                "defaults": {
+                  "unit": "reqps",
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "value": null,
+                        "color": "green"
+                      }
+                    ]
+                  },
+                  "color": {
+                    "mode": "palette-classic"
+                  },
+                  "custom": {
+                    "thresholdsStyle": {
+                      "mode": "off"
+                    },
+                    "lineWidth": 1,
+                    "fillOpacity": 10,
+                    "showPoints": "never",
+                    "spanNulls": false
+                  }
+                },
+                "overrides": []
+              }
+            }
+          }
+        }
+      },
+      "otel-grpc-client-p95": {
+        "kind": "Panel",
+        "spec": {
+          "id": 1219043285,
+          "title": "gRPC Client P95 Latency",
+          "description": "Client-side gRPC 95th percentile call duration per method and upstream. Source: rpc_client_call_duration_seconds_bucket.",
+          "links": [],
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "prometheus",
+                      "version": "v0",
+                      "datasource": {
+                        "name": "prometheus"
+                      },
+                      "spec": {
+                        "expr": "histogram_quantile(0.95, sum by (le, rpc_method, server_address) (rate(rpc_client_call_duration_seconds_bucket{service_name=~\"$app\"}[$__rate_interval])))",
+                        "legendFormat": "{{rpc_method}} → {{server_address}}"
+                      }
+                    },
+                    "refId": "A",
+                    "hidden": false
+                  }
+                }
+              ],
+              "transformations": [],
+              "queryOptions": {}
+            }
+          },
+          "vizConfig": {
+            "kind": "VizConfig",
+            "group": "timeseries",
+            "version": "",
+            "spec": {
+              "options": {
+                "legend": {
+                  "displayMode": "table",
+                  "placement": "right",
+                  "showLegend": true,
+                  "sortBy": "Max",
+                  "sortDesc": true,
+                  "calcs": [
+                    "mean",
+                    "max"
+                  ]
+                },
+                "tooltip": {
+                  "mode": "multi",
+                  "sort": "none"
+                }
+              },
+              "fieldConfig": {
+                "defaults": {
+                  "unit": "s",
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "value": null,
+                        "color": "green"
+                      }
+                    ]
+                  },
+                  "color": {
+                    "mode": "palette-classic"
+                  },
+                  "custom": {
+                    "thresholdsStyle": {
+                      "mode": "off"
+                    },
+                    "lineWidth": 1,
+                    "fillOpacity": 10,
+                    "showPoints": "never",
+                    "spanNulls": false
+                  }
+                },
+                "overrides": []
+              }
+            }
+          }
+        }
+      },
+      "otel-grpc-client-rps": {
+        "kind": "Panel",
+        "spec": {
+          "id": 1929359044,
+          "title": "gRPC Client RPS by Method",
+          "description": "Client-side gRPC request rate per method and upstream (server_address). Source: rpc_client_call_duration_seconds_count.",
+          "links": [],
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "prometheus",
+                      "version": "v0",
+                      "datasource": {
+                        "name": "prometheus"
+                      },
+                      "spec": {
+                        "expr": "sum by (rpc_method, server_address) (rate(rpc_client_call_duration_seconds_count{service_name=~\"$app\"}[$__rate_interval]))",
+                        "legendFormat": "{{rpc_method}} → {{server_address}}"
+                      }
+                    },
+                    "refId": "A",
+                    "hidden": false
+                  }
+                }
+              ],
+              "transformations": [],
+              "queryOptions": {}
+            }
+          },
+          "vizConfig": {
+            "kind": "VizConfig",
+            "group": "timeseries",
+            "version": "",
+            "spec": {
+              "options": {
+                "legend": {
+                  "displayMode": "table",
+                  "placement": "right",
+                  "showLegend": true,
+                  "sortBy": "Max",
+                  "sortDesc": true,
+                  "calcs": [
+                    "mean",
+                    "max"
+                  ]
+                },
+                "tooltip": {
+                  "mode": "multi",
+                  "sort": "none"
+                }
+              },
+              "fieldConfig": {
+                "defaults": {
+                  "unit": "reqps",
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "value": null,
+                        "color": "green"
+                      }
+                    ]
+                  },
+                  "color": {
+                    "mode": "palette-classic"
+                  },
+                  "custom": {
+                    "thresholdsStyle": {
+                      "mode": "off"
+                    },
+                    "lineWidth": 1,
+                    "fillOpacity": 10,
+                    "showPoints": "never",
+                    "spanNulls": false
+                  }
+                },
+                "overrides": []
+              }
+            }
+          }
+        }
+      },
+      "otel-grpc-server-errors": {
+        "kind": "Panel",
+        "spec": {
+          "id": 1360680882,
+          "title": "gRPC Server Error Rate (non-OK)",
+          "description": "Server-side gRPC error rate per method, counting calls where rpc_response_status_code != OK. Source: rpc_server_call_duration_seconds_count.",
           "links": [],
           "data": {
             "kind": "QueryGroup",
@@ -893,30 +1671,10 @@
                       },
                       "spec": {
                         "expr": "sum by (rpc_method) (rate(rpc_server_call_duration_seconds_count{service_name=~\"$app\", rpc_response_status_code!=\"OK\"}[$__rate_interval]))",
-                        "legendFormat": "server {{rpc_method}}"
+                        "legendFormat": "{{rpc_method}}"
                       }
                     },
                     "refId": "A",
-                    "hidden": false
-                  }
-                },
-                {
-                  "kind": "PanelQuery",
-                  "spec": {
-                    "query": {
-                      "kind": "DataQuery",
-                      "group": "prometheus",
-                      "version": "v0",
-                      "datasource": {
-                        "name": "prometheus"
-                      },
-                      "spec": {
-                        "expr": "sum by (rpc_method, server_address) (rate(rpc_client_call_duration_seconds_count{service_name=~\"$app\", rpc_response_status_code!=\"OK\"}[$__rate_interval]))",
-                        "legendFormat": "client {{rpc_method}} → {{server_address}}",
-                        "range": true
-                      }
-                    },
-                    "refId": "B",
                     "hidden": false
                   }
                 }
@@ -932,20 +1690,45 @@
             "spec": {
               "options": {
                 "legend": {
-                  "displayMode": "list",
-                  "placement": "bottom",
-                  "showLegend": false,
-                  "calcs": []
+                  "displayMode": "table",
+                  "placement": "right",
+                  "showLegend": true,
+                  "sortBy": "Max",
+                  "sortDesc": true,
+                  "calcs": [
+                    "mean",
+                    "max"
+                  ]
                 },
                 "tooltip": {
-                  "mode": "",
-                  "sort": ""
+                  "mode": "multi",
+                  "sort": "none"
                 }
               },
               "fieldConfig": {
                 "defaults": {
                   "unit": "reqps",
-                  "custom": {}
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "value": null,
+                        "color": "green"
+                      }
+                    ]
+                  },
+                  "color": {
+                    "mode": "palette-classic"
+                  },
+                  "custom": {
+                    "thresholdsStyle": {
+                      "mode": "off"
+                    },
+                    "lineWidth": 1,
+                    "fillOpacity": 10,
+                    "showPoints": "never",
+                    "spanNulls": false
+                  }
                 },
                 "overrides": []
               }
@@ -953,12 +1736,12 @@
           }
         }
       },
-      "otel-grpc-p95": {
+      "otel-grpc-server-p95": {
         "kind": "Panel",
         "spec": {
-          "id": 600792801,
-          "title": "gRPC p95 latency",
-          "description": "",
+          "id": 232005649,
+          "title": "gRPC Server P95 Latency",
+          "description": "Server-side gRPC 95th percentile call duration per method. Source: rpc_server_call_duration_seconds_bucket.",
           "links": [],
           "data": {
             "kind": "QueryGroup",
@@ -976,30 +1759,10 @@
                       },
                       "spec": {
                         "expr": "histogram_quantile(0.95, sum by (le, rpc_method) (rate(rpc_server_call_duration_seconds_bucket{service_name=~\"$app\"}[$__rate_interval])))",
-                        "legendFormat": "server {{rpc_method}}"
+                        "legendFormat": "{{rpc_method}}"
                       }
                     },
                     "refId": "A",
-                    "hidden": false
-                  }
-                },
-                {
-                  "kind": "PanelQuery",
-                  "spec": {
-                    "query": {
-                      "kind": "DataQuery",
-                      "group": "prometheus",
-                      "version": "v0",
-                      "datasource": {
-                        "name": "prometheus"
-                      },
-                      "spec": {
-                        "expr": "histogram_quantile(0.95, sum by (le, rpc_method, server_address) (rate(rpc_client_call_duration_seconds_bucket{service_name=~\"$app\"}[$__rate_interval])))",
-                        "legendFormat": "client {{rpc_method}} → {{server_address}}",
-                        "range": true
-                      }
-                    },
-                    "refId": "B",
                     "hidden": false
                   }
                 }
@@ -1015,20 +1778,45 @@
             "spec": {
               "options": {
                 "legend": {
-                  "displayMode": "list",
-                  "placement": "bottom",
-                  "showLegend": false,
-                  "calcs": []
+                  "displayMode": "table",
+                  "placement": "right",
+                  "showLegend": true,
+                  "sortBy": "Max",
+                  "sortDesc": true,
+                  "calcs": [
+                    "mean",
+                    "max"
+                  ]
                 },
                 "tooltip": {
-                  "mode": "",
-                  "sort": ""
+                  "mode": "multi",
+                  "sort": "none"
                 }
               },
               "fieldConfig": {
                 "defaults": {
                   "unit": "s",
-                  "custom": {}
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "value": null,
+                        "color": "green"
+                      }
+                    ]
+                  },
+                  "color": {
+                    "mode": "palette-classic"
+                  },
+                  "custom": {
+                    "thresholdsStyle": {
+                      "mode": "off"
+                    },
+                    "lineWidth": 1,
+                    "fillOpacity": 10,
+                    "showPoints": "never",
+                    "spanNulls": false
+                  }
                 },
                 "overrides": []
               }
@@ -1036,12 +1824,12 @@
           }
         }
       },
-      "otel-grpc-rps": {
+      "otel-grpc-server-rps": {
         "kind": "Panel",
         "spec": {
-          "id": 911057144,
-          "title": "gRPC RPS",
-          "description": "",
+          "id": 583898280,
+          "title": "gRPC Server RPS by Method",
+          "description": "Server-side gRPC request rate per method (rpc_method, e.g. auth.v1.AuthService/GetMe). Source: rpc_server_call_duration_seconds_count.",
           "links": [],
           "data": {
             "kind": "QueryGroup",
@@ -1059,30 +1847,10 @@
                       },
                       "spec": {
                         "expr": "sum by (rpc_method) (rate(rpc_server_call_duration_seconds_count{service_name=~\"$app\"}[$__rate_interval]))",
-                        "legendFormat": "server {{rpc_method}}"
+                        "legendFormat": "{{rpc_method}}"
                       }
                     },
                     "refId": "A",
-                    "hidden": false
-                  }
-                },
-                {
-                  "kind": "PanelQuery",
-                  "spec": {
-                    "query": {
-                      "kind": "DataQuery",
-                      "group": "prometheus",
-                      "version": "v0",
-                      "datasource": {
-                        "name": "prometheus"
-                      },
-                      "spec": {
-                        "expr": "sum by (rpc_method, server_address) (rate(rpc_client_call_duration_seconds_count{service_name=~\"$app\"}[$__rate_interval]))",
-                        "legendFormat": "client {{rpc_method}} → {{server_address}}",
-                        "range": true
-                      }
-                    },
-                    "refId": "B",
                     "hidden": false
                   }
                 }
@@ -1098,20 +1866,45 @@
             "spec": {
               "options": {
                 "legend": {
-                  "displayMode": "list",
-                  "placement": "bottom",
-                  "showLegend": false,
-                  "calcs": []
+                  "displayMode": "table",
+                  "placement": "right",
+                  "showLegend": true,
+                  "sortBy": "Max",
+                  "sortDesc": true,
+                  "calcs": [
+                    "mean",
+                    "max"
+                  ]
                 },
                 "tooltip": {
-                  "mode": "",
-                  "sort": ""
+                  "mode": "multi",
+                  "sort": "none"
                 }
               },
               "fieldConfig": {
                 "defaults": {
                   "unit": "reqps",
-                  "custom": {}
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "value": null,
+                        "color": "green"
+                      }
+                    ]
+                  },
+                  "color": {
+                    "mode": "palette-classic"
+                  },
+                  "custom": {
+                    "thresholdsStyle": {
+                      "mode": "off"
+                    },
+                    "lineWidth": 1,
+                    "fillOpacity": 10,
+                    "showPoints": "never",
+                    "spanNulls": false
+                  }
                 },
                 "overrides": []
               }
@@ -1123,8 +1916,8 @@
         "kind": "Panel",
         "spec": {
           "id": 1691329096,
-          "title": "HTTP body throughput per service",
-          "description": "",
+          "title": "Total Network Traffic per Service",
+          "description": "Total HTTP traffic (TX/RX) by ALL pods in the service. Use for bandwidth planning and cost estimation. Note: Only HTTP body size, not TCP/IP overhead.",
           "links": [],
           "data": {
             "kind": "QueryGroup",
@@ -1181,20 +1974,44 @@
             "spec": {
               "options": {
                 "legend": {
-                  "displayMode": "list",
-                  "placement": "bottom",
-                  "showLegend": false,
-                  "calcs": []
+                  "displayMode": "table",
+                  "placement": "right",
+                  "showLegend": true,
+                  "sortBy": "Mean",
+                  "sortDesc": true,
+                  "calcs": [
+                    "mean"
+                  ]
                 },
                 "tooltip": {
-                  "mode": "",
-                  "sort": ""
+                  "mode": "multi",
+                  "sort": "none"
                 }
               },
               "fieldConfig": {
                 "defaults": {
                   "unit": "Bps",
-                  "custom": {}
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "value": null,
+                        "color": "green"
+                      }
+                    ]
+                  },
+                  "color": {
+                    "mode": "palette-classic"
+                  },
+                  "custom": {
+                    "thresholdsStyle": {
+                      "mode": "off"
+                    },
+                    "lineWidth": 1,
+                    "fillOpacity": 10,
+                    "showPoints": "never",
+                    "spanNulls": false
+                  }
                 },
                 "overrides": []
               }
@@ -1206,8 +2023,8 @@
         "kind": "Panel",
         "spec": {
           "id": 19108631,
-          "title": "p50 latency (2xx)",
-          "description": "",
+          "title": "50th Percentile Response Success",
+          "description": "Median response time. Represents typical user experience.",
           "links": [],
           "data": {
             "kind": "QueryGroup",
@@ -1249,12 +2066,14 @@
                 "wideLayout": true,
                 "showPercentChange": false,
                 "reduceOptions": {
+                  "values": false,
                   "calcs": [
                     "lastNotNull"
-                  ]
+                  ],
+                  "fields": ""
                 },
                 "percentChangeColorMode": "standard",
-                "orientation": ""
+                "orientation": "auto"
               },
               "fieldConfig": {
                 "defaults": {
@@ -1275,6 +2094,9 @@
                         "color": "red"
                       }
                     ]
+                  },
+                  "color": {
+                    "mode": "thresholds"
                   }
                 },
                 "overrides": []
@@ -1287,8 +2109,8 @@
         "kind": "Panel",
         "spec": {
           "id": 2080732708,
-          "title": "p95 latency (2xx)",
-          "description": "",
+          "title": "95th Percentile Response Success",
+          "description": "95% of requests complete faster than this. Key metric for user experience.",
           "links": [],
           "data": {
             "kind": "QueryGroup",
@@ -1330,12 +2152,14 @@
                 "wideLayout": true,
                 "showPercentChange": false,
                 "reduceOptions": {
+                  "values": false,
                   "calcs": [
                     "lastNotNull"
-                  ]
+                  ],
+                  "fields": ""
                 },
                 "percentChangeColorMode": "standard",
-                "orientation": ""
+                "orientation": "auto"
               },
               "fieldConfig": {
                 "defaults": {
@@ -1356,6 +2180,9 @@
                         "color": "red"
                       }
                     ]
+                  },
+                  "color": {
+                    "mode": "thresholds"
                   }
                 },
                 "overrides": []
@@ -1368,8 +2195,8 @@
         "kind": "Panel",
         "spec": {
           "id": 1879401280,
-          "title": "p99 latency (2xx)",
-          "description": "",
+          "title": "99th Percentile Response Success",
+          "description": "99% of requests complete faster than this. Detects worst-case latency and outliers.",
           "links": [],
           "data": {
             "kind": "QueryGroup",
@@ -1411,12 +2238,14 @@
                 "wideLayout": true,
                 "showPercentChange": false,
                 "reduceOptions": {
+                  "values": false,
                   "calcs": [
                     "lastNotNull"
-                  ]
+                  ],
+                  "fields": ""
                 },
                 "percentChangeColorMode": "standard",
-                "orientation": ""
+                "orientation": "auto"
               },
               "fieldConfig": {
                 "defaults": {
@@ -1437,6 +2266,9 @@
                         "color": "red"
                       }
                     ]
+                  },
+                  "color": {
+                    "mode": "thresholds"
                   }
                 },
                 "overrides": []
@@ -1450,7 +2282,7 @@
         "spec": {
           "id": 894404378,
           "title": "Pool contention (waiting acquires)",
-          "description": "",
+          "description": "Acquires that had to wait for a free conn — earliest saturation signal.",
           "links": [],
           "data": {
             "kind": "QueryGroup",
@@ -1507,22 +2339,46 @@
             "spec": {
               "options": {
                 "legend": {
-                  "displayMode": "list",
+                  "displayMode": "table",
                   "placement": "bottom",
-                  "showLegend": false,
-                  "calcs": []
+                  "showLegend": true,
+                  "calcs": [
+                    "lastNotNull",
+                    "max"
+                  ]
                 },
                 "tooltip": {
-                  "mode": "",
-                  "sort": ""
+                  "mode": "multi",
+                  "sort": "desc"
                 }
               },
               "fieldConfig": {
                 "defaults": {
                   "unit": "short",
-                  "custom": {}
+                  "custom": {
+                    "lineWidth": 1,
+                    "fillOpacity": 12,
+                    "showPoints": "never"
+                  }
                 },
-                "overrides": []
+                "overrides": [
+                  {
+                    "matcher": {
+                      "id": "byFrameRefID",
+                      "options": "B"
+                    },
+                    "properties": [
+                      {
+                        "id": "custom.axisPlacement",
+                        "value": "right"
+                      },
+                      {
+                        "id": "custom.axisLabel",
+                        "value": "wait-time s/s"
+                      }
+                    ]
+                  }
+                ]
               }
             }
           }
@@ -1533,7 +2389,7 @@
         "spec": {
           "id": 532859454,
           "title": "Pool in-flight (acquired conns)",
-          "description": "",
+          "description": "Connections currently checked out ≈ concurrent DB work in flight.",
           "links": [],
           "data": {
             "kind": "QueryGroup",
@@ -1570,20 +2426,27 @@
             "spec": {
               "options": {
                 "legend": {
-                  "displayMode": "list",
+                  "displayMode": "table",
                   "placement": "bottom",
-                  "showLegend": false,
-                  "calcs": []
+                  "showLegend": true,
+                  "calcs": [
+                    "lastNotNull",
+                    "max"
+                  ]
                 },
                 "tooltip": {
-                  "mode": "",
-                  "sort": ""
+                  "mode": "multi",
+                  "sort": "desc"
                 }
               },
               "fieldConfig": {
                 "defaults": {
                   "unit": "short",
-                  "custom": {}
+                  "custom": {
+                    "lineWidth": 1,
+                    "fillOpacity": 12,
+                    "showPoints": "never"
+                  }
                 },
                 "overrides": []
               }
@@ -1596,7 +2459,7 @@
         "spec": {
           "id": 586645087,
           "title": "Pool saturation (acquired / max)",
-          "description": "",
+          "description": "Sustained ≥80% = acquires start queueing (PgxPoolNearExhaustion).",
           "links": [],
           "data": {
             "kind": "QueryGroup",
@@ -1633,20 +2496,29 @@
             "spec": {
               "options": {
                 "legend": {
-                  "displayMode": "list",
+                  "displayMode": "table",
                   "placement": "bottom",
-                  "showLegend": false,
-                  "calcs": []
+                  "showLegend": true,
+                  "calcs": [
+                    "lastNotNull",
+                    "max"
+                  ]
                 },
                 "tooltip": {
-                  "mode": "",
-                  "sort": ""
+                  "mode": "multi",
+                  "sort": "desc"
                 }
               },
               "fieldConfig": {
                 "defaults": {
                   "unit": "percentunit",
-                  "custom": {}
+                  "min": 0,
+                  "max": 1,
+                  "custom": {
+                    "lineWidth": 1,
+                    "fillOpacity": 12,
+                    "showPoints": "never"
+                  }
                 },
                 "overrides": []
               }
@@ -1654,12 +2526,12 @@
           }
         }
       },
-      "otel-route-latency": {
+      "otel-route-p50": {
         "kind": "Panel",
         "spec": {
-          "id": 1860408468,
-          "title": "Route latency",
-          "description": "",
+          "id": 1982310151,
+          "title": "Response time 50th percentile",
+          "description": "Median response time per endpoint. Shows typical performance baseline.",
           "links": [],
           "data": {
             "kind": "QueryGroup",
@@ -1676,51 +2548,11 @@
                         "name": "prometheus"
                       },
                       "spec": {
-                        "expr": "histogram_quantile(0.50, sum(rate(http_server_request_duration_seconds_bucket{service_name=~\"$app\", http_route!=\"\"}[$__rate_interval])) by (le, http_route))",
-                        "legendFormat": "p50 {{http_route}}"
+                        "expr": "histogram_quantile(0.50, sum(rate(http_server_request_duration_seconds_bucket{service_name=~\"$app\", http_route!=\"\"}[$__rate_interval])) by (le, http_route, http_response_status_code))",
+                        "legendFormat": "{{http_response_status_code}} {{http_route}}"
                       }
                     },
                     "refId": "A",
-                    "hidden": false
-                  }
-                },
-                {
-                  "kind": "PanelQuery",
-                  "spec": {
-                    "query": {
-                      "kind": "DataQuery",
-                      "group": "prometheus",
-                      "version": "v0",
-                      "datasource": {
-                        "name": "prometheus"
-                      },
-                      "spec": {
-                        "expr": "histogram_quantile(0.95, sum(rate(http_server_request_duration_seconds_bucket{service_name=~\"$app\", http_route!=\"\"}[$__rate_interval])) by (le, http_route))",
-                        "legendFormat": "p95 {{http_route}}",
-                        "range": true
-                      }
-                    },
-                    "refId": "B",
-                    "hidden": false
-                  }
-                },
-                {
-                  "kind": "PanelQuery",
-                  "spec": {
-                    "query": {
-                      "kind": "DataQuery",
-                      "group": "prometheus",
-                      "version": "v0",
-                      "datasource": {
-                        "name": "prometheus"
-                      },
-                      "spec": {
-                        "expr": "histogram_quantile(0.99, sum(rate(http_server_request_duration_seconds_bucket{service_name=~\"$app\", http_route!=\"\"}[$__rate_interval])) by (le, http_route))",
-                        "legendFormat": "p99 {{http_route}}",
-                        "range": true
-                      }
-                    },
-                    "refId": "C",
                     "hidden": false
                   }
                 }
@@ -1736,20 +2568,305 @@
             "spec": {
               "options": {
                 "legend": {
-                  "displayMode": "list",
-                  "placement": "bottom",
-                  "showLegend": false,
-                  "calcs": []
+                  "displayMode": "table",
+                  "placement": "right",
+                  "showLegend": true,
+                  "sortBy": "Max",
+                  "sortDesc": true,
+                  "calcs": [
+                    "mean",
+                    "max"
+                  ]
                 },
                 "tooltip": {
-                  "mode": "",
-                  "sort": ""
+                  "mode": "multi",
+                  "sort": "none"
                 }
               },
               "fieldConfig": {
                 "defaults": {
                   "unit": "s",
-                  "custom": {}
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "value": null,
+                        "color": "green"
+                      }
+                    ]
+                  },
+                  "color": {
+                    "mode": "palette-classic"
+                  },
+                  "custom": {
+                    "thresholdsStyle": {
+                      "mode": "off"
+                    },
+                    "lineWidth": 1,
+                    "fillOpacity": 10,
+                    "showPoints": "never",
+                    "spanNulls": false
+                  }
+                },
+                "overrides": []
+              }
+            }
+          }
+        }
+      },
+      "otel-route-p95": {
+        "kind": "Panel",
+        "spec": {
+          "id": 1896450580,
+          "title": "Response time 95th percentile",
+          "description": "p95 response time per endpoint. Identifies slow APIs.",
+          "links": [],
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "prometheus",
+                      "version": "v0",
+                      "datasource": {
+                        "name": "prometheus"
+                      },
+                      "spec": {
+                        "expr": "histogram_quantile(0.95, sum(rate(http_server_request_duration_seconds_bucket{service_name=~\"$app\", http_route!=\"\"}[$__rate_interval])) by (le, http_route, http_response_status_code))",
+                        "legendFormat": "{{http_response_status_code}} {{http_route}}"
+                      }
+                    },
+                    "refId": "A",
+                    "hidden": false
+                  }
+                }
+              ],
+              "transformations": [],
+              "queryOptions": {}
+            }
+          },
+          "vizConfig": {
+            "kind": "VizConfig",
+            "group": "timeseries",
+            "version": "",
+            "spec": {
+              "options": {
+                "legend": {
+                  "displayMode": "table",
+                  "placement": "right",
+                  "showLegend": true,
+                  "sortBy": "Max",
+                  "sortDesc": true,
+                  "calcs": [
+                    "mean",
+                    "max"
+                  ]
+                },
+                "tooltip": {
+                  "mode": "multi",
+                  "sort": "none"
+                }
+              },
+              "fieldConfig": {
+                "defaults": {
+                  "unit": "s",
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "value": null,
+                        "color": "green"
+                      }
+                    ]
+                  },
+                  "color": {
+                    "mode": "palette-classic"
+                  },
+                  "custom": {
+                    "thresholdsStyle": {
+                      "mode": "off"
+                    },
+                    "lineWidth": 1,
+                    "fillOpacity": 10,
+                    "showPoints": "never",
+                    "spanNulls": false
+                  }
+                },
+                "overrides": []
+              }
+            }
+          }
+        }
+      },
+      "otel-route-p99": {
+        "kind": "Panel",
+        "spec": {
+          "id": 1695119152,
+          "title": "Response time 99th percentile",
+          "description": "p99 response time per endpoint. Highlights tail latency issues.",
+          "links": [],
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "prometheus",
+                      "version": "v0",
+                      "datasource": {
+                        "name": "prometheus"
+                      },
+                      "spec": {
+                        "expr": "histogram_quantile(0.99, sum(rate(http_server_request_duration_seconds_bucket{service_name=~\"$app\", http_route!=\"\"}[$__rate_interval])) by (le, http_route, http_response_status_code))",
+                        "legendFormat": "{{http_response_status_code}} {{http_route}}"
+                      }
+                    },
+                    "refId": "A",
+                    "hidden": false
+                  }
+                }
+              ],
+              "transformations": [],
+              "queryOptions": {}
+            }
+          },
+          "vizConfig": {
+            "kind": "VizConfig",
+            "group": "timeseries",
+            "version": "",
+            "spec": {
+              "options": {
+                "legend": {
+                  "displayMode": "table",
+                  "placement": "right",
+                  "showLegend": true,
+                  "sortBy": "Max",
+                  "sortDesc": true,
+                  "calcs": [
+                    "mean",
+                    "max"
+                  ]
+                },
+                "tooltip": {
+                  "mode": "multi",
+                  "sort": "none"
+                }
+              },
+              "fieldConfig": {
+                "defaults": {
+                  "unit": "s",
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "value": null,
+                        "color": "green"
+                      }
+                    ]
+                  },
+                  "color": {
+                    "mode": "palette-classic"
+                  },
+                  "custom": {
+                    "thresholdsStyle": {
+                      "mode": "off"
+                    },
+                    "lineWidth": 1,
+                    "fillOpacity": 10,
+                    "showPoints": "never",
+                    "spanNulls": false
+                  }
+                },
+                "overrides": []
+              }
+            }
+          }
+        }
+      },
+      "otel-route-pie": {
+        "kind": "Panel",
+        "spec": {
+          "id": 1078170836,
+          "title": "Total Requests by Endpoint",
+          "description": "Request distribution across endpoints. Identifies hot paths and traffic patterns.",
+          "links": [],
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "prometheus",
+                      "version": "v0",
+                      "datasource": {
+                        "name": "prometheus"
+                      },
+                      "spec": {
+                        "expr": "sum(increase(http_server_request_duration_seconds_count{service_name=~\"$app\", http_route!=\"\"}[$__range])) by (http_route)",
+                        "legendFormat": "{{http_route}}"
+                      }
+                    },
+                    "refId": "A",
+                    "hidden": false
+                  }
+                }
+              ],
+              "transformations": [],
+              "queryOptions": {}
+            }
+          },
+          "vizConfig": {
+            "kind": "VizConfig",
+            "group": "piechart",
+            "version": "",
+            "spec": {
+              "options": {
+                "pieType": "pie",
+                "tooltip": {
+                  "mode": "",
+                  "sort": ""
+                },
+                "reduceOptions": {
+                  "values": false,
+                  "calcs": [
+                    "lastNotNull"
+                  ],
+                  "fields": ""
+                },
+                "legend": {
+                  "values": [
+                    "value",
+                    "percent"
+                  ],
+                  "displayMode": "table",
+                  "placement": "right",
+                  "showLegend": false,
+                  "calcs": []
+                },
+                "orientation": ""
+              },
+              "fieldConfig": {
+                "defaults": {
+                  "color": {
+                    "mode": "palette-classic"
+                  },
+                  "custom": {
+                    "hideFrom": {
+                      "tooltip": false,
+                      "legend": false,
+                      "viz": false
+                    }
+                  }
                 },
                 "overrides": []
               }
@@ -1761,8 +2878,8 @@
         "kind": "Panel",
         "spec": {
           "id": 1769746889,
-          "title": "Request rate by method and endpoint",
-          "description": "",
+          "title": "Request Rate by Method and Endpoint",
+          "description": "Breakdown of request rate by HTTP method (GET, POST, PUT, DELETE) and endpoint path. Helps identify traffic patterns and detect unusual method-specific spikes.",
           "links": [],
           "data": {
             "kind": "QueryGroup",
@@ -1799,20 +2916,45 @@
             "spec": {
               "options": {
                 "legend": {
-                  "displayMode": "list",
-                  "placement": "bottom",
-                  "showLegend": false,
-                  "calcs": []
+                  "displayMode": "table",
+                  "placement": "right",
+                  "showLegend": true,
+                  "sortBy": "Max",
+                  "sortDesc": true,
+                  "calcs": [
+                    "mean",
+                    "max"
+                  ]
                 },
                 "tooltip": {
-                  "mode": "",
-                  "sort": ""
+                  "mode": "multi",
+                  "sort": "none"
                 }
               },
               "fieldConfig": {
                 "defaults": {
                   "unit": "reqps",
-                  "custom": {}
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "value": null,
+                        "color": "green"
+                      }
+                    ]
+                  },
+                  "color": {
+                    "mode": "palette-classic"
+                  },
+                  "custom": {
+                    "thresholdsStyle": {
+                      "mode": "off"
+                    },
+                    "lineWidth": 1,
+                    "fillOpacity": 10,
+                    "showPoints": "never",
+                    "spanNulls": false
+                  }
                 },
                 "overrides": []
               }
@@ -1824,8 +2966,8 @@
         "kind": "Panel",
         "spec": {
           "id": 1640247533,
-          "title": "Request rate by endpoint",
-          "description": "",
+          "title": "Request Rate by Endpoint",
+          "description": "Request rate per endpoint over time. Detects traffic spikes per API.",
           "links": [],
           "data": {
             "kind": "QueryGroup",
@@ -1862,20 +3004,45 @@
             "spec": {
               "options": {
                 "legend": {
-                  "displayMode": "list",
-                  "placement": "bottom",
-                  "showLegend": false,
-                  "calcs": []
+                  "displayMode": "table",
+                  "placement": "right",
+                  "showLegend": true,
+                  "sortBy": "Max",
+                  "sortDesc": true,
+                  "calcs": [
+                    "mean",
+                    "max"
+                  ]
                 },
                 "tooltip": {
-                  "mode": "",
-                  "sort": ""
+                  "mode": "multi",
+                  "sort": "none"
                 }
               },
               "fieldConfig": {
                 "defaults": {
                   "unit": "reqps",
-                  "custom": {}
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "value": null,
+                        "color": "green"
+                      }
+                    ]
+                  },
+                  "color": {
+                    "mode": "palette-classic"
+                  },
+                  "custom": {
+                    "thresholdsStyle": {
+                      "mode": "off"
+                    },
+                    "lineWidth": 1,
+                    "fillOpacity": 10,
+                    "showPoints": "never",
+                    "spanNulls": false
+                  }
                 },
                 "overrides": []
               }
@@ -1887,8 +3054,8 @@
         "kind": "Panel",
         "spec": {
           "id": 917806947,
-          "title": "Status code distribution",
-          "description": "",
+          "title": "Status Code Distribution",
+          "description": "HTTP status code distribution by rate (req/sec). Shows real-time traffic breakdown by response code. Expected: ~95% codes 2xx.",
           "links": [],
           "data": {
             "kind": "QueryGroup",
@@ -1906,7 +3073,7 @@
                       },
                       "spec": {
                         "expr": "sum(rate(http_server_request_duration_seconds_count{service_name=~\"$app\"}[$__rate_interval])) by (http_response_status_code)",
-                        "legendFormat": "{{http_response_status_code}}"
+                        "legendFormat": "REST.{{http_response_status_code}}"
                       }
                     },
                     "refId": "A",
@@ -1930,7 +3097,11 @@
                   "sort": ""
                 },
                 "reduceOptions": {
-                  "calcs": []
+                  "values": false,
+                  "calcs": [
+                    "lastNotNull"
+                  ],
+                  "fields": ""
                 },
                 "legend": {
                   "values": [
@@ -1946,7 +3117,16 @@
               },
               "fieldConfig": {
                 "defaults": {
-                  "custom": {}
+                  "color": {
+                    "mode": "palette-classic"
+                  },
+                  "custom": {
+                    "hideFrom": {
+                      "tooltip": false,
+                      "legend": false,
+                      "viz": false
+                    }
+                  }
                 },
                 "overrides": []
               }
@@ -1958,8 +3138,8 @@
         "kind": "Panel",
         "spec": {
           "id": 1364395806,
-          "title": "Success rate % (non-5xx)",
-          "description": "",
+          "title": "Success Rate % (non-5xx)",
+          "description": "Complement of Error Rate % (5xx): every request the service handled correctly, including 3xx/4xx responses to client mistakes. Success + Error = 100%.",
           "links": [],
           "data": {
             "kind": "QueryGroup",
@@ -2001,12 +3181,14 @@
                 "wideLayout": true,
                 "showPercentChange": false,
                 "reduceOptions": {
+                  "values": false,
                   "calcs": [
                     "lastNotNull"
-                  ]
+                  ],
+                  "fields": ""
                 },
                 "percentChangeColorMode": "standard",
-                "orientation": ""
+                "orientation": "auto"
               },
               "fieldConfig": {
                 "defaults": {
@@ -2015,7 +3197,7 @@
                     "mode": "absolute",
                     "steps": [
                       {
-                        "value": null,
+                        "value": 0,
                         "color": "red"
                       },
                       {
@@ -2027,6 +3209,165 @@
                         "color": "green"
                       }
                     ]
+                  },
+                  "color": {
+                    "mode": "thresholds"
+                  }
+                },
+                "overrides": []
+              }
+            }
+          }
+        }
+      },
+      "otel-success-rps": {
+        "kind": "Panel",
+        "spec": {
+          "id": 1816561495,
+          "title": "Success RPS (2xx)",
+          "description": "Successful requests per second (HTTP 2xx responses). This represents productive traffic.",
+          "links": [],
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "prometheus",
+                      "version": "v0",
+                      "datasource": {
+                        "name": "prometheus"
+                      },
+                      "spec": {
+                        "expr": "sum(rate(http_server_request_duration_seconds_count{service_name=~\"$app\", http_response_status_code=~\"2..\"}[$__rate_interval]))"
+                      }
+                    },
+                    "refId": "A",
+                    "hidden": false
+                  }
+                }
+              ],
+              "transformations": [],
+              "queryOptions": {}
+            }
+          },
+          "vizConfig": {
+            "kind": "VizConfig",
+            "group": "stat",
+            "version": "",
+            "spec": {
+              "options": {
+                "graphMode": "area",
+                "colorMode": "value",
+                "justifyMode": "auto",
+                "textMode": "auto",
+                "wideLayout": true,
+                "showPercentChange": false,
+                "reduceOptions": {
+                  "values": false,
+                  "calcs": [
+                    "lastNotNull"
+                  ],
+                  "fields": ""
+                },
+                "percentChangeColorMode": "standard",
+                "orientation": "auto"
+              },
+              "fieldConfig": {
+                "defaults": {
+                  "unit": "reqps",
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "value": null,
+                        "color": "green"
+                      }
+                    ]
+                  },
+                  "color": {
+                    "mode": "thresholds"
+                  }
+                },
+                "overrides": []
+              }
+            }
+          }
+        }
+      },
+      "otel-total-requests": {
+        "kind": "Panel",
+        "spec": {
+          "id": 1919668513,
+          "title": "Total Request",
+          "description": "Total requests in selected time range. Correlate with traffic spikes or incidents.",
+          "links": [],
+          "data": {
+            "kind": "QueryGroup",
+            "spec": {
+              "queries": [
+                {
+                  "kind": "PanelQuery",
+                  "spec": {
+                    "query": {
+                      "kind": "DataQuery",
+                      "group": "prometheus",
+                      "version": "v0",
+                      "datasource": {
+                        "name": "prometheus"
+                      },
+                      "spec": {
+                        "expr": "sum(increase(http_server_request_duration_seconds_count{service_name=~\"$app\"}[$__range]))"
+                      }
+                    },
+                    "refId": "A",
+                    "hidden": false
+                  }
+                }
+              ],
+              "transformations": [],
+              "queryOptions": {}
+            }
+          },
+          "vizConfig": {
+            "kind": "VizConfig",
+            "group": "stat",
+            "version": "",
+            "spec": {
+              "options": {
+                "graphMode": "area",
+                "colorMode": "value",
+                "justifyMode": "auto",
+                "textMode": "auto",
+                "wideLayout": true,
+                "showPercentChange": false,
+                "reduceOptions": {
+                  "values": false,
+                  "calcs": [
+                    "lastNotNull"
+                  ],
+                  "fields": ""
+                },
+                "percentChangeColorMode": "standard",
+                "orientation": "auto"
+              },
+              "fieldConfig": {
+                "defaults": {
+                  "unit": "short",
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "value": null,
+                        "color": "blue"
+                      }
+                    ]
+                  },
+                  "color": {
+                    "mode": "thresholds"
                   }
                 },
                 "overrides": []
@@ -2039,8 +3380,8 @@
         "kind": "Panel",
         "spec": {
           "id": 1801498186,
-          "title": "Total RPS",
-          "description": "",
+          "title": "Total RPS (All Requests)",
+          "description": "Total requests per second including all HTTP status codes (2xx, 4xx, 5xx). Use this to monitor overall traffic volume.",
           "links": [],
           "data": {
             "kind": "QueryGroup",
@@ -2082,12 +3423,14 @@
                 "wideLayout": true,
                 "showPercentChange": false,
                 "reduceOptions": {
+                  "values": false,
                   "calcs": [
                     "lastNotNull"
-                  ]
+                  ],
+                  "fields": ""
                 },
                 "percentChangeColorMode": "standard",
-                "orientation": ""
+                "orientation": "auto"
               },
               "fieldConfig": {
                 "defaults": {
@@ -2100,6 +3443,9 @@
                         "color": "blue"
                       }
                     ]
+                  },
+                  "color": {
+                    "mode": "thresholds"
                   }
                 },
                 "overrides": []
@@ -2116,7 +3462,7 @@
           {
             "kind": "RowsLayoutRow",
             "spec": {
-              "title": "Overview",
+              "title": "Overview \u0026 Key Metrics",
               "layout": {
                 "kind": "GridLayout",
                 "spec": {
@@ -2126,7 +3472,7 @@
                       "spec": {
                         "x": 0,
                         "y": 0,
-                        "width": 3,
+                        "width": 5,
                         "height": 4,
                         "element": {
                           "kind": "ElementReference",
@@ -2137,9 +3483,9 @@
                     {
                       "kind": "GridLayoutItem",
                       "spec": {
-                        "x": 3,
+                        "x": 5,
                         "y": 0,
-                        "width": 3,
+                        "width": 5,
                         "height": 4,
                         "element": {
                           "kind": "ElementReference",
@@ -2150,9 +3496,9 @@
                     {
                       "kind": "GridLayoutItem",
                       "spec": {
-                        "x": 6,
+                        "x": 10,
                         "y": 0,
-                        "width": 3,
+                        "width": 5,
                         "height": 4,
                         "element": {
                           "kind": "ElementReference",
@@ -2163,9 +3509,9 @@
                     {
                       "kind": "GridLayoutItem",
                       "spec": {
-                        "x": 9,
+                        "x": 15,
                         "y": 0,
-                        "width": 3,
+                        "width": 5,
                         "height": 4,
                         "element": {
                           "kind": "ElementReference",
@@ -2176,9 +3522,22 @@
                     {
                       "kind": "GridLayoutItem",
                       "spec": {
-                        "x": 12,
+                        "x": 20,
                         "y": 0,
-                        "width": 3,
+                        "width": 4,
+                        "height": 4,
+                        "element": {
+                          "kind": "ElementReference",
+                          "name": "otel-success-rps"
+                        }
+                      }
+                    },
+                    {
+                      "kind": "GridLayoutItem",
+                      "spec": {
+                        "x": 0,
+                        "y": 4,
+                        "width": 5,
                         "height": 4,
                         "element": {
                           "kind": "ElementReference",
@@ -2189,9 +3548,9 @@
                     {
                       "kind": "GridLayoutItem",
                       "spec": {
-                        "x": 15,
-                        "y": 0,
-                        "width": 3,
+                        "x": 5,
+                        "y": 4,
+                        "width": 5,
                         "height": 4,
                         "element": {
                           "kind": "ElementReference",
@@ -2202,9 +3561,9 @@
                     {
                       "kind": "GridLayoutItem",
                       "spec": {
-                        "x": 18,
-                        "y": 0,
-                        "width": 3,
+                        "x": 10,
+                        "y": 4,
+                        "width": 5,
                         "height": 4,
                         "element": {
                           "kind": "ElementReference",
@@ -2215,13 +3574,26 @@
                     {
                       "kind": "GridLayoutItem",
                       "spec": {
-                        "x": 21,
-                        "y": 0,
-                        "width": 3,
+                        "x": 15,
+                        "y": 4,
+                        "width": 5,
                         "height": 4,
                         "element": {
                           "kind": "ElementReference",
                           "name": "otel-apdex"
+                        }
+                      }
+                    },
+                    {
+                      "kind": "GridLayoutItem",
+                      "spec": {
+                        "x": 20,
+                        "y": 4,
+                        "width": 4,
+                        "height": 4,
+                        "element": {
+                          "kind": "ElementReference",
+                          "name": "otel-total-requests"
                         }
                       }
                     }
@@ -2233,7 +3605,7 @@
           {
             "kind": "RowsLayoutRow",
             "spec": {
-              "title": "Traffic",
+              "title": "Traffic \u0026 Requests",
               "layout": {
                 "kind": "GridLayout",
                 "spec": {
@@ -2244,7 +3616,7 @@
                         "x": 0,
                         "y": 0,
                         "width": 12,
-                        "height": 8,
+                        "height": 9,
                         "element": {
                           "kind": "ElementReference",
                           "name": "otel-status-pie"
@@ -2257,10 +3629,10 @@
                         "x": 12,
                         "y": 0,
                         "width": 12,
-                        "height": 8,
+                        "height": 9,
                         "element": {
                           "kind": "ElementReference",
-                          "name": "otel-rps-route"
+                          "name": "otel-route-pie"
                         }
                       }
                     },
@@ -2268,12 +3640,12 @@
                       "kind": "GridLayoutItem",
                       "spec": {
                         "x": 0,
-                        "y": 8,
+                        "y": 9,
                         "width": 24,
                         "height": 8,
                         "element": {
                           "kind": "ElementReference",
-                          "name": "otel-rps-method-route"
+                          "name": "otel-rps-route"
                         }
                       }
                     }
@@ -2285,7 +3657,7 @@
           {
             "kind": "RowsLayoutRow",
             "spec": {
-              "title": "Errors and latency",
+              "title": "Errors \u0026 Performance",
               "layout": {
                 "kind": "GridLayout",
                 "spec": {
@@ -2299,7 +3671,7 @@
                         "height": 8,
                         "element": {
                           "kind": "ElementReference",
-                          "name": "otel-5xx-ratio"
+                          "name": "otel-rps-method-route"
                         }
                       }
                     },
@@ -2308,11 +3680,24 @@
                       "spec": {
                         "x": 0,
                         "y": 8,
+                        "width": 24,
+                        "height": 8,
+                        "element": {
+                          "kind": "ElementReference",
+                          "name": "otel-5xx-ratio"
+                        }
+                      }
+                    },
+                    {
+                      "kind": "GridLayoutItem",
+                      "spec": {
+                        "x": 0,
+                        "y": 16,
                         "width": 12,
                         "height": 8,
                         "element": {
                           "kind": "ElementReference",
-                          "name": "otel-errors-by-service"
+                          "name": "otel-4xx-service"
                         }
                       }
                     },
@@ -2320,12 +3705,51 @@
                       "kind": "GridLayoutItem",
                       "spec": {
                         "x": 12,
-                        "y": 8,
+                        "y": 16,
                         "width": 12,
                         "height": 8,
                         "element": {
                           "kind": "ElementReference",
-                          "name": "otel-route-latency"
+                          "name": "otel-5xx-service"
+                        }
+                      }
+                    },
+                    {
+                      "kind": "GridLayoutItem",
+                      "spec": {
+                        "x": 0,
+                        "y": 24,
+                        "width": 12,
+                        "height": 8,
+                        "element": {
+                          "kind": "ElementReference",
+                          "name": "otel-route-p95"
+                        }
+                      }
+                    },
+                    {
+                      "kind": "GridLayoutItem",
+                      "spec": {
+                        "x": 12,
+                        "y": 24,
+                        "width": 12,
+                        "height": 8,
+                        "element": {
+                          "kind": "ElementReference",
+                          "name": "otel-route-p50"
+                        }
+                      }
+                    },
+                    {
+                      "kind": "GridLayoutItem",
+                      "spec": {
+                        "x": 0,
+                        "y": 32,
+                        "width": 24,
+                        "height": 8,
+                        "element": {
+                          "kind": "ElementReference",
+                          "name": "otel-route-p99"
                         }
                       }
                     }
@@ -2337,7 +3761,7 @@
           {
             "kind": "RowsLayoutRow",
             "spec": {
-              "title": "Go runtime",
+              "title": "Go Runtime \u0026 HTTP I/O (OTel)",
               "layout": {
                 "kind": "GridLayout",
                 "spec": {
@@ -2415,7 +3839,7 @@
           {
             "kind": "RowsLayoutRow",
             "spec": {
-              "title": "gRPC east-west",
+              "title": "gRPC East-West (RED)",
               "layout": {
                 "kind": "GridLayout",
                 "spec": {
@@ -2429,7 +3853,7 @@
                         "height": 8,
                         "element": {
                           "kind": "ElementReference",
-                          "name": "otel-grpc-rps"
+                          "name": "otel-grpc-server-rps"
                         }
                       }
                     },
@@ -2442,7 +3866,98 @@
                         "height": 8,
                         "element": {
                           "kind": "ElementReference",
-                          "name": "otel-grpc-errors"
+                          "name": "otel-grpc-client-rps"
+                        }
+                      }
+                    },
+                    {
+                      "kind": "GridLayoutItem",
+                      "spec": {
+                        "x": 0,
+                        "y": 8,
+                        "width": 12,
+                        "height": 8,
+                        "element": {
+                          "kind": "ElementReference",
+                          "name": "otel-grpc-server-errors"
+                        }
+                      }
+                    },
+                    {
+                      "kind": "GridLayoutItem",
+                      "spec": {
+                        "x": 12,
+                        "y": 8,
+                        "width": 12,
+                        "height": 8,
+                        "element": {
+                          "kind": "ElementReference",
+                          "name": "otel-grpc-client-errors"
+                        }
+                      }
+                    },
+                    {
+                      "kind": "GridLayoutItem",
+                      "spec": {
+                        "x": 0,
+                        "y": 16,
+                        "width": 12,
+                        "height": 8,
+                        "element": {
+                          "kind": "ElementReference",
+                          "name": "otel-grpc-server-p95"
+                        }
+                      }
+                    },
+                    {
+                      "kind": "GridLayoutItem",
+                      "spec": {
+                        "x": 12,
+                        "y": 16,
+                        "width": 12,
+                        "height": 8,
+                        "element": {
+                          "kind": "ElementReference",
+                          "name": "otel-grpc-client-p95"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "kind": "RowsLayoutRow",
+            "spec": {
+              "title": "gRPC East-West (RED) — Per Callee",
+              "layout": {
+                "kind": "GridLayout",
+                "spec": {
+                  "items": [
+                    {
+                      "kind": "GridLayoutItem",
+                      "spec": {
+                        "x": 0,
+                        "y": 0,
+                        "width": 12,
+                        "height": 8,
+                        "element": {
+                          "kind": "ElementReference",
+                          "name": "otel-grpc-callee-rps"
+                        }
+                      }
+                    },
+                    {
+                      "kind": "GridLayoutItem",
+                      "spec": {
+                        "x": 12,
+                        "y": 0,
+                        "width": 12,
+                        "height": 8,
+                        "element": {
+                          "kind": "ElementReference",
+                          "name": "otel-grpc-callee-error-ratio"
                         }
                       }
                     },
@@ -2455,7 +3970,7 @@
                         "height": 8,
                         "element": {
                           "kind": "ElementReference",
-                          "name": "otel-grpc-p95"
+                          "name": "otel-grpc-callee-p95"
                         }
                       }
                     }
@@ -2467,7 +3982,7 @@
           {
             "kind": "RowsLayoutRow",
             "spec": {
-              "title": "Database (otelpgx)",
+              "title": "Database (client — otelpgx)",
               "layout": {
                 "kind": "GridLayout",
                 "spec": {
@@ -2561,11 +4076,12 @@
     "links": [],
     "preload": false,
     "tags": [
+      "prometheus",
+      "kubernetes",
       "microservices",
-      "otel",
       "go",
-      "http",
-      "grpc",
+      "observability",
+      "rfc-0014",
       "generated",
       "foundation-sdk"
     ],
@@ -2573,7 +4089,7 @@
       "timezone": "browser",
       "from": "now-30m",
       "to": "now",
-      "autoRefresh": "1m",
+      "autoRefresh": "",
       "autoRefreshIntervals": [
         "5s",
         "10s",
