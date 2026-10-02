@@ -5,7 +5,7 @@ Scope: Grafana Foundation SDK docs (Context7 + Grafana docs MCP) packaged into [
 
 ## Executive summary
 
-The repository has a parallel **as-code** track. Legacy JSON under `dashboard/` stays frozen. New work uses **Go + Grafana Foundation SDK `dashboardv2`** targeting **Grafana 13+**, with generated artifacts delivered via **GitHub Actions → Flux OCI → GHCR**. Grafana folders are **domain names** (`Kubernetes`, `Databases`). Alerts are first-class Go resources.
+The repository has a parallel **as-code** track. Legacy JSON under `dashboard/` is down to the two boards homelab fetches by raw URL (`redis`, `cloudnative-pg`) and stays frozen. New work uses **Go + Grafana Foundation SDK `dashboardv2`** targeting **Grafana 13+**, with generated artifacts delivered via **GitHub Actions → Flux OCI → GHCR**. Grafana folders are **domain names** (`Kubernetes`, `Databases`). Alerts are first-class Go resources.
 
 ## Architecture (kept in the skill)
 

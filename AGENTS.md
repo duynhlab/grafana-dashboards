@@ -24,7 +24,9 @@ make e2e-kind    # Kind + Grafana Operator smoke test, needs Docker
 ## Invariants
 
 - Go under `internal/` is the source of truth. Never hand-edit `generated/` or `deploy/`.
-- Never edit legacy JSON under `dashboard/`. It is read-only porting input.
+- `dashboard/` holds only `redis/redis.json` and `postgresql/cloudnative-pg-cluster.json`,
+  which homelab fetches by raw URL on `main`. Do not edit, move or rename them; a
+  rename breaks those two boards on the next resync.
 - Register resources only in `internal/registry/`. Do not change `cmd/generate` for a new
   dashboard, alert, or domain.
 - Reuse `internal/panels`, `internal/standards`, and existing query constants before
