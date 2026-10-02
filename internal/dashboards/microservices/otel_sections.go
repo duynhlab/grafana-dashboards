@@ -72,10 +72,10 @@ func otelOverview(b *dashboardv2.DashboardBuilder) *dashboardv2.DashboardBuilder
 func otelTraffic(b *dashboardv2.DashboardBuilder) *dashboardv2.DashboardBuilder {
 	return b.
 		Panel("otel-status-pie", otelPie("Status Code Distribution",
-			"HTTP status code distribution by rate (req/sec). Shows real-time traffic breakdown by response code. Expected: ~95% codes 2xx.",
+			"HTTP status code distribution: requests in the selected time range by response code, kubelet /health probes excluded. Expected: ~95% codes 2xx.",
 			msqueries.OTelStatusCodeDistribution, "REST.{{http_response_status_code}}")).
 		Panel("otel-route-pie", otelPie("Total Requests by Endpoint",
-			"Request distribution across endpoints. Identifies hot paths and traffic patterns.",
+			"Requests in the selected time range by endpoint, kubelet /health probes excluded. Identifies hot paths and traffic patterns.",
 			msqueries.OTelTotalRequestsByRoute, "{{http_route}}")).
 		Panel("otel-rps-route", otelSeries("Request Rate by Endpoint",
 			"Request rate per endpoint over time. Detects traffic spikes per API.",
