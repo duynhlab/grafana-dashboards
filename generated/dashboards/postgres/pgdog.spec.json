@@ -7,7 +7,7 @@
     "2pc-rate": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 585851841,
         "title": "Two-Phase Commit Transactions Rate",
         "description": "",
         "links": [],
@@ -70,7 +70,7 @@
     "avg-2pc": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 1994513993,
         "title": "Average Two-Phase Commit Transactions Count",
         "description": "",
         "links": [],
@@ -133,7 +133,7 @@
     "avg-prep-evict": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 1482557877,
         "title": "Average Prepared Statements Eviction Count",
         "description": "",
         "links": [],
@@ -196,7 +196,7 @@
     "avg-query": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 963032574,
         "title": "Average Query Count",
         "description": "",
         "links": [],
@@ -259,7 +259,7 @@
     "avg-query-time": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 1493049792,
         "title": "Average Query Executing Time",
         "description": "",
         "links": [],
@@ -322,7 +322,7 @@
     "avg-received": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 776750361,
         "title": "Average Traffic Received",
         "description": "",
         "links": [],
@@ -385,7 +385,7 @@
     "avg-sent": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 470509392,
         "title": "Average Traffic Sent",
         "description": "",
         "links": [],
@@ -448,7 +448,7 @@
     "avg-xact": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 650822074,
         "title": "Average Transactions Count",
         "description": "",
         "links": [],
@@ -511,7 +511,7 @@
     "avg-xact-time": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 2042942900,
         "title": "Average Time Spent Executing Transactions",
         "description": "",
         "links": [],
@@ -574,7 +574,7 @@
     "cache-rate": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 1748737946,
         "title": "Query Cache Rate",
         "description": "",
         "links": [],
@@ -697,7 +697,7 @@
     "cache-size": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 1744415593,
         "title": "Query Cache Size",
         "description": "",
         "links": [],
@@ -759,7 +759,7 @@
     "clients-total": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 296148992,
         "title": "Clients Total",
         "description": "",
         "links": [],
@@ -821,7 +821,7 @@
     "clients-waiting": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 1523756277,
         "title": "Clients Waiting",
         "description": "",
         "links": [],
@@ -884,7 +884,7 @@
     "errors": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 2048375430,
         "title": "Connection Errors Rate",
         "description": "",
         "links": [],
@@ -947,7 +947,7 @@
     "maxwait": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 2037191060,
         "title": "Connection Max Wait Time",
         "description": "",
         "links": [],
@@ -1010,7 +1010,7 @@
     "mirror-queue": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 441985600,
         "title": "Mirror Queue Size",
         "description": "",
         "links": [],
@@ -1073,7 +1073,7 @@
     "mirror-rate": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 1203764223,
         "title": "Mirror Rate",
         "description": "",
         "links": [],
@@ -1196,7 +1196,7 @@
     "out-of-sync": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 1155513149,
         "title": "Connection Out Of Sync Rate",
         "description": "",
         "links": [],
@@ -1259,7 +1259,7 @@
     "prep-count": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 1040984476,
         "title": "Prepared Statements Count",
         "description": "",
         "links": [],
@@ -1321,7 +1321,7 @@
     "prep-evict-rate": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 470155547,
         "title": "Prepared Statements Eviction Rate",
         "description": "",
         "links": [],
@@ -1384,7 +1384,7 @@
     "prep-memory": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 1016421254,
         "title": "Prepared Statements Memory Used",
         "description": "",
         "links": [],
@@ -1446,7 +1446,7 @@
     "query-rate": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 3537400,
         "title": "Query Rate",
         "description": "",
         "links": [],
@@ -1509,7 +1509,7 @@
     "query-time": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 827598251,
         "title": "Query Executing Time Rate",
         "description": "",
         "links": [],
@@ -1572,7 +1572,7 @@
     "received-rate": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 1408619023,
         "title": "Traffic Received Rate",
         "description": "",
         "links": [],
@@ -1635,7 +1635,7 @@
     "sent-rate": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 1380300628,
         "title": "Traffic Sent Rate",
         "description": "",
         "links": [],
@@ -1698,7 +1698,7 @@
     "sv-active": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 894618157,
         "title": "Servers Active",
         "description": "",
         "links": [],
@@ -1761,7 +1761,7 @@
     "sv-idle": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 398423289,
         "title": "Servers Idle",
         "description": "",
         "links": [],
@@ -1824,7 +1824,7 @@
     "sv-idle-xact": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 1346085176,
         "title": "Servers Idle In Transaction",
         "description": "",
         "links": [],
@@ -1887,7 +1887,7 @@
     "xact-rate": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 1350312010,
         "title": "Transactions Rate",
         "description": "",
         "links": [],
@@ -1950,7 +1950,7 @@
     "xact-time": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 332580609,
         "title": "Transactions Executing Time Rate",
         "description": "",
         "links": [],

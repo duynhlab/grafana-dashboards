@@ -7,7 +7,7 @@
     "agroal-pool": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 919277292,
         "title": "Agroal DB pool (datasource=default)",
         "description": "",
         "links": [],
@@ -110,7 +110,7 @@
     "auth-failure-ratio": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 2002543222,
         "title": "Auth failure ratio",
         "description": "",
         "links": [],
@@ -192,7 +192,7 @@
     "auth-p95": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 530859196,
         "title": "Auth p95 latency",
         "description": "",
         "links": [],
@@ -274,7 +274,7 @@
     "events-by-realm-client": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 988276260,
         "title": "Auth events by realm / client",
         "description": "",
         "links": [],
@@ -337,7 +337,7 @@
     "events-by-type": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 389273417,
         "title": "User events by type",
         "description": "",
         "links": [],
@@ -400,7 +400,7 @@
     "failed-events": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 466295022,
         "title": "Failed events by error",
         "description": "",
         "links": [],
@@ -463,7 +463,7 @@
     "gc-pause": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 1274942176,
         "title": "GC pause",
         "description": "",
         "links": [],
@@ -546,7 +546,7 @@
     "jvm-heap": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 2049616157,
         "title": "JVM heap",
         "description": "",
         "links": [],
@@ -649,7 +649,7 @@
     "logins-per-min": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 1571866880,
         "title": "Successful logins / min",
         "description": "",
         "links": [],
@@ -723,7 +723,7 @@
     "password-hash": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 189272511,
         "title": "Password hash validations",
         "description": "",
         "links": [],
@@ -786,7 +786,7 @@
     "readme": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 1242013863,
         "title": "README — how to read this dashboard",
         "description": "",
         "links": [],
@@ -818,7 +818,7 @@
     "realm-latency": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 755555031,
         "title": "Realm endpoints — latency quantiles",
         "description": "",
         "links": [],
@@ -921,7 +921,7 @@
     "scrape-up": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 36946581,
         "title": "Keycloak scrape up",
         "description": "",
         "links": [],
@@ -999,7 +999,7 @@
     "slo-compliance": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 503386729,
         "title": "SLO compliance (\u003c 250 ms)",
         "description": "",
         "links": [],
@@ -1081,7 +1081,7 @@
     "slowest-endpoints": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 1593022931,
         "title": "Slowest endpoints (p95, dashboard window)",
         "description": "",
         "links": [],
@@ -1189,7 +1189,7 @@
     "token-grants": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 1437811858,
         "title": "Token grants — refresh vs code exchange",
         "description": "",
         "links": [],
@@ -1252,7 +1252,7 @@
     "token-latency": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 176003809,
         "title": "Token endpoint — p95 / p99",
         "description": "",
         "links": [],
@@ -1335,7 +1335,7 @@
     "uptime": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 2093350105,
         "title": "Process uptime",
         "description": "",
         "links": [],

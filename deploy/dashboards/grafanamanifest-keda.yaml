@@ -61,7 +61,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.236236365e+09
                         links: []
                         title: Current vs max replicas
                         vizConfig:
@@ -120,7 +120,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.786839955e+09
                         links: []
                         title: Desired vs target (value ÷ targetQueueSize 5)
                         vizConfig:
@@ -164,7 +164,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 7.98840963e+08
                         links: []
                         title: KEDA version
                         vizConfig:
@@ -215,7 +215,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 2.121930402e+09
                         links: []
                         title: Metrics adapter up
                         vizConfig:
@@ -267,7 +267,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.04067453e+08
                         links: []
                         title: Operator up
                         vizConfig:
@@ -320,7 +320,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.694549115e+09
                         links: []
                         title: Replica changes
                         vizConfig:
@@ -365,7 +365,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 3.07504025e+08
                         links: []
                         title: Scale-loop latency (internal)
                         vizConfig:
@@ -410,7 +410,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 2.67005848e+08
                         links: []
                         title: ScaledObject errors (rate)
                         vizConfig:
@@ -454,7 +454,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.23019056e+09
                         links: []
                         title: ScaledObjects registered
                         vizConfig:
@@ -505,7 +505,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 8.95185774e+08
                         links: []
                         title: Scaler active
                         vizConfig:
@@ -563,7 +563,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.759669115e+09
                         links: []
                         title: Scaler errors (rate)
                         vizConfig:
@@ -608,7 +608,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.808803647e+09
                         links: []
                         title: Scaler metric latency (last fetch)
                         vizConfig:
@@ -653,7 +653,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.92639546e+09
                         links: []
                         title: Scaler metric value (backlog per worker version)
                         vizConfig:
@@ -698,7 +698,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 2.12130492e+08
                         links: []
                         title: Schedule-to-start p99 by task type (SDK)
                         vizConfig:
@@ -743,7 +743,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 3.3316325e+07
                         links: []
                         title: Task-queue backlog (server; summed over partition only)
                         vizConfig:
@@ -787,7 +787,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.74052746e+08
                         links: []
                         title: temporal triggers registered
                         vizConfig:
@@ -838,7 +838,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.818165407e+09
                         links: []
                         title: Worker replicas (versioned Deployments)
                         vizConfig:

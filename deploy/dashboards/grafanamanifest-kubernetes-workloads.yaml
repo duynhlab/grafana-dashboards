@@ -47,7 +47,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 2.007189663e+09
                         links: []
                         title: CPU by Pod
                         vizConfig:
@@ -92,7 +92,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 4.08840565e+08
                         links: []
                         title: CPU by Workload
                         vizConfig:
@@ -137,7 +137,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.414488091e+09
                         links: []
                         title: CPU Throttling by Pod
                         vizConfig:
@@ -182,7 +182,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 4.1623872e+07
                         links: []
                         title: CPU Usage vs Requests by Pod
                         vizConfig:
@@ -227,7 +227,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.87666655e+09
                         links: []
                         title: Memory by Pod
                         vizConfig:
@@ -272,7 +272,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.54401213e+09
                         links: []
                         title: Memory by Workload
                         vizConfig:
@@ -317,7 +317,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 2.06005189e+08
                         links: []
                         title: Memory Usage vs Limits by Pod
                         vizConfig:
@@ -376,7 +376,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 9.26046084e+08
                         links: []
                         title: Network I/O by Pod
                         vizConfig:
@@ -421,7 +421,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 2.35179403e+08
                         links: []
                         title: Restarts by Pod
                         vizConfig:
@@ -466,7 +466,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 9.30693937e+08
                         links: []
                         title: Restarts by Workload
                         vizConfig:
@@ -511,7 +511,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 2.045595976e+09
                         links: []
                         title: Containers Waiting by Reason
                         vizConfig:

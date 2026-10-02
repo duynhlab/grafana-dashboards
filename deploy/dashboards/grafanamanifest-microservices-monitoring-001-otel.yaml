@@ -47,7 +47,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 8.47352343e+08
                         links: []
                         title: 5xx ratio by method and endpoint
                         vizConfig:
@@ -100,7 +100,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 7.05660148e+08
                         links: []
                         title: Apdex score
                         vizConfig:
@@ -156,7 +156,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.961012176e+09
                         links: []
                         title: DB operation errors
                         vizConfig:
@@ -201,7 +201,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 8.44548569e+08
                         links: []
                         title: DB p95 by operation type
                         vizConfig:
@@ -246,7 +246,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.099104709e+09
                         links: []
                         title: DB query p95 by service
                         vizConfig:
@@ -295,7 +295,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.558175093e+09
                         links: []
                         title: Error rate % (5xx)
                         vizConfig:
@@ -350,7 +350,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.641249906e+09
                         links: []
                         title: Error RPS (4xx/5xx)
                         vizConfig:
@@ -416,7 +416,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 8.4597687e+07
                         links: []
                         title: Client and server errors by service
                         vizConfig:
@@ -461,7 +461,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 2.10405176e+08
                         links: []
                         title: Allocation rate
                         vizConfig:
@@ -506,7 +506,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 6.97966221e+08
                         links: []
                         title: GC pacing pressure (used / goal)
                         vizConfig:
@@ -560,7 +560,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.015627e+08
                         links: []
                         title: Goroutines
                         vizConfig:
@@ -605,7 +605,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.258850316e+09
                         links: []
                         title: Memory in use
                         vizConfig:
@@ -664,7 +664,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.834885058e+09
                         links: []
                         title: gRPC non-OK error rate
                         vizConfig:
@@ -723,7 +723,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 6.00792801e+08
                         links: []
                         title: gRPC p95 latency
                         vizConfig:
@@ -782,7 +782,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 9.11057144e+08
                         links: []
                         title: gRPC RPS
                         vizConfig:
@@ -841,7 +841,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.691329096e+09
                         links: []
                         title: HTTP body throughput per service
                         vizConfig:
@@ -885,7 +885,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.9108631e+07
                         links: []
                         title: p50 latency (2xx)
                         vizConfig:
@@ -940,7 +940,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 2.080732708e+09
                         links: []
                         title: p95 latency (2xx)
                         vizConfig:
@@ -995,7 +995,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.87940128e+09
                         links: []
                         title: p99 latency (2xx)
                         vizConfig:
@@ -1065,7 +1065,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 8.94404378e+08
                         links: []
                         title: Pool contention (waiting acquires)
                         vizConfig:
@@ -1110,7 +1110,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 5.32859454e+08
                         links: []
                         title: Pool in-flight (acquired conns)
                         vizConfig:
@@ -1155,7 +1155,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 5.86645087e+08
                         links: []
                         title: Pool saturation (acquired / max)
                         vizConfig:
@@ -1228,7 +1228,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.860408468e+09
                         links: []
                         title: Route latency
                         vizConfig:
@@ -1273,7 +1273,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.769746889e+09
                         links: []
                         title: Request rate by method and endpoint
                         vizConfig:
@@ -1318,7 +1318,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.640247533e+09
                         links: []
                         title: Request rate by endpoint
                         vizConfig:
@@ -1363,7 +1363,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 9.17806947e+08
                         links: []
                         title: Status code distribution
                         vizConfig:
@@ -1418,7 +1418,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.364395806e+09
                         links: []
                         title: Success rate % (non-5xx)
                         vizConfig:
@@ -1473,7 +1473,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.801498186e+09
                         links: []
                         title: Total RPS
                         vizConfig:

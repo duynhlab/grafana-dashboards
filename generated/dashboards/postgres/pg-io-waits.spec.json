@@ -7,7 +7,7 @@
     "backends-waiting": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 401265022,
         "title": "Backends waiting (built-in)",
         "description": "",
         "links": [],
@@ -69,7 +69,7 @@
     "buffers": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 817438872,
         "title": "Shared buffers: hits vs evictions vs reuses /s",
         "description": "",
         "links": [],
@@ -169,7 +169,7 @@
     "extends": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 495310414,
         "title": "Relation extends /s (growth)",
         "description": "",
         "links": [],
@@ -231,7 +231,7 @@
     "fsync-time": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 310668600,
         "title": "Fsync time (ms spent /s)",
         "description": "",
         "links": [],
@@ -293,7 +293,7 @@
     "fsyncs": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 1964047647,
         "title": "Fsyncs /s by backend",
         "description": "",
         "links": [],
@@ -355,7 +355,7 @@
     "io-time": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 1070654133,
         "title": "IO time (ms spent /s) by backend",
         "description": "",
         "links": [],
@@ -436,7 +436,7 @@
     "read-ops": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 1005179460,
         "title": "Read ops /s by backend",
         "description": "",
         "links": [],
@@ -498,7 +498,7 @@
     "throughput": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 958092415,
         "title": "Throughput (bytes/s)",
         "description": "",
         "links": [],
@@ -579,7 +579,7 @@
     "wait-class": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 1227168025,
         "title": "Active backends by wait class (sampled)",
         "description": "",
         "links": [],
@@ -641,7 +641,7 @@
     "write-ops": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 722176669,
         "title": "Write ops /s by backend",
         "description": "",
         "links": [],

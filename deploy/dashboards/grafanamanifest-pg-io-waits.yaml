@@ -47,7 +47,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 4.01265022e+08
                         links: []
                         title: Backends waiting (built-in)
                         vizConfig:
@@ -117,7 +117,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 8.17438872e+08
                         links: []
                         title: 'Shared buffers: hits vs evictions vs reuses /s'
                         vizConfig:
@@ -161,7 +161,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 4.95310414e+08
                         links: []
                         title: Relation extends /s (growth)
                         vizConfig:
@@ -205,7 +205,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 3.106686e+08
                         links: []
                         title: Fsync time (ms spent /s)
                         vizConfig:
@@ -249,7 +249,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.964047647e+09
                         links: []
                         title: Fsyncs /s by backend
                         vizConfig:
@@ -306,7 +306,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.070654133e+09
                         links: []
                         title: IO time (ms spent /s) by backend
                         vizConfig:
@@ -350,7 +350,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.00517946e+09
                         links: []
                         title: Read ops /s by backend
                         vizConfig:
@@ -407,7 +407,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 9.58092415e+08
                         links: []
                         title: Throughput (bytes/s)
                         vizConfig:
@@ -451,7 +451,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.227168025e+09
                         links: []
                         title: Active backends by wait class (sampled)
                         vizConfig:
@@ -495,7 +495,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 7.22176669e+08
                         links: []
                         title: Write ops /s by backend
                         vizConfig:

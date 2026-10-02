@@ -47,7 +47,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.957499287e+09
                         links: []
                         title: CPU Requests vs Allocatable by Node
                         vizConfig:
@@ -91,7 +91,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.873585089e+09
                         links: []
                         title: CPU Requests vs Capacity
                         vizConfig:
@@ -135,7 +135,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 2.039365376e+09
                         links: []
                         title: CPU Throttled Containers
                         vizConfig:
@@ -179,7 +179,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.285705219e+09
                         links: []
                         title: CPU Usage by Namespace
                         vizConfig:
@@ -222,7 +222,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.289764358e+09
                         links: []
                         title: CrashLooping Pods
                         vizConfig:
@@ -266,7 +266,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.583289757e+09
                         links: []
                         title: Deployment Mismatches
                         vizConfig:
@@ -311,7 +311,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.080187755e+09
                         links: []
                         title: Failed Pods
                         vizConfig:
@@ -356,7 +356,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.520738914e+09
                         links: []
                         title: Memory Requests vs Allocatable by Node
                         vizConfig:
@@ -400,7 +400,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.34550551e+09
                         links: []
                         title: Memory Requests vs Capacity
                         vizConfig:
@@ -444,7 +444,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 2.048301884e+09
                         links: []
                         title: Memory Usage by Namespace
                         vizConfig:
@@ -501,7 +501,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 2.131341159e+09
                         links: []
                         title: Network I/O by Namespace
                         vizConfig:
@@ -573,7 +573,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 9.39473691e+08
                         links: []
                         title: Node Pressure Conditions
                         vizConfig:
@@ -618,7 +618,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.364103258e+09
                         links: []
                         title: Nodes
                         vizConfig:
@@ -662,7 +662,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 6.40235786e+08
                         links: []
                         title: OOM Events (1h)
                         vizConfig:
@@ -721,7 +721,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.185231321e+09
                         links: []
                         title: Packets Dropped by Namespace
                         vizConfig:
@@ -766,7 +766,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.839159267e+09
                         links: []
                         title: Pending Pods
                         vizConfig:
@@ -811,7 +811,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.530114667e+09
                         links: []
                         title: Pod Restarts by Namespace
                         vizConfig:
@@ -855,7 +855,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 7.86853477e+08
                         links: []
                         title: Pod Status by Namespace
                         vizConfig:
@@ -913,7 +913,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.231505738e+09
                         links: []
                         title: Pods per Node
                         vizConfig:
@@ -957,7 +957,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.259748192e+09
                         links: []
                         title: PVCs at Risk (>80% used)
                         vizConfig:
@@ -1015,7 +1015,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 6.31013297e+08
                         links: []
                         title: PVC Utilization
                         vizConfig:
@@ -1059,7 +1059,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.007298292e+09
                         links: []
                         title: PVC Usage Over Time
                         vizConfig:
@@ -1103,7 +1103,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 2.123267923e+09
                         links: []
                         title: Running Pods
                         vizConfig:
@@ -1147,7 +1147,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.899142342e+09
                         links: []
                         title: StatefulSet Mismatches
                         vizConfig:

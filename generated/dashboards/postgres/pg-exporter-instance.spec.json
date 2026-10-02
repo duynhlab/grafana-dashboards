@@ -7,7 +7,7 @@
     "act-commits-rollbacks": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 293946932,
         "title": "Transaction Commits / Rollbacks (rate5m)",
         "description": "",
         "links": [],
@@ -90,7 +90,7 @@
     "act-load": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 50826346,
         "title": "Postgres Load (rate1m)",
         "description": "",
         "links": [],
@@ -153,7 +153,7 @@
     "act-locks": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 214191466,
         "title": "Locks",
         "description": "",
         "links": [],
@@ -216,7 +216,7 @@
     "act-locks-category": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 1854958449,
         "title": "Locks by Category",
         "description": "",
         "links": [],
@@ -319,7 +319,7 @@
     "act-row-fetched": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 481709990,
         "title": "Row Fetched (rate1m)",
         "description": "",
         "links": [],
@@ -382,7 +382,7 @@
     "act-row-modified": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 674317398,
         "title": "Row Modified (rate1m)",
         "description": "",
         "links": [],
@@ -485,7 +485,7 @@
     "act-sage": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 1659935666,
         "title": "SAGE",
         "description": "",
         "links": [],
@@ -548,7 +548,7 @@
     "act-tps": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 545088559,
         "title": "TPS by Database (rate1m)",
         "description": "",
         "links": [],
@@ -611,7 +611,7 @@
     "act-txn-rt": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 1150989441,
         "title": "Transaction RT (1m)",
         "description": "",
         "links": [],
@@ -694,7 +694,7 @@
     "alerts-count": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 274445200,
         "title": "Firing Alerts",
         "description": "",
         "links": [],
@@ -759,7 +759,7 @@
     "alerts-list": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 1644066997,
         "title": "Active Alerts",
         "description": "",
         "links": [],
@@ -842,7 +842,7 @@
     "cluster-load": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 1448109660,
         "title": "Cluster Load",
         "description": "",
         "links": [],
@@ -905,7 +905,7 @@
     "db-blocks-hit": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 1478839708,
         "title": "Database Blocks Hit Ratio (1m)",
         "description": "",
         "links": [],
@@ -968,7 +968,7 @@
     "db-conn-usage": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 1716597438,
         "title": "Connection Usage",
         "description": "",
         "links": [],
@@ -1031,7 +1031,7 @@
     "db-idle-in-tx": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 1975758851,
         "title": "Idle in Transaction Backends",
         "description": "",
         "links": [],
@@ -1093,7 +1093,7 @@
     "db-new-sessions": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 1515359074,
         "title": "New Sessions (incr1m)",
         "description": "",
         "links": [],
@@ -1155,7 +1155,7 @@
     "db-row-fetched": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 933257406,
         "title": "Row Fetched",
         "description": "",
         "links": [],
@@ -1218,7 +1218,7 @@
     "db-row-modified": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 311945422,
         "title": "Row Modified",
         "description": "",
         "links": [],
@@ -1321,7 +1321,7 @@
     "db-session": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 2057656750,
         "title": "Session by Database",
         "description": "",
         "links": [],
@@ -1383,7 +1383,7 @@
     "db-size": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 668516499,
         "title": "Database Size",
         "description": "",
         "links": [],
@@ -1446,7 +1446,7 @@
     "db-size-delta": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 270961484,
         "title": "Database Size Delta 10m",
         "description": "",
         "links": [],
@@ -1509,7 +1509,7 @@
     "db-tps": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 596425911,
         "title": "TPS by Database (rate1m)",
         "description": "",
         "links": [],
@@ -1572,7 +1572,7 @@
     "instance-load": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 1367657201,
         "title": "Instance Load",
         "description": "",
         "links": [],
@@ -1635,7 +1635,7 @@
     "kpi-active-conn": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 544583287,
         "title": "Active Conn",
         "description": "",
         "links": [],
@@ -1700,7 +1700,7 @@
     "kpi-age": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 1802923075,
         "title": "Age",
         "description": "",
         "links": [],
@@ -1765,7 +1765,7 @@
     "kpi-backend": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 1691108240,
         "title": "Backend",
         "description": "",
         "links": [],
@@ -1830,7 +1830,7 @@
     "kpi-blks-read": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 1966324551,
         "title": "Blks Read",
         "description": "",
         "links": [],
@@ -1895,7 +1895,7 @@
     "kpi-commit": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 45851925,
         "title": "Commit",
         "description": "",
         "links": [],
@@ -1960,7 +1960,7 @@
     "kpi-conn-pct": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 619361068,
         "title": "Conn%",
         "description": "",
         "links": [],
@@ -2025,7 +2025,7 @@
     "kpi-ixact-conn": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 676229780,
         "title": "iXact Conn",
         "description": "",
         "links": [],
@@ -2090,7 +2090,7 @@
     "kpi-rollback": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 831990796,
         "title": "Rollback",
         "description": "",
         "links": [],
@@ -2155,7 +2155,7 @@
     "kpi-row-change": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 1670241863,
         "title": "Row Change",
         "description": "",
         "links": [],
@@ -2220,7 +2220,7 @@
     "kpi-row-fetch": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 1888761581,
         "title": "Row Fetch",
         "description": "",
         "links": [],
@@ -2285,7 +2285,7 @@
     "kpi-rt": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 1311010942,
         "title": "RT",
         "description": "",
         "links": [],
@@ -2350,7 +2350,7 @@
     "kpi-size": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 1372007561,
         "title": "Size",
         "description": "",
         "links": [],
@@ -2415,7 +2415,7 @@
     "persist-age-usage": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 1065961295,
         "title": "Age Usage",
         "description": "",
         "links": [],
@@ -2478,7 +2478,7 @@
     "persist-bgwriter-alloc": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 1884358286,
         "title": "BGWriter Buffer Alloc",
         "description": "",
         "links": [],
@@ -2541,7 +2541,7 @@
     "persist-bgwriter-flush": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 1912243461,
         "title": "BGWriter Buffer Flush",
         "description": "",
         "links": [],
@@ -2644,7 +2644,7 @@
     "persist-blocks-access": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 2042434449,
         "title": "Blocks Access 1m",
         "description": "",
         "links": [],
@@ -2707,7 +2707,7 @@
     "persist-blocks-hit-ratio": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 1099865990,
         "title": "Blocks Hit Ratio (1m)",
         "description": "",
         "links": [],
@@ -2770,7 +2770,7 @@
     "persist-blocks-read": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 258261007,
         "title": "Blocks Read (1m)",
         "description": "",
         "links": [],
@@ -2833,7 +2833,7 @@
     "persist-blocks-rw-time": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 583403314,
         "title": "Blocks Read/Write Time Spent Rate1m",
         "description": "",
         "links": [],
@@ -2916,7 +2916,7 @@
     "persist-checkpoint-sched": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 1554973410,
         "title": "Checkpoint Scheduled / Requested",
         "description": "",
         "links": [],
@@ -2998,7 +2998,7 @@
     "persist-checkpoint-time": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 44061802,
         "title": "Checkpoint Time : Sync/Write",
         "description": "",
         "links": [],
@@ -3081,7 +3081,7 @@
     "persist-cluster-size": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 1539549618,
         "title": "Database Cluster Size",
         "description": "",
         "links": [],
@@ -3144,7 +3144,7 @@
     "persist-lsn": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 50505415,
         "title": "LSN Progress (rate1m)",
         "description": "",
         "links": [],
@@ -3207,7 +3207,7 @@
     "persist-wal-log-size": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 1888704349,
         "title": "Database WAL/Log Size",
         "description": "",
         "links": [],
@@ -3270,7 +3270,7 @@
     "sess-active-pct": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 1986625502,
         "title": "Active% (of Session Time)",
         "description": "",
         "links": [],
@@ -3333,7 +3333,7 @@
     "sess-backends": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 613836983,
         "title": "Backends",
         "description": "",
         "links": [],
@@ -3395,7 +3395,7 @@
     "sess-backends-state": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 1737091827,
         "title": "Backends by State",
         "description": "",
         "links": [],
@@ -3457,7 +3457,7 @@
     "sess-backends-type": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 2051471630,
         "title": "Backends by Type",
         "description": "",
         "links": [],
@@ -3519,7 +3519,7 @@
     "sess-backends-wait": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 356199363,
         "title": "Backends by Wait Event",
         "description": "",
         "links": [],
@@ -3581,7 +3581,7 @@
     "sess-conn-usage": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 974132542,
         "title": "Connection Usage",
         "description": "",
         "links": [],
@@ -3644,7 +3644,7 @@
     "sess-failure": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 1832470104,
         "title": "Sessions Failure in 1m",
         "description": "",
         "links": [],
@@ -3746,7 +3746,7 @@
     "sess-idle-in-tx": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 1233293955,
         "title": "Idle in Transaction Backends",
         "description": "",
         "links": [],
@@ -3808,7 +3808,7 @@
     "sess-max-conn-lifespan": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 899283546,
         "title": "Max Conn Lifespan",
         "description": "",
         "links": [],
@@ -3871,7 +3871,7 @@
     "sess-new-sessions": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 1888383458,
         "title": "New Sessions (increase1m)",
         "description": "",
         "links": [],
@@ -3933,7 +3933,7 @@
     "tq-query-call": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 1926169810,
         "title": "Query Call",
         "description": "",
         "links": [],
@@ -3996,7 +3996,7 @@
     "tq-query-time": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 2133771367,
         "title": "Query Time",
         "description": "",
         "links": [],
@@ -4059,7 +4059,7 @@
     "tq-table-scan": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 238801927,
         "title": "Table Scan (scan/s)",
         "description": "",
         "links": [],
@@ -4122,7 +4122,7 @@
     "tq-tuple-read": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 2032984812,
         "title": "Tuple Read (rows/s)",
         "description": "",
         "links": [],

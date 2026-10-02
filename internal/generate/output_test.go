@@ -2,12 +2,14 @@ package generate
 
 import (
 	"bytes"
+	"encoding/json"
 	"os"
 	"path/filepath"
 	"sort"
 	"strings"
 	"testing"
 
+	"github.com/grafana/grafana-foundation-sdk/go/dashboardv2"
 	"gopkg.in/yaml.v3"
 
 	"github.com/duynhlab/grafana-dashboards/internal/alerts"
@@ -398,4 +400,89 @@ func keys(m map[string]any) []string {
 	}
 	sort.Strings(out)
 	return out
+}
+
+// Grafana's v2 renderer keys panels by id: with every id left at 0, each grid
+// row rendered its first panel in every slot. Every generated board must carry
+// distinct, non-zero panel ids.
+func TestGeneratedPanelIDsAreDistinctAndNonZero(t *testing.T) {
+	root := t.TempDir()
+	generator, err := New(root, registry.Dashboards, registry.Alerts)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := generator.Run(); err != nil {
+		t.Fatal(err)
+	}
+	specs, err := filepath.Glob(filepath.Join(root, "generated", "dashboards", "*", "*.spec.json"))
+	if err != nil || len(specs) != len(registry.Dashboards) {
+		t.Fatalf("found %d specs for %d dashboards: %v", len(specs), len(registry.Dashboards), err)
+	}
+	for _, path := range specs {
+		raw, err := os.ReadFile(path)
+		if err != nil {
+			t.Fatal(err)
+		}
+		var spec struct {
+			Elements map[string]struct {
+				Spec struct {
+					ID float64 `json:"id"`
+				} `json:"spec"`
+			} `json:"elements"`
+		}
+		if err := json.Unmarshal(raw, &spec); err != nil {
+			t.Fatalf("%s: %v", path, err)
+		}
+		seen := map[float64]string{}
+		for name, element := range spec.Elements {
+			if element.Spec.ID == 0 {
+				t.Errorf("%s: element %s has panel id 0", filepath.Base(path), name)
+			}
+			if other, dup := seen[element.Spec.ID]; dup {
+				t.Errorf("%s: elements %s and %s share panel id %v", filepath.Base(path), other, name, element.Spec.ID)
+			}
+			seen[element.Spec.ID] = name
+		}
+	}
+}
+
+func TestPanelIDIsStableAndPositive(t *testing.T) {
+	if panelID("otel-p99") != panelID("otel-p99") {
+		t.Fatal("panel id must be deterministic")
+	}
+	if panelID("otel-p99") == panelID("otel-p95") {
+		t.Fatal("different names should get different ids")
+	}
+	for _, name := range []string{"", "a", "otel-p99"} {
+		if id := panelID(name); id <= 0 || id > 0x7fffffff {
+			t.Fatalf("panelID(%q) = %v out of range", name, id)
+		}
+	}
+}
+
+func TestAssignPanelIDsRejectsACollision(t *testing.T) {
+	// "p2308" and "p571002" share a 31-bit FNV-1a hash (820614612).
+	if panelID("p2308") != panelID("p571002") {
+		t.Fatal("test fixture no longer collides")
+	}
+	spec := dashboardv2.Dashboard{Elements: map[string]dashboardv2.Element{
+		"p2308":   {PanelKind: &dashboardv2.PanelKind{}},
+		"p571002": {PanelKind: &dashboardv2.PanelKind{}},
+	}}
+	err := assignPanelIDs(&spec)
+	if err == nil || !strings.Contains(err.Error(), "same panel id") {
+		t.Fatalf("expected a collision error, got %v", err)
+	}
+}
+
+func TestAssignPanelIDsSetsLibraryPanels(t *testing.T) {
+	spec := dashboardv2.Dashboard{Elements: map[string]dashboardv2.Element{
+		"lib": {LibraryPanelKind: &dashboardv2.LibraryPanelKind{}},
+	}}
+	if err := assignPanelIDs(&spec); err != nil {
+		t.Fatal(err)
+	}
+	if spec.Elements["lib"].LibraryPanelKind.Spec.Id != panelID("lib") {
+		t.Fatal("library panel id not assigned")
+	}
 }

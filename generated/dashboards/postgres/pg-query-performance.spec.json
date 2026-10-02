@@ -7,7 +7,7 @@
     "cache-hit": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 668101533,
         "title": "Cache hit ratio",
         "description": "",
         "links": [],
@@ -88,7 +88,7 @@
     "calls": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 523510574,
         "title": "Calls / sec",
         "description": "",
         "links": [],
@@ -152,7 +152,7 @@
     "io-time": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 1070654133,
         "title": "Block I/O time /s (read vs write)",
         "description": "",
         "links": [],
@@ -235,7 +235,7 @@
     "mean-latency": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 2065094163,
         "title": "Mean latency / call",
         "description": "",
         "links": [],
@@ -316,7 +316,7 @@
     "rows": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 708293528,
         "title": "Rows / sec",
         "description": "",
         "links": [],
@@ -380,7 +380,7 @@
     "shared-blocks": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 1971252037,
         "title": "Shared blocks: hit vs read /s",
         "description": "",
         "links": [],
@@ -463,7 +463,7 @@
     "stmt-table": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 1125473350,
         "title": "Top statements (by exec time)",
         "description": "",
         "links": [],
@@ -675,7 +675,7 @@
     "temp-blocks": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 371785848,
         "title": "Temp blocks (spill) /s",
         "description": "",
         "links": [],
@@ -758,7 +758,7 @@
     "top-calls": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 1969075488,
         "title": "Top by calls / sec",
         "description": "",
         "links": [],
@@ -821,7 +821,7 @@
     "top-exec": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 718199654,
         "title": "Top by exec time (ms/s)",
         "description": "",
         "links": [],
@@ -884,7 +884,7 @@
     "top-io": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 769190499,
         "title": "Top queries by I/O time",
         "description": "",
         "links": [],
@@ -947,7 +947,7 @@
     "top-mean": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 1967134894,
         "title": "Top by mean latency / call",
         "description": "",
         "links": [],
@@ -1010,7 +1010,7 @@
     "top-rows": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 1061316142,
         "title": "Top by rows / sec",
         "description": "",
         "links": [],
@@ -1073,7 +1073,7 @@
     "top-rows-per-call": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 317295023,
         "title": "Top queries by rows per call",
         "description": "",
         "links": [],

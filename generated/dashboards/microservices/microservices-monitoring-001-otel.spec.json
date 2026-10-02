@@ -7,7 +7,7 @@
     "otel-5xx-ratio": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 847352343,
         "title": "5xx ratio by method and endpoint",
         "description": "",
         "links": [],
@@ -87,7 +87,7 @@
     "otel-apdex": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 705660148,
         "title": "Apdex score",
         "description": "",
         "links": [],
@@ -168,7 +168,7 @@
     "otel-db-errors": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 1961012176,
         "title": "DB operation errors",
         "description": "",
         "links": [],
@@ -231,7 +231,7 @@
     "otel-db-p95-op": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 844548569,
         "title": "DB p95 by operation type",
         "description": "",
         "links": [],
@@ -294,7 +294,7 @@
     "otel-db-p95-service": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 1099104709,
         "title": "DB query p95 by service",
         "description": "",
         "links": [],
@@ -357,7 +357,7 @@
     "otel-error-rate": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 1558175093,
         "title": "Error rate % (5xx)",
         "description": "",
         "links": [],
@@ -438,7 +438,7 @@
     "otel-error-rps": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 1641249906,
         "title": "Error RPS (4xx/5xx)",
         "description": "",
         "links": [],
@@ -511,7 +511,7 @@
     "otel-errors-by-service": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 84597687,
         "title": "Client and server errors by service",
         "description": "",
         "links": [],
@@ -594,7 +594,7 @@
     "otel-go-alloc": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 210405176,
         "title": "Allocation rate",
         "description": "",
         "links": [],
@@ -657,7 +657,7 @@
     "otel-go-gc": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 697966221,
         "title": "GC pacing pressure (used / goal)",
         "description": "",
         "links": [],
@@ -737,7 +737,7 @@
     "otel-go-goroutines": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 101562700,
         "title": "Goroutines",
         "description": "",
         "links": [],
@@ -800,7 +800,7 @@
     "otel-go-memory": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 1258850316,
         "title": "Memory in use",
         "description": "",
         "links": [],
@@ -863,7 +863,7 @@
     "otel-grpc-errors": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 1834885058,
         "title": "gRPC non-OK error rate",
         "description": "",
         "links": [],
@@ -946,7 +946,7 @@
     "otel-grpc-p95": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 600792801,
         "title": "gRPC p95 latency",
         "description": "",
         "links": [],
@@ -1029,7 +1029,7 @@
     "otel-grpc-rps": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 911057144,
         "title": "gRPC RPS",
         "description": "",
         "links": [],
@@ -1112,7 +1112,7 @@
     "otel-http-bytes": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 1691329096,
         "title": "HTTP body throughput per service",
         "description": "",
         "links": [],
@@ -1195,7 +1195,7 @@
     "otel-p50": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 19108631,
         "title": "p50 latency (2xx)",
         "description": "",
         "links": [],
@@ -1276,7 +1276,7 @@
     "otel-p95": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 2080732708,
         "title": "p95 latency (2xx)",
         "description": "",
         "links": [],
@@ -1357,7 +1357,7 @@
     "otel-p99": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 1879401280,
         "title": "p99 latency (2xx)",
         "description": "",
         "links": [],
@@ -1438,7 +1438,7 @@
     "otel-pool-contention": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 894404378,
         "title": "Pool contention (waiting acquires)",
         "description": "",
         "links": [],
@@ -1521,7 +1521,7 @@
     "otel-pool-inflight": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 532859454,
         "title": "Pool in-flight (acquired conns)",
         "description": "",
         "links": [],
@@ -1584,7 +1584,7 @@
     "otel-pool-saturation": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 586645087,
         "title": "Pool saturation (acquired / max)",
         "description": "",
         "links": [],
@@ -1647,7 +1647,7 @@
     "otel-route-latency": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 1860408468,
         "title": "Route latency",
         "description": "",
         "links": [],
@@ -1750,7 +1750,7 @@
     "otel-rps-method-route": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 1769746889,
         "title": "Request rate by method and endpoint",
         "description": "",
         "links": [],
@@ -1813,7 +1813,7 @@
     "otel-rps-route": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 1640247533,
         "title": "Request rate by endpoint",
         "description": "",
         "links": [],
@@ -1876,7 +1876,7 @@
     "otel-status-pie": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 917806947,
         "title": "Status code distribution",
         "description": "",
         "links": [],
@@ -1947,7 +1947,7 @@
     "otel-success-rate": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 1364395806,
         "title": "Success rate % (non-5xx)",
         "description": "",
         "links": [],
@@ -2028,7 +2028,7 @@
     "otel-total-rps": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 1801498186,
         "title": "Total RPS",
         "description": "",
         "links": [],

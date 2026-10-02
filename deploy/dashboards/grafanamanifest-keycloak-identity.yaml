@@ -75,7 +75,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 9.19277292e+08
                         links: []
                         title: Agroal DB pool (datasource=default)
                         vizConfig:
@@ -120,7 +120,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 2.002543222e+09
                         links: []
                         title: Auth failure ratio
                         vizConfig:
@@ -176,7 +176,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 5.30859196e+08
                         links: []
                         title: Auth p95 latency
                         vizConfig:
@@ -232,7 +232,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 9.8827626e+08
                         links: []
                         title: Auth events by realm / client
                         vizConfig:
@@ -277,7 +277,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 3.89273417e+08
                         links: []
                         title: User events by type
                         vizConfig:
@@ -322,7 +322,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 4.66295022e+08
                         links: []
                         title: Failed events by error
                         vizConfig:
@@ -381,7 +381,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.274942176e+09
                         links: []
                         title: GC pause
                         vizConfig:
@@ -454,7 +454,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 2.049616157e+09
                         links: []
                         title: JVM heap
                         vizConfig:
@@ -499,7 +499,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.57186688e+09
                         links: []
                         title: Successful logins / min
                         vizConfig:
@@ -551,7 +551,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.89272511e+08
                         links: []
                         title: Password hash validations
                         vizConfig:
@@ -583,7 +583,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.242013863e+09
                         links: []
                         title: README — how to read this dashboard
                         vizConfig:
@@ -655,7 +655,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 7.55555031e+08
                         links: []
                         title: Realm endpoints — latency quantiles
                         vizConfig:
@@ -700,7 +700,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 3.6946581e+07
                         links: []
                         title: Keycloak scrape up
                         vizConfig:
@@ -754,7 +754,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 5.03386729e+08
                         links: []
                         title: SLO compliance (< 250 ms)
                         vizConfig:
@@ -827,7 +827,7 @@ spec:
                                                 - desc: true
                                                   field: p95
                         description: ""
-                        id: 0
+                        id: 1.593022931e+09
                         links: []
                         title: Slowest endpoints (p95, dashboard window)
                         vizConfig:
@@ -879,7 +879,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.437811858e+09
                         links: []
                         title: Token grants — refresh vs code exchange
                         vizConfig:
@@ -938,7 +938,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.76003809e+08
                         links: []
                         title: Token endpoint — p95 / p99
                         vizConfig:
@@ -983,7 +983,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 2.093350105e+09
                         links: []
                         title: Process uptime
                         vizConfig:

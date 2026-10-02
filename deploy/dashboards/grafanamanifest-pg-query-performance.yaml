@@ -46,7 +46,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 6.68101533e+08
                         links: []
                         title: Cache hit ratio
                         vizConfig:
@@ -101,7 +101,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 5.23510574e+08
                         links: []
                         title: Calls / sec
                         vizConfig:
@@ -162,7 +162,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.070654133e+09
                         links: []
                         title: Block I/O time /s (read vs write)
                         vizConfig:
@@ -206,7 +206,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 2.065094163e+09
                         links: []
                         title: Mean latency / call
                         vizConfig:
@@ -261,7 +261,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 7.08293528e+08
                         links: []
                         title: Rows / sec
                         vizConfig:
@@ -322,7 +322,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.971252037e+09
                         links: []
                         title: 'Shared blocks: hit vs read /s'
                         vizConfig:
@@ -436,7 +436,7 @@ spec:
                                                 - desc: true
                                                   field: Exec ms/s
                         description: ""
-                        id: 0
+                        id: 1.12547335e+09
                         links: []
                         title: Top statements (by exec time)
                         vizConfig:
@@ -518,7 +518,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 3.71785848e+08
                         links: []
                         title: Temp blocks (spill) /s
                         vizConfig:
@@ -563,7 +563,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.969075488e+09
                         links: []
                         title: Top by calls / sec
                         vizConfig:
@@ -608,7 +608,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 7.18199654e+08
                         links: []
                         title: Top by exec time (ms/s)
                         vizConfig:
@@ -653,7 +653,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 7.69190499e+08
                         links: []
                         title: Top queries by I/O time
                         vizConfig:
@@ -698,7 +698,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.967134894e+09
                         links: []
                         title: Top by mean latency / call
                         vizConfig:
@@ -743,7 +743,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.061316142e+09
                         links: []
                         title: Top by rows / sec
                         vizConfig:
@@ -788,7 +788,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 3.17295023e+08
                         links: []
                         title: Top queries by rows per call
                         vizConfig:

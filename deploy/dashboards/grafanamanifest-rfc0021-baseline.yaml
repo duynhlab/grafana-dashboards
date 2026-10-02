@@ -47,7 +47,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.069345887e+09
                         links: []
                         title: Confirm handler p95
                         vizConfig:
@@ -106,7 +106,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 3.42533697e+08
                         links: []
                         title: Confirm success vs bounce (per second)
                         vizConfig:
@@ -165,7 +165,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.42608902e+09
                         links: []
                         title: Payment provider p95 by op + authorization outcomes
                         vizConfig:
@@ -210,7 +210,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.288283242e+09
                         links: []
                         title: Product gRPC error ratio by method
                         vizConfig:
@@ -255,7 +255,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 9.95263e+06
                         links: []
                         title: Product gRPC p95 by method
                         vizConfig:
@@ -300,7 +300,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.172083257e+09
                         links: []
                         title: Compensation runs by step and result
                         vizConfig:
@@ -345,7 +345,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.164072938e+09
                         links: []
                         title: Saga terminal outcomes
                         vizConfig:
@@ -390,7 +390,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.073686362e+09
                         links: []
                         title: Saga-side ReserveStock outcomes
                         vizConfig:

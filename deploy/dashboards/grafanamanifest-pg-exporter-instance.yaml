@@ -61,7 +61,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 2.93946932e+08
                         links: []
                         title: Transaction Commits / Rollbacks (rate5m)
                         vizConfig:
@@ -106,7 +106,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 5.0826346e+07
                         links: []
                         title: Postgres Load (rate1m)
                         vizConfig:
@@ -151,7 +151,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 2.14191466e+08
                         links: []
                         title: Locks
                         vizConfig:
@@ -224,7 +224,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.854958449e+09
                         links: []
                         title: Locks by Category
                         vizConfig:
@@ -269,7 +269,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 4.8170999e+08
                         links: []
                         title: Row Fetched (rate1m)
                         vizConfig:
@@ -342,7 +342,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 6.74317398e+08
                         links: []
                         title: Row Modified (rate1m)
                         vizConfig:
@@ -387,7 +387,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.659935666e+09
                         links: []
                         title: SAGE
                         vizConfig:
@@ -432,7 +432,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 5.45088559e+08
                         links: []
                         title: TPS by Database (rate1m)
                         vizConfig:
@@ -491,7 +491,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.150989441e+09
                         links: []
                         title: Transaction RT (1m)
                         vizConfig:
@@ -536,7 +536,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 2.744452e+08
                         links: []
                         title: Firing Alerts
                         vizConfig:
@@ -597,7 +597,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.644066997e+09
                         links: []
                         title: Active Alerts
                         vizConfig:
@@ -642,7 +642,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.44810966e+09
                         links: []
                         title: Cluster Load
                         vizConfig:
@@ -687,7 +687,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.478839708e+09
                         links: []
                         title: Database Blocks Hit Ratio (1m)
                         vizConfig:
@@ -732,7 +732,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.716597438e+09
                         links: []
                         title: Connection Usage
                         vizConfig:
@@ -777,7 +777,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.975758851e+09
                         links: []
                         title: Idle in Transaction Backends
                         vizConfig:
@@ -821,7 +821,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.515359074e+09
                         links: []
                         title: New Sessions (incr1m)
                         vizConfig:
@@ -865,7 +865,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 9.33257406e+08
                         links: []
                         title: Row Fetched
                         vizConfig:
@@ -938,7 +938,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 3.11945422e+08
                         links: []
                         title: Row Modified
                         vizConfig:
@@ -983,7 +983,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 2.05765675e+09
                         links: []
                         title: Session by Database
                         vizConfig:
@@ -1027,7 +1027,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 6.68516499e+08
                         links: []
                         title: Database Size
                         vizConfig:
@@ -1072,7 +1072,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 2.70961484e+08
                         links: []
                         title: Database Size Delta 10m
                         vizConfig:
@@ -1117,7 +1117,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 5.96425911e+08
                         links: []
                         title: TPS by Database (rate1m)
                         vizConfig:
@@ -1162,7 +1162,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.367657201e+09
                         links: []
                         title: Instance Load
                         vizConfig:
@@ -1207,7 +1207,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 5.44583287e+08
                         links: []
                         title: Active Conn
                         vizConfig:
@@ -1254,7 +1254,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.802923075e+09
                         links: []
                         title: Age
                         vizConfig:
@@ -1301,7 +1301,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.69110824e+09
                         links: []
                         title: Backend
                         vizConfig:
@@ -1348,7 +1348,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.966324551e+09
                         links: []
                         title: Blks Read
                         vizConfig:
@@ -1395,7 +1395,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 4.5851925e+07
                         links: []
                         title: Commit
                         vizConfig:
@@ -1442,7 +1442,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 6.19361068e+08
                         links: []
                         title: Conn%
                         vizConfig:
@@ -1489,7 +1489,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 6.7622978e+08
                         links: []
                         title: iXact Conn
                         vizConfig:
@@ -1536,7 +1536,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 8.31990796e+08
                         links: []
                         title: Rollback
                         vizConfig:
@@ -1583,7 +1583,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.670241863e+09
                         links: []
                         title: Row Change
                         vizConfig:
@@ -1630,7 +1630,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.888761581e+09
                         links: []
                         title: Row Fetch
                         vizConfig:
@@ -1677,7 +1677,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.311010942e+09
                         links: []
                         title: RT
                         vizConfig:
@@ -1724,7 +1724,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.372007561e+09
                         links: []
                         title: Size
                         vizConfig:
@@ -1771,7 +1771,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.065961295e+09
                         links: []
                         title: Age Usage
                         vizConfig:
@@ -1816,7 +1816,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.884358286e+09
                         links: []
                         title: BGWriter Buffer Alloc
                         vizConfig:
@@ -1889,7 +1889,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.912243461e+09
                         links: []
                         title: BGWriter Buffer Flush
                         vizConfig:
@@ -1934,7 +1934,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 2.042434449e+09
                         links: []
                         title: Blocks Access 1m
                         vizConfig:
@@ -1979,7 +1979,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.09986599e+09
                         links: []
                         title: Blocks Hit Ratio (1m)
                         vizConfig:
@@ -2024,7 +2024,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 2.58261007e+08
                         links: []
                         title: Blocks Read (1m)
                         vizConfig:
@@ -2083,7 +2083,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 5.83403314e+08
                         links: []
                         title: Blocks Read/Write Time Spent Rate1m
                         vizConfig:
@@ -2142,7 +2142,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.55497341e+09
                         links: []
                         title: Checkpoint Scheduled / Requested
                         vizConfig:
@@ -2200,7 +2200,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 4.4061802e+07
                         links: []
                         title: 'Checkpoint Time : Sync/Write'
                         vizConfig:
@@ -2245,7 +2245,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.539549618e+09
                         links: []
                         title: Database Cluster Size
                         vizConfig:
@@ -2290,7 +2290,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 5.0505415e+07
                         links: []
                         title: LSN Progress (rate1m)
                         vizConfig:
@@ -2335,7 +2335,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.888704349e+09
                         links: []
                         title: Database WAL/Log Size
                         vizConfig:
@@ -2380,7 +2380,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.986625502e+09
                         links: []
                         title: Active% (of Session Time)
                         vizConfig:
@@ -2425,7 +2425,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 6.13836983e+08
                         links: []
                         title: Backends
                         vizConfig:
@@ -2469,7 +2469,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.737091827e+09
                         links: []
                         title: Backends by State
                         vizConfig:
@@ -2513,7 +2513,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 2.05147163e+09
                         links: []
                         title: Backends by Type
                         vizConfig:
@@ -2557,7 +2557,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 3.56199363e+08
                         links: []
                         title: Backends by Wait Event
                         vizConfig:
@@ -2601,7 +2601,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 9.74132542e+08
                         links: []
                         title: Connection Usage
                         vizConfig:
@@ -2674,7 +2674,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.832470104e+09
                         links: []
                         title: Sessions Failure in 1m
                         vizConfig:
@@ -2718,7 +2718,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.233293955e+09
                         links: []
                         title: Idle in Transaction Backends
                         vizConfig:
@@ -2762,7 +2762,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 8.99283546e+08
                         links: []
                         title: Max Conn Lifespan
                         vizConfig:
@@ -2807,7 +2807,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.888383458e+09
                         links: []
                         title: New Sessions (increase1m)
                         vizConfig:
@@ -2851,7 +2851,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.92616981e+09
                         links: []
                         title: Query Call
                         vizConfig:
@@ -2896,7 +2896,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 2.133771367e+09
                         links: []
                         title: Query Time
                         vizConfig:
@@ -2941,7 +2941,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 2.38801927e+08
                         links: []
                         title: Table Scan (scan/s)
                         vizConfig:
@@ -2986,7 +2986,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 2.032984812e+09
                         links: []
                         title: Tuple Read (rows/s)
                         vizConfig:

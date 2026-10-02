@@ -68,7 +68,7 @@ spec:
                                                 pid: PID
                                                 relname: Table
                         description: ""
-                        id: 0
+                        id: 1.714861214e+09
                         links: []
                         title: Active vacuums
                         vizConfig:
@@ -114,7 +114,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.760263086e+09
                         links: []
                         title: Autovacuum runs / sec
                         vizConfig:
@@ -158,7 +158,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.516072627e+09
                         links: []
                         title: Blocked queries
                         vizConfig:
@@ -228,7 +228,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 5.00982863e+08
                         links: []
                         title: Checkpoint write / sync time
                         vizConfig:
@@ -287,7 +287,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.223676388e+09
                         links: []
                         title: Checkpoints / sec (timed vs requested)
                         vizConfig:
@@ -332,7 +332,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 6.7455434e+07
                         links: []
                         title: Dead-tuple ratio — top tables
                         vizConfig:
@@ -376,7 +376,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.063195828e+09
                         links: []
                         title: Idle-in-tx sessions
                         vizConfig:
@@ -430,7 +430,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.813249e+09
                         links: []
                         title: Locks by database
                         vizConfig:
@@ -475,7 +475,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.326175841e+09
                         links: []
                         title: Locks by mode
                         vizConfig:
@@ -520,7 +520,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.755993452e+09
                         links: []
                         title: Longest active query
                         vizConfig:
@@ -579,7 +579,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 1.73043837e+08
                         links: []
                         title: Oldest transaction / idle-in-transaction age
                         vizConfig:
@@ -656,7 +656,7 @@ spec:
                                                 - desc: true
                                                   field: Size
                         description: ""
-                        id: 0
+                        id: 1.321756898e+09
                         links: []
                         title: Top tables by size
                         vizConfig:
@@ -711,7 +711,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 2.07772163e+09
                         links: []
                         title: Total dead tuples
                         vizConfig:
@@ -780,7 +780,7 @@ spec:
                                                 - desc: true
                                                   field: Index size
                         description: ""
-                        id: 0
+                        id: 1.12573851e+09
                         links: []
                         title: Unused indexes (idx_scan = 0)
                         vizConfig:
@@ -832,7 +832,7 @@ spec:
                                 queryOptions: {}
                                 transformations: []
                         description: ""
-                        id: 0
+                        id: 3.27644446e+08
                         links: []
                         title: Running VACUUM progress
                         vizConfig:

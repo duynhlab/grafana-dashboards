@@ -17,7 +17,7 @@
       "cpu-req-alloc-node": {
         "kind": "Panel",
         "spec": {
-          "id": 0,
+          "id": 1957499287,
           "title": "CPU Requests vs Allocatable by Node",
           "description": "",
           "links": [],
@@ -80,7 +80,7 @@
       "cpu-req-cap": {
         "kind": "Panel",
         "spec": {
-          "id": 0,
+          "id": 1873585089,
           "title": "CPU Requests vs Capacity",
           "description": "",
           "links": [],
@@ -140,7 +140,7 @@
       "cpu-throttle": {
         "kind": "Panel",
         "spec": {
-          "id": 0,
+          "id": 2039365376,
           "title": "CPU Throttled Containers",
           "description": "",
           "links": [],
@@ -202,7 +202,7 @@
       "cpu-usage": {
         "kind": "Panel",
         "spec": {
-          "id": 0,
+          "id": 1285705219,
           "title": "CPU Usage by Namespace",
           "description": "",
           "links": [],
@@ -264,7 +264,7 @@
       "crashloop": {
         "kind": "Panel",
         "spec": {
-          "id": 0,
+          "id": 1289764358,
           "title": "CrashLooping Pods",
           "description": "",
           "links": [],
@@ -324,7 +324,7 @@
       "deploy-mismatch": {
         "kind": "Panel",
         "spec": {
-          "id": 0,
+          "id": 1583289757,
           "title": "Deployment Mismatches",
           "description": "",
           "links": [],
@@ -384,7 +384,7 @@
       "failed-pods": {
         "kind": "Panel",
         "spec": {
-          "id": 0,
+          "id": 1080187755,
           "title": "Failed Pods",
           "description": "",
           "links": [],
@@ -445,7 +445,7 @@
       "mem-req-alloc-node": {
         "kind": "Panel",
         "spec": {
-          "id": 0,
+          "id": 1520738914,
           "title": "Memory Requests vs Allocatable by Node",
           "description": "",
           "links": [],
@@ -508,7 +508,7 @@
       "mem-req-cap": {
         "kind": "Panel",
         "spec": {
-          "id": 0,
+          "id": 1345505510,
           "title": "Memory Requests vs Capacity",
           "description": "",
           "links": [],
@@ -568,7 +568,7 @@
       "mem-usage": {
         "kind": "Panel",
         "spec": {
-          "id": 0,
+          "id": 2048301884,
           "title": "Memory Usage by Namespace",
           "description": "",
           "links": [],
@@ -630,7 +630,7 @@
       "net-io": {
         "kind": "Panel",
         "spec": {
-          "id": 0,
+          "id": 2131341159,
           "title": "Network I/O by Namespace",
           "description": "",
           "links": [],
@@ -711,7 +711,7 @@
       "node-pressure": {
         "kind": "Panel",
         "spec": {
-          "id": 0,
+          "id": 939473691,
           "title": "Node Pressure Conditions",
           "description": "",
           "links": [],
@@ -814,7 +814,7 @@
       "nodes": {
         "kind": "Panel",
         "spec": {
-          "id": 0,
+          "id": 1364103258,
           "title": "Nodes",
           "description": "",
           "links": [],
@@ -875,7 +875,7 @@
       "oom": {
         "kind": "Panel",
         "spec": {
-          "id": 0,
+          "id": 640235786,
           "title": "OOM Events (1h)",
           "description": "",
           "links": [],
@@ -935,7 +935,7 @@
       "packets-dropped": {
         "kind": "Panel",
         "spec": {
-          "id": 0,
+          "id": 1185231321,
           "title": "Packets Dropped by Namespace",
           "description": "",
           "links": [],
@@ -1018,7 +1018,7 @@
       "pending-pods": {
         "kind": "Panel",
         "spec": {
-          "id": 0,
+          "id": 1839159267,
           "title": "Pending Pods",
           "description": "",
           "links": [],
@@ -1079,7 +1079,7 @@
       "pod-restarts": {
         "kind": "Panel",
         "spec": {
-          "id": 0,
+          "id": 1530114667,
           "title": "Pod Restarts by Namespace",
           "description": "",
           "links": [],
@@ -1141,7 +1141,7 @@
       "pod-status": {
         "kind": "Panel",
         "spec": {
-          "id": 0,
+          "id": 786853477,
           "title": "Pod Status by Namespace",
           "description": "",
           "links": [],
@@ -1203,7 +1203,7 @@
       "pods-per-node": {
         "kind": "Panel",
         "spec": {
-          "id": 0,
+          "id": 1231505738,
           "title": "Pods per Node",
           "description": "",
           "links": [],
@@ -1286,7 +1286,7 @@
       "pvc-risk": {
         "kind": "Panel",
         "spec": {
-          "id": 0,
+          "id": 1259748192,
           "title": "PVCs at Risk (\u003e80% used)",
           "description": "",
           "links": [],
@@ -1346,7 +1346,7 @@
       "pvc-table": {
         "kind": "Panel",
         "spec": {
-          "id": 0,
+          "id": 631013297,
           "title": "PVC Utilization",
           "description": "",
           "links": [],
@@ -1427,7 +1427,7 @@
       "pvc-used-ts": {
         "kind": "Panel",
         "spec": {
-          "id": 0,
+          "id": 1007298292,
           "title": "PVC Usage Over Time",
           "description": "",
           "links": [],
@@ -1489,7 +1489,7 @@
       "running-pods": {
         "kind": "Panel",
         "spec": {
-          "id": 0,
+          "id": 2123267923,
           "title": "Running Pods",
           "description": "",
           "links": [],
@@ -1550,7 +1550,7 @@
       "sts-mismatch": {
         "kind": "Panel",
         "spec": {
-          "id": 0,
+          "id": 1899142342,
           "title": "StatefulSet Mismatches",
           "description": "",
           "links": [],

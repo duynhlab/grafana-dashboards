@@ -7,7 +7,7 @@
     "act-failure": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 165085136,
         "title": "Activity failure ratio",
         "description": "",
         "links": [],
@@ -70,7 +70,7 @@
     "act-latency": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 543958288,
         "title": "Activity execution latency (p95) by type",
         "description": "",
         "links": [],
@@ -133,7 +133,7 @@
     "act-rate": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 2143130176,
         "title": "Activity execution rate by type",
         "description": "",
         "links": [],
@@ -196,7 +196,7 @@
     "act-sched-start": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 1416330528,
         "title": "Activity schedule-to-start latency (p95)",
         "description": "",
         "links": [],
@@ -259,7 +259,7 @@
     "srv-backlog": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 1342453168,
         "title": "Task-queue backlog (server view)",
         "description": "",
         "links": [],
@@ -342,7 +342,7 @@
     "srv-error-ratio": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 181088471,
         "title": "Service error ratio",
         "description": "",
         "links": [],
@@ -405,7 +405,7 @@
     "srv-grpc-rate": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 1739987810,
         "title": "gRPC request rate by role",
         "description": "",
         "links": [],
@@ -468,7 +468,7 @@
     "srv-latency": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 1246936961,
         "title": "Service latency (p95) by role",
         "description": "",
         "links": [],
@@ -531,7 +531,7 @@
     "srv-persistence": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 1595718632,
         "title": "Persistence request rate / error ratio",
         "description": "",
         "links": [],
@@ -614,7 +614,7 @@
     "srv-up": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 1254572840,
         "title": "Server up",
         "description": "",
         "links": [],
@@ -691,7 +691,7 @@
     "wf-completion": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 1501474601,
         "title": "Workflow completion rate",
         "description": "",
         "links": [],
@@ -754,7 +754,7 @@
     "wf-failure": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 1350405631,
         "title": "Workflow failure ratio",
         "description": "",
         "links": [],
@@ -817,7 +817,7 @@
     "wf-latency": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 1153148343,
         "title": "Workflow end-to-end latency",
         "description": "",
         "links": [],
@@ -900,7 +900,7 @@
     "wf-poll": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 1809491262,
         "title": "Workflow task poll outcome rate",
         "description": "",
         "links": [],
@@ -983,7 +983,7 @@
     "wf-sched-start": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 844903339,
         "title": "Workflow task schedule-to-start latency",
         "description": "",
         "links": [],
@@ -1066,7 +1066,7 @@
     "wf-task-exec": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 7293808,
         "title": "Workflow task execution latency (p95)",
         "description": "",
         "links": [],
@@ -1129,7 +1129,7 @@
     "worker-pollers": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 16775765,
         "title": "Pollers",
         "description": "",
         "links": [],
@@ -1192,7 +1192,7 @@
     "worker-req-error": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 1895535205,
         "title": "Worker → server request error ratio",
         "description": "",
         "links": [],
@@ -1255,7 +1255,7 @@
     "worker-req-latency": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 1495202653,
         "title": "Worker → server request latency (p95)",
         "description": "",
         "links": [],
@@ -1318,7 +1318,7 @@
     "worker-slots": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 47215099,
         "title": "Worker task slots",
         "description": "",
         "links": [],
@@ -1401,7 +1401,7 @@
     "worker-sticky-cache": {
       "kind": "Panel",
       "spec": {
-        "id": 0,
+        "id": 855039050,
         "title": "Sticky cache",
         "description": "",
         "links": [],
