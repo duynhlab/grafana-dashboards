@@ -19,4 +19,9 @@ const (
 
 	ActiveBackendsByWaitClass = `sum by (wait_event_type) (cnpg_pg_wait_events_active_backends{cnpg_io_cluster=~"$cluster", pod=~"$pod"})`
 	BackendsWaiting           = `sum (cnpg_backends_waiting_total{cnpg_io_cluster=~"$cluster", pod=~"$pod"})`
+
+	// BackendsWaitingByCluster is the alert form of BackendsWaiting: alert
+	// queries have no dashboard variables, so a literal $cluster matched nothing
+	// and the rule sat in NoData. One series per cluster names the one waiting.
+	BackendsWaitingByCluster = `sum by (cnpg_io_cluster) (cnpg_backends_waiting_total)`
 )

@@ -4,7 +4,7 @@
   "Domain": "postgres",
   "Folder": "Databases",
   "Group": "databases",
-  "Expr": "sum (cnpg_backends_waiting_total{cnpg_io_cluster=~\"$cluster\", pod=~\"$pod\"})",
+  "Expr": "sum by (cnpg_io_cluster) (cnpg_backends_waiting_total)",
   "For": "10m",
   "Threshold": 0,
   "Labels": {
@@ -14,7 +14,7 @@
   },
   "Annotations": {
     "dashboard_uid": "pg-io-waits",
-    "description": "cnpg_backends_waiting_total is above zero for the evaluation window.",
+    "description": "cnpg_backends_waiting_total is above zero on {{ $labels.cnpg_io_cluster }} for the evaluation window.",
     "summary": "PostgreSQL backends are waiting"
   }
 }

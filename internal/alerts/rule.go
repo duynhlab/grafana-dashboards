@@ -14,3 +14,10 @@ type Rule struct {
 	Labels      map[string]string
 	Annotations map[string]string
 }
+
+// orZero makes a count() alert read 0 when nothing matches. count() over an
+// empty vector returns no series, which Grafana evaluates as NoData rather
+// than Normal, so a healthy cluster kept every such rule in NoData.
+func orZero(expr string) string {
+	return expr + " or vector(0)"
+}

@@ -1,6 +1,8 @@
 package dashboards_test
 
 import (
+	"regexp"
+	"strings"
 	"testing"
 
 	"github.com/duynhlab/grafana-dashboards/internal/registry"
@@ -63,6 +65,30 @@ func TestDomainFolders(t *testing.T) {
 	for _, d := range registry.Dashboards {
 		if d.Folder == "as-code" {
 			t.Fatalf("dashboard %s still uses catch-all folder as-code", d.UID)
+		}
+	}
+}
+
+// Alert queries are evaluated outside any dashboard, so a template variable
+// such as $cluster stays literal and matches nothing: the rule sits in NoData.
+// Only Grafana's own $__ macros are allowed.
+func TestAlertExpressionsHaveNoDashboardVariables(t *testing.T) {
+	variable := regexp.MustCompile(`\$\{?([A-Za-z_][A-Za-z0-9_]*)`)
+	for _, a := range registry.Alerts {
+		for _, m := range variable.FindAllStringSubmatch(a.Expr, -1) {
+			if !strings.HasPrefix(m[1], "__") {
+				t.Errorf("%s: expression uses dashboard variable $%s: %s", a.UID, m[1], a.Expr)
+			}
+		}
+	}
+}
+
+// count() over an empty vector returns no series, which Grafana evaluates as
+// NoData. Every count() rule must fall back to 0 so a healthy cluster is Normal.
+func TestCountAlertsFallBackToZero(t *testing.T) {
+	for _, a := range registry.Alerts {
+		if strings.HasPrefix(strings.TrimSpace(a.Expr), "count(") && !strings.HasSuffix(a.Expr, "or vector(0)") {
+			t.Errorf("%s: count() expression without `or vector(0)`: %s", a.UID, a.Expr)
 		}
 	}
 }
