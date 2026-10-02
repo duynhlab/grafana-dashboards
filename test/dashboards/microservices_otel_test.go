@@ -2,6 +2,7 @@ package dashboards_test
 
 import (
 	"encoding/json"
+	"net/url"
 	"strings"
 	"testing"
 
@@ -62,6 +63,25 @@ var otelSourcePanelTitles = []string{
 	"Pool contention (waiting acquires)",
 }
 
+// otelAddedPanels are the panels the board adds to the port, keyed by the
+// source title they follow.
+var otelAddedPanels = map[string]string{
+	"Total Request": "Running versions",
+}
+
+// otelLinkedPanels link every series (or table row) to the service's traces and
+// logs, so each must carry a service_name; the value is how the link names it.
+var otelLinkedPanels = map[string]string{
+	"Running versions":                   "${__data.fields.service_name}",
+	"Client Errors (4xx)":                "${__field.labels.service_name}",
+	"Server Errors (5xx)":                "${__field.labels.service_name}",
+	"gRPC Server RPS per Callee":         "${__field.labels.service_name}",
+	"gRPC Server Error Ratio per Callee": "${__field.labels.service_name}",
+	"gRPC Server P95 Latency per Callee": "${__field.labels.service_name}",
+	"DB query p95 by service":            "${__field.labels.service_name}",
+	"DB operation errors":                "${__field.labels.service_name}",
+}
+
 var otelSourceRowTitles = []string{
 	"Overview & Key Metrics",
 	"Traffic & Requests",
@@ -95,8 +115,12 @@ type otelPanel struct {
 				Options     json.RawMessage `json:"options"`
 				FieldConfig struct {
 					Defaults struct {
-						Min *float64 `json:"min"`
-						Max *float64 `json:"max"`
+						Min   *float64 `json:"min"`
+						Max   *float64 `json:"max"`
+						Links []struct {
+							Title string `json:"title"`
+							URL   string `json:"url"`
+						} `json:"links"`
 					} `json:"defaults"`
 					Overrides []struct {
 						Matcher struct {
@@ -129,8 +153,15 @@ func TestMicroservicesOTel(t *testing.T) {
 		t.Fatalf("expected the single app variable, got %d variables", len(dash.Variables))
 	}
 
-	if len(dash.Elements) != len(otelSourcePanelTitles) {
-		t.Fatalf("expected %d panels, got %d", len(otelSourcePanelTitles), len(dash.Elements))
+	var wantTitles []string
+	for _, title := range otelSourcePanelTitles {
+		wantTitles = append(wantTitles, title)
+		if added, ok := otelAddedPanels[title]; ok {
+			wantTitles = append(wantTitles, added)
+		}
+	}
+	if len(dash.Elements) != len(wantTitles) {
+		t.Fatalf("expected %d panels, got %d", len(wantTitles), len(dash.Elements))
 	}
 
 	manifest, err := dashboardv2.Manifest("microservices-monitoring-001-otel", microservices.MicroservicesOTel()).Build()
@@ -180,8 +211,8 @@ func TestMicroservicesOTel(t *testing.T) {
 			byTitle[panel.Spec.Title] = panel
 		}
 	}
-	if strings.Join(titles, "\n") != strings.Join(otelSourcePanelTitles, "\n") {
-		t.Fatalf("panel titles out of source order:\n got: %q\nwant: %q", titles, otelSourcePanelTitles)
+	if strings.Join(titles, "\n") != strings.Join(wantTitles, "\n") {
+		t.Fatalf("panel titles out of source order:\n got: %q\nwant: %q", titles, wantTitles)
 	}
 
 	for title, panel := range byTitle {
@@ -219,6 +250,30 @@ func TestMicroservicesOTel(t *testing.T) {
 		if !strings.Contains(expr, "[$__range]") || !strings.Contains(expr, `http_route!="/health"`) {
 			t.Errorf("%q: expected an increase over $__range without /health: %s", title, expr)
 		}
+	}
+
+	for title, panel := range byTitle {
+		links := panel.Spec.VizConfig.Spec.FieldConfig.Defaults.Links
+		service, linked := otelLinkedPanels[title]
+		if !linked {
+			if len(links) != 0 {
+				t.Errorf("%q: unexpected links %+v", title, links)
+			}
+			continue
+		}
+		checkServiceLinks(t, title, service, links)
+	}
+
+	if len(dash.Annotations) != 1 {
+		t.Fatalf("expected the deploy-marker annotation, got %d", len(dash.Annotations))
+	}
+	deploys := dash.Annotations[0].Spec
+	expr, _ := deploys.Query.Spec.(map[string]any)["expr"].(string)
+	if deploys.Name != "Deploys" || !deploys.Enable ||
+		!strings.Contains(expr, "unless") || !strings.Contains(expr, `service_name=~"$app"`) ||
+		deploys.LegacyOptions["expr"] != expr ||
+		deploys.LegacyOptions["titleFormat"] != "{{service_name}} {{service_version}}" {
+		t.Errorf("deploy markers: %+v", deploys)
 	}
 
 	saturation := byTitle["Pool saturation (acquired / max)"].Spec.VizConfig.Spec.FieldConfig.Defaults
@@ -265,6 +320,54 @@ func TestMicroservicesOTel(t *testing.T) {
 	for _, forbidden := range []string{"$rate", "$namespace", "DS_PROMETHEUS"} {
 		if strings.Contains(s, forbidden) {
 			t.Fatalf("dashboard still references %s", forbidden)
+		}
+	}
+}
+
+// checkServiceLinks asserts a panel's traces and logs links open Explore on the
+// right datasource for the service the link names, over the panel's range.
+func checkServiceLinks(t *testing.T, title, service string, links []struct {
+	Title string `json:"title"`
+	URL   string `json:"url"`
+}) {
+	t.Helper()
+	if len(links) != 2 {
+		t.Fatalf("%q: expected traces and logs links, got %+v", title, links)
+	}
+	for i, want := range []struct{ title, datasource, field, value string }{
+		{"Traces of " + service, "victoriatraces", "service", service},
+		{"Logs of " + service, "victorialogs", "expr", `service.name:="` + service + `"`},
+	} {
+		link := links[i]
+		if link.Title != want.title {
+			t.Errorf("%q: link %d title %q, want %q", title, i, link.Title, want.title)
+		}
+		const prefix = "/explore?schemaVersion=1&panes="
+		if !strings.HasPrefix(link.URL, prefix) {
+			t.Fatalf("%q: link %d is not an Explore link: %s", title, i, link.URL)
+		}
+		// Grafana interpolates the variables before navigating, so they stay
+		// literal; everything else is escaped JSON.
+		raw, err := url.QueryUnescape(strings.TrimPrefix(link.URL, prefix))
+		if err != nil {
+			t.Fatalf("%q: link %d: %v", title, i, err)
+		}
+		var panes map[string]struct {
+			Datasource string           `json:"datasource"`
+			Queries    []map[string]any `json:"queries"`
+			Range      struct {
+				From string `json:"from"`
+				To   string `json:"to"`
+			} `json:"range"`
+		}
+		if err := json.Unmarshal([]byte(raw), &panes); err != nil {
+			t.Fatalf("%q: link %d pane is not JSON: %v\n%s", title, i, err, raw)
+		}
+		pane := panes["a"]
+		if pane.Datasource != want.datasource || len(pane.Queries) != 1 ||
+			pane.Queries[0][want.field] != want.value ||
+			pane.Range.From != "${__from}" || pane.Range.To != "${__to}" {
+			t.Errorf("%q: link %d pane %+v", title, i, pane)
 		}
 	}
 }

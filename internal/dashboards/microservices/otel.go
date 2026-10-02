@@ -18,13 +18,17 @@ import (
 // datasource replaces the DS_PROMETHEUS picker, $__rate_interval replaces the
 // custom $rate window, and the unused namespace variable is dropped, so app is
 // the single template variable. Row titles drop the source's leading emoji.
+//
+// On top of the port (otel_extras.go): deploy markers, a Running versions
+// table, and links from per-service series to that service's traces and logs.
 func MicroservicesOTel() cog.Builder[dashboardv2.Dashboard] {
 	b := dashboardv2.NewDashboardBuilder("Microservices (OTel)").
 		Description("RED and resource view of the Go microservices from OpenTelemetry semantic-convention metrics: HTTP server (http_server_request_duration_seconds, request/response body size), gRPC client and server call duration, the OTel Go runtime (goroutines, memory, GC pacing) and the otelpgx DB client with its pgx pool. Ported from the helm-charts grafana-dashboards chart (dashboards/microservices/microservices-dashboard-otel.json).").
 		Editable(true).
 		Tags([]string{"prometheus", "kubernetes", "microservices", "go", "observability", "rfc-0014", "generated", "foundation-sdk"}).
 		TimeSettings(standards.TimeSettings("now-30m", "now", "")).
-		QueryVariable(panels.QueryVar("app", "App", msqueries.OTelAppLabelValues))
+		QueryVariable(panels.QueryVar("app", "App", msqueries.OTelAppLabelValues)).
+		Annotations([]cog.Builder[dashboardv2.AnnotationQueryKind]{otelDeployMarkers()})
 
 	b = otelOverview(b)
 	b = otelTraffic(b)
@@ -46,6 +50,7 @@ func MicroservicesOTel() cog.Builder[dashboardv2.Dashboard] {
 			panels.GridItem("otel-error-rate", 10, 4, 5, 4),
 			panels.GridItem("otel-apdex", 15, 4, 5, 4),
 			panels.GridItem("otel-total-requests", 20, 4, 4, 4),
+			panels.GridItem("otel-running-versions", 0, 8, 24, 15),
 		),
 		panels.Row("Traffic & Requests",
 			panels.GridItem("otel-status-pie", 0, 0, 12, 9),

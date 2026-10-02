@@ -1,5 +1,34 @@
 {
-  "annotations": [],
+  "annotations": [
+    {
+      "kind": "AnnotationQuery",
+      "spec": {
+        "query": {
+          "kind": "DataQuery",
+          "group": "prometheus",
+          "version": "v0",
+          "datasource": {
+            "name": "prometheus"
+          },
+          "spec": {
+            "expr": "count by (service_name, service_version) (go_goroutine_count{service_name=~\"$app\"}) unless count by (service_name, service_version) (go_goroutine_count{service_name=~\"$app\"} offset 2m)",
+            "refId": "Anno"
+          }
+        },
+        "enable": true,
+        "hide": false,
+        "iconColor": "blue",
+        "name": "Deploys",
+        "builtIn": false,
+        "legacyOptions": {
+          "expr": "count by (service_name, service_version) (go_goroutine_count{service_name=~\"$app\"}) unless count by (service_name, service_version) (go_goroutine_count{service_name=~\"$app\"} offset 2m)",
+          "step": "60s",
+          "textFormat": "first sample of this version",
+          "titleFormat": "{{service_name}} {{service_version}}"
+        }
+      }
+    }
+  ],
   "cursorSync": "Off",
   "description": "RED and resource view of the Go microservices from OpenTelemetry semantic-convention metrics: HTTP server (http_server_request_duration_seconds, request/response body size), gRPC client and server call duration, the OTel Go runtime (goroutines, memory, GC pacing) and the otelpgx DB client with its pgx pool. Ported from the helm-charts grafana-dashboards chart (dashboards/microservices/microservices-dashboard-otel.json).",
   "editable": true,
@@ -85,6 +114,16 @@
                 "color": {
                   "mode": "thresholds"
                 },
+                "links": [
+                  {
+                    "title": "Traces of ${__field.labels.service_name}",
+                    "url": "/explore?schemaVersion=1\u0026panes=%7B%22a%22%3A%7B%22datasource%22%3A%22victoriatraces%22%2C%22queries%22%3A%5B%7B%22datasource%22%3A%7B%22type%22%3A%22jaeger%22%2C%22uid%22%3A%22victoriatraces%22%7D%2C%22queryType%22%3A%22search%22%2C%22refId%22%3A%22A%22%2C%22service%22%3A%22${__field.labels.service_name}%22%7D%5D%2C%22range%22%3A%7B%22from%22%3A%22${__from}%22%2C%22to%22%3A%22${__to}%22%7D%7D%7D"
+                  },
+                  {
+                    "title": "Logs of ${__field.labels.service_name}",
+                    "url": "/explore?schemaVersion=1\u0026panes=%7B%22a%22%3A%7B%22datasource%22%3A%22victorialogs%22%2C%22queries%22%3A%5B%7B%22datasource%22%3A%7B%22type%22%3A%22victoriametrics-logs-datasource%22%2C%22uid%22%3A%22victorialogs%22%7D%2C%22expr%22%3A%22service.name%3A%3D%5C%22${__field.labels.service_name}%5C%22%22%2C%22refId%22%3A%22A%22%7D%5D%2C%22range%22%3A%7B%22from%22%3A%22${__from}%22%2C%22to%22%3A%22${__to}%22%7D%7D%7D"
+                  }
+                ],
                 "custom": {
                   "thresholdsStyle": {
                     "mode": "off"
@@ -278,6 +317,16 @@
                 "color": {
                   "mode": "thresholds"
                 },
+                "links": [
+                  {
+                    "title": "Traces of ${__field.labels.service_name}",
+                    "url": "/explore?schemaVersion=1\u0026panes=%7B%22a%22%3A%7B%22datasource%22%3A%22victoriatraces%22%2C%22queries%22%3A%5B%7B%22datasource%22%3A%7B%22type%22%3A%22jaeger%22%2C%22uid%22%3A%22victoriatraces%22%7D%2C%22queryType%22%3A%22search%22%2C%22refId%22%3A%22A%22%2C%22service%22%3A%22${__field.labels.service_name}%22%7D%5D%2C%22range%22%3A%7B%22from%22%3A%22${__from}%22%2C%22to%22%3A%22${__to}%22%7D%7D%7D"
+                  },
+                  {
+                    "title": "Logs of ${__field.labels.service_name}",
+                    "url": "/explore?schemaVersion=1\u0026panes=%7B%22a%22%3A%7B%22datasource%22%3A%22victorialogs%22%2C%22queries%22%3A%5B%7B%22datasource%22%3A%7B%22type%22%3A%22victoriametrics-logs-datasource%22%2C%22uid%22%3A%22victorialogs%22%7D%2C%22expr%22%3A%22service.name%3A%3D%5C%22${__field.labels.service_name}%5C%22%22%2C%22refId%22%3A%22A%22%7D%5D%2C%22range%22%3A%7B%22from%22%3A%22${__from}%22%2C%22to%22%3A%22${__to}%22%7D%7D%7D"
+                  }
+                ],
                 "custom": {
                   "thresholdsStyle": {
                     "mode": "off"
@@ -438,6 +487,16 @@
             "fieldConfig": {
               "defaults": {
                 "unit": "ops",
+                "links": [
+                  {
+                    "title": "Traces of ${__field.labels.service_name}",
+                    "url": "/explore?schemaVersion=1\u0026panes=%7B%22a%22%3A%7B%22datasource%22%3A%22victoriatraces%22%2C%22queries%22%3A%5B%7B%22datasource%22%3A%7B%22type%22%3A%22jaeger%22%2C%22uid%22%3A%22victoriatraces%22%7D%2C%22queryType%22%3A%22search%22%2C%22refId%22%3A%22A%22%2C%22service%22%3A%22${__field.labels.service_name}%22%7D%5D%2C%22range%22%3A%7B%22from%22%3A%22${__from}%22%2C%22to%22%3A%22${__to}%22%7D%7D%7D"
+                  },
+                  {
+                    "title": "Logs of ${__field.labels.service_name}",
+                    "url": "/explore?schemaVersion=1\u0026panes=%7B%22a%22%3A%7B%22datasource%22%3A%22victorialogs%22%2C%22queries%22%3A%5B%7B%22datasource%22%3A%7B%22type%22%3A%22victoriametrics-logs-datasource%22%2C%22uid%22%3A%22victorialogs%22%7D%2C%22expr%22%3A%22service.name%3A%3D%5C%22${__field.labels.service_name}%5C%22%22%2C%22refId%22%3A%22A%22%7D%5D%2C%22range%22%3A%7B%22from%22%3A%22${__from}%22%2C%22to%22%3A%22${__to}%22%7D%7D%7D"
+                  }
+                ],
                 "custom": {
                   "lineWidth": 1,
                   "fillOpacity": 12,
@@ -578,6 +637,16 @@
             "fieldConfig": {
               "defaults": {
                 "unit": "s",
+                "links": [
+                  {
+                    "title": "Traces of ${__field.labels.service_name}",
+                    "url": "/explore?schemaVersion=1\u0026panes=%7B%22a%22%3A%7B%22datasource%22%3A%22victoriatraces%22%2C%22queries%22%3A%5B%7B%22datasource%22%3A%7B%22type%22%3A%22jaeger%22%2C%22uid%22%3A%22victoriatraces%22%7D%2C%22queryType%22%3A%22search%22%2C%22refId%22%3A%22A%22%2C%22service%22%3A%22${__field.labels.service_name}%22%7D%5D%2C%22range%22%3A%7B%22from%22%3A%22${__from}%22%2C%22to%22%3A%22${__to}%22%7D%7D%7D"
+                  },
+                  {
+                    "title": "Logs of ${__field.labels.service_name}",
+                    "url": "/explore?schemaVersion=1\u0026panes=%7B%22a%22%3A%7B%22datasource%22%3A%22victorialogs%22%2C%22queries%22%3A%5B%7B%22datasource%22%3A%7B%22type%22%3A%22victoriametrics-logs-datasource%22%2C%22uid%22%3A%22victorialogs%22%7D%2C%22expr%22%3A%22service.name%3A%3D%5C%22${__field.labels.service_name}%5C%22%22%2C%22refId%22%3A%22A%22%7D%5D%2C%22range%22%3A%7B%22from%22%3A%22${__from}%22%2C%22to%22%3A%22${__to}%22%7D%7D%7D"
+                  }
+                ],
                 "custom": {
                   "lineWidth": 1,
                   "fillOpacity": 12,
@@ -1182,6 +1251,16 @@
                 "color": {
                   "mode": "palette-classic"
                 },
+                "links": [
+                  {
+                    "title": "Traces of ${__field.labels.service_name}",
+                    "url": "/explore?schemaVersion=1\u0026panes=%7B%22a%22%3A%7B%22datasource%22%3A%22victoriatraces%22%2C%22queries%22%3A%5B%7B%22datasource%22%3A%7B%22type%22%3A%22jaeger%22%2C%22uid%22%3A%22victoriatraces%22%7D%2C%22queryType%22%3A%22search%22%2C%22refId%22%3A%22A%22%2C%22service%22%3A%22${__field.labels.service_name}%22%7D%5D%2C%22range%22%3A%7B%22from%22%3A%22${__from}%22%2C%22to%22%3A%22${__to}%22%7D%7D%7D"
+                  },
+                  {
+                    "title": "Logs of ${__field.labels.service_name}",
+                    "url": "/explore?schemaVersion=1\u0026panes=%7B%22a%22%3A%7B%22datasource%22%3A%22victorialogs%22%2C%22queries%22%3A%5B%7B%22datasource%22%3A%7B%22type%22%3A%22victoriametrics-logs-datasource%22%2C%22uid%22%3A%22victorialogs%22%7D%2C%22expr%22%3A%22service.name%3A%3D%5C%22${__field.labels.service_name}%5C%22%22%2C%22refId%22%3A%22A%22%7D%5D%2C%22range%22%3A%7B%22from%22%3A%22${__from}%22%2C%22to%22%3A%22${__to}%22%7D%7D%7D"
+                  }
+                ],
                 "custom": {
                   "thresholdsStyle": {
                     "mode": "off"
@@ -1270,6 +1349,16 @@
                 "color": {
                   "mode": "palette-classic"
                 },
+                "links": [
+                  {
+                    "title": "Traces of ${__field.labels.service_name}",
+                    "url": "/explore?schemaVersion=1\u0026panes=%7B%22a%22%3A%7B%22datasource%22%3A%22victoriatraces%22%2C%22queries%22%3A%5B%7B%22datasource%22%3A%7B%22type%22%3A%22jaeger%22%2C%22uid%22%3A%22victoriatraces%22%7D%2C%22queryType%22%3A%22search%22%2C%22refId%22%3A%22A%22%2C%22service%22%3A%22${__field.labels.service_name}%22%7D%5D%2C%22range%22%3A%7B%22from%22%3A%22${__from}%22%2C%22to%22%3A%22${__to}%22%7D%7D%7D"
+                  },
+                  {
+                    "title": "Logs of ${__field.labels.service_name}",
+                    "url": "/explore?schemaVersion=1\u0026panes=%7B%22a%22%3A%7B%22datasource%22%3A%22victorialogs%22%2C%22queries%22%3A%5B%7B%22datasource%22%3A%7B%22type%22%3A%22victoriametrics-logs-datasource%22%2C%22uid%22%3A%22victorialogs%22%7D%2C%22expr%22%3A%22service.name%3A%3D%5C%22${__field.labels.service_name}%5C%22%22%2C%22refId%22%3A%22A%22%7D%5D%2C%22range%22%3A%7B%22from%22%3A%22${__from}%22%2C%22to%22%3A%22${__to}%22%7D%7D%7D"
+                  }
+                ],
                 "custom": {
                   "thresholdsStyle": {
                     "mode": "off"
@@ -1358,6 +1447,16 @@
                 "color": {
                   "mode": "palette-classic"
                 },
+                "links": [
+                  {
+                    "title": "Traces of ${__field.labels.service_name}",
+                    "url": "/explore?schemaVersion=1\u0026panes=%7B%22a%22%3A%7B%22datasource%22%3A%22victoriatraces%22%2C%22queries%22%3A%5B%7B%22datasource%22%3A%7B%22type%22%3A%22jaeger%22%2C%22uid%22%3A%22victoriatraces%22%7D%2C%22queryType%22%3A%22search%22%2C%22refId%22%3A%22A%22%2C%22service%22%3A%22${__field.labels.service_name}%22%7D%5D%2C%22range%22%3A%7B%22from%22%3A%22${__from}%22%2C%22to%22%3A%22${__to}%22%7D%7D%7D"
+                  },
+                  {
+                    "title": "Logs of ${__field.labels.service_name}",
+                    "url": "/explore?schemaVersion=1\u0026panes=%7B%22a%22%3A%7B%22datasource%22%3A%22victorialogs%22%2C%22queries%22%3A%5B%7B%22datasource%22%3A%7B%22type%22%3A%22victoriametrics-logs-datasource%22%2C%22uid%22%3A%22victorialogs%22%7D%2C%22expr%22%3A%22service.name%3A%3D%5C%22${__field.labels.service_name}%5C%22%22%2C%22refId%22%3A%22A%22%7D%5D%2C%22range%22%3A%7B%22from%22%3A%22${__from}%22%2C%22to%22%3A%22${__to}%22%7D%7D%7D"
+                  }
+                ],
                 "custom": {
                   "thresholdsStyle": {
                     "mode": "off"
@@ -3040,6 +3139,112 @@
         }
       }
     },
+    "otel-running-versions": {
+      "kind": "Panel",
+      "spec": {
+        "id": 195250349,
+        "title": "Running versions",
+        "description": "The service_version each service's instances report now, from the OTel resource attributes on go_goroutine_count; a rollout in progress shows two rows for one service. Click a row to open that service's traces or logs. Blue markers on the time series are the first sample of a new version.",
+        "links": [],
+        "data": {
+          "kind": "QueryGroup",
+          "spec": {
+            "queries": [
+              {
+                "kind": "PanelQuery",
+                "spec": {
+                  "query": {
+                    "kind": "DataQuery",
+                    "group": "prometheus",
+                    "version": "v0",
+                    "datasource": {
+                      "name": "prometheus"
+                    },
+                    "spec": {
+                      "expr": "count by (service_name, service_version) (go_goroutine_count{service_name=~\"$app\"})",
+                      "format": "table",
+                      "instant": true
+                    }
+                  },
+                  "refId": "A",
+                  "hidden": false
+                }
+              }
+            ],
+            "transformations": [
+              {
+                "kind": "Transformation",
+                "group": "organize",
+                "spec": {
+                  "options": {
+                    "excludeByName": {
+                      "Time": true
+                    },
+                    "renameByName": {
+                      "Value": "instances",
+                      "service_version": "version"
+                    }
+                  }
+                }
+              },
+              {
+                "kind": "Transformation",
+                "group": "sortBy",
+                "spec": {
+                  "options": {
+                    "fields": {},
+                    "sort": [
+                      {
+                        "desc": false,
+                        "field": "service_name"
+                      }
+                    ]
+                  }
+                }
+              }
+            ],
+            "queryOptions": {}
+          }
+        },
+        "vizConfig": {
+          "kind": "VizConfig",
+          "group": "table",
+          "version": "",
+          "spec": {
+            "options": {
+              "frameIndex": 0,
+              "showHeader": true,
+              "showTypeIcons": false,
+              "footer": {
+                "show": false,
+                "reducer": null,
+                "countRows": false
+              },
+              "cellHeight": "sm"
+            },
+            "fieldConfig": {
+              "defaults": {
+                "links": [
+                  {
+                    "title": "Traces of ${__data.fields.service_name}",
+                    "url": "/explore?schemaVersion=1\u0026panes=%7B%22a%22%3A%7B%22datasource%22%3A%22victoriatraces%22%2C%22queries%22%3A%5B%7B%22datasource%22%3A%7B%22type%22%3A%22jaeger%22%2C%22uid%22%3A%22victoriatraces%22%7D%2C%22queryType%22%3A%22search%22%2C%22refId%22%3A%22A%22%2C%22service%22%3A%22${__data.fields.service_name}%22%7D%5D%2C%22range%22%3A%7B%22from%22%3A%22${__from}%22%2C%22to%22%3A%22${__to}%22%7D%7D%7D"
+                  },
+                  {
+                    "title": "Logs of ${__data.fields.service_name}",
+                    "url": "/explore?schemaVersion=1\u0026panes=%7B%22a%22%3A%7B%22datasource%22%3A%22victorialogs%22%2C%22queries%22%3A%5B%7B%22datasource%22%3A%7B%22type%22%3A%22victoriametrics-logs-datasource%22%2C%22uid%22%3A%22victorialogs%22%7D%2C%22expr%22%3A%22service.name%3A%3D%5C%22${__data.fields.service_name}%5C%22%22%2C%22refId%22%3A%22A%22%7D%5D%2C%22range%22%3A%7B%22from%22%3A%22${__from}%22%2C%22to%22%3A%22${__to}%22%7D%7D%7D"
+                  }
+                ],
+                "custom": {
+                  "align": "auto",
+                  "inspect": false
+                }
+              },
+              "overrides": []
+            }
+          }
+        }
+      }
+    },
     "otel-status-pie": {
       "kind": "Panel",
       "spec": {
@@ -3584,6 +3789,19 @@
                       "element": {
                         "kind": "ElementReference",
                         "name": "otel-total-requests"
+                      }
+                    }
+                  },
+                  {
+                    "kind": "GridLayoutItem",
+                    "spec": {
+                      "x": 0,
+                      "y": 8,
+                      "width": 24,
+                      "height": 15,
+                      "element": {
+                        "kind": "ElementReference",
+                        "name": "otel-running-versions"
                       }
                     }
                   }

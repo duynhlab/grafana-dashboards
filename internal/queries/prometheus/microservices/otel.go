@@ -169,3 +169,19 @@ const (
 	OTelPoolEmptyAcquireRate     = `sum by (service_name) (rate(pgxpool_empty_acquire_total{service_name=~"$app"}[$__rate_interval]))`
 	OTelPoolEmptyAcquireWaitSecs = `sum by (service_name) (rate(pgxpool_empty_acquire_wait_time_nanoseconds_total{service_name=~"$app"}[$__rate_interval])) / 1e9`
 )
+
+// Deploys and versions. Neither is in the helm-charts source. Both read the
+// service_version resource attribute that every OTel Go service stamps on its
+// runtime series, so they follow service_name exactly: workers and mockpay
+// included, which a Kubernetes namespace or Deployment name would not match.
+//
+// OTelVersionFirstSeen is the deploy-marker annotation: a version that has
+// samples now and had none two minutes earlier. A rollout that keeps the same
+// version (a config-only change) does not mark, and neither does a pod
+// restart; KEDA scaling cannot fire it either, unlike a Deployment generation.
+// OTelRunningVersions counts the instances reporting each version, so a
+// rollout in progress shows two rows for one service.
+const (
+	OTelVersionFirstSeen = `count by (service_name, service_version) (go_goroutine_count{service_name=~"$app"}) unless count by (service_name, service_version) (go_goroutine_count{service_name=~"$app"} offset 2m)`
+	OTelRunningVersions  = `count by (service_name, service_version) (go_goroutine_count{service_name=~"$app"})`
+)
