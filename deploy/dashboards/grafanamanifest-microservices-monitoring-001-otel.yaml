@@ -19,7 +19,28 @@ spec:
             name: microservices-monitoring-001-otel
             namespace: default
         spec:
-            annotations: []
+            annotations:
+                - kind: AnnotationQuery
+                  spec:
+                    builtIn: false
+                    enable: true
+                    hide: false
+                    iconColor: blue
+                    legacyOptions:
+                        expr: count by (service_name, service_version) (go_goroutine_count{service_name=~"$app"}) unless count by (service_name, service_version) (go_goroutine_count{service_name=~"$app"} offset 2m)
+                        step: 60s
+                        textFormat: first sample of this version
+                        titleFormat: '{{service_name}} {{service_version}}'
+                    name: Deploys
+                    query:
+                        datasource:
+                            name: prometheus
+                        group: prometheus
+                        kind: DataQuery
+                        spec:
+                            expr: count by (service_name, service_version) (go_goroutine_count{service_name=~"$app"}) unless count by (service_name, service_version) (go_goroutine_count{service_name=~"$app"} offset 2m)
+                            refId: Anno
+                        version: v0
             cursorSync: "Off"
             description: 'RED and resource view of the Go microservices from OpenTelemetry semantic-convention metrics: HTTP server (http_server_request_duration_seconds, request/response body size), gRPC client and server call duration, the OTel Go runtime (goroutines, memory, GC pacing) and the otelpgx DB client with its pgx pool. Ported from the helm-charts grafana-dashboards chart (dashboards/microservices/microservices-dashboard-otel.json).'
             editable: true
@@ -65,6 +86,11 @@ spec:
                                             spanNulls: false
                                             thresholdsStyle:
                                                 mode: "off"
+                                        links:
+                                            - title: Traces of ${__field.labels.service_name}
+                                              url: /explore?schemaVersion=1&panes=%7B%22a%22%3A%7B%22datasource%22%3A%22victoriatraces%22%2C%22queries%22%3A%5B%7B%22datasource%22%3A%7B%22type%22%3A%22jaeger%22%2C%22uid%22%3A%22victoriatraces%22%7D%2C%22queryType%22%3A%22search%22%2C%22refId%22%3A%22A%22%2C%22service%22%3A%22${__field.labels.service_name}%22%7D%5D%2C%22range%22%3A%7B%22from%22%3A%22${__from}%22%2C%22to%22%3A%22${__to}%22%7D%7D%7D
+                                            - title: Logs of ${__field.labels.service_name}
+                                              url: /explore?schemaVersion=1&panes=%7B%22a%22%3A%7B%22datasource%22%3A%22victorialogs%22%2C%22queries%22%3A%5B%7B%22datasource%22%3A%7B%22type%22%3A%22victoriametrics-logs-datasource%22%2C%22uid%22%3A%22victorialogs%22%7D%2C%22expr%22%3A%22service.name%3A%3D%5C%22${__field.labels.service_name}%5C%22%22%2C%22refId%22%3A%22A%22%7D%5D%2C%22range%22%3A%7B%22from%22%3A%22${__from}%22%2C%22to%22%3A%22${__to}%22%7D%7D%7D
                                         thresholds:
                                             mode: absolute
                                             steps:
@@ -198,6 +224,11 @@ spec:
                                             spanNulls: false
                                             thresholdsStyle:
                                                 mode: "off"
+                                        links:
+                                            - title: Traces of ${__field.labels.service_name}
+                                              url: /explore?schemaVersion=1&panes=%7B%22a%22%3A%7B%22datasource%22%3A%22victoriatraces%22%2C%22queries%22%3A%5B%7B%22datasource%22%3A%7B%22type%22%3A%22jaeger%22%2C%22uid%22%3A%22victoriatraces%22%7D%2C%22queryType%22%3A%22search%22%2C%22refId%22%3A%22A%22%2C%22service%22%3A%22${__field.labels.service_name}%22%7D%5D%2C%22range%22%3A%7B%22from%22%3A%22${__from}%22%2C%22to%22%3A%22${__to}%22%7D%7D%7D
+                                            - title: Logs of ${__field.labels.service_name}
+                                              url: /explore?schemaVersion=1&panes=%7B%22a%22%3A%7B%22datasource%22%3A%22victorialogs%22%2C%22queries%22%3A%5B%7B%22datasource%22%3A%7B%22type%22%3A%22victoriametrics-logs-datasource%22%2C%22uid%22%3A%22victorialogs%22%7D%2C%22expr%22%3A%22service.name%3A%3D%5C%22${__field.labels.service_name}%5C%22%22%2C%22refId%22%3A%22A%22%7D%5D%2C%22range%22%3A%7B%22from%22%3A%22${__from}%22%2C%22to%22%3A%22${__to}%22%7D%7D%7D
                                         thresholds:
                                             mode: absolute
                                             steps:
@@ -319,6 +350,11 @@ spec:
                                             fillOpacity: 12
                                             lineWidth: 1
                                             showPoints: never
+                                        links:
+                                            - title: Traces of ${__field.labels.service_name}
+                                              url: /explore?schemaVersion=1&panes=%7B%22a%22%3A%7B%22datasource%22%3A%22victoriatraces%22%2C%22queries%22%3A%5B%7B%22datasource%22%3A%7B%22type%22%3A%22jaeger%22%2C%22uid%22%3A%22victoriatraces%22%7D%2C%22queryType%22%3A%22search%22%2C%22refId%22%3A%22A%22%2C%22service%22%3A%22${__field.labels.service_name}%22%7D%5D%2C%22range%22%3A%7B%22from%22%3A%22${__from}%22%2C%22to%22%3A%22${__to}%22%7D%7D%7D
+                                            - title: Logs of ${__field.labels.service_name}
+                                              url: /explore?schemaVersion=1&panes=%7B%22a%22%3A%7B%22datasource%22%3A%22victorialogs%22%2C%22queries%22%3A%5B%7B%22datasource%22%3A%7B%22type%22%3A%22victoriametrics-logs-datasource%22%2C%22uid%22%3A%22victorialogs%22%7D%2C%22expr%22%3A%22service.name%3A%3D%5C%22${__field.labels.service_name}%5C%22%22%2C%22refId%22%3A%22A%22%7D%5D%2C%22range%22%3A%7B%22from%22%3A%22${__from}%22%2C%22to%22%3A%22${__to}%22%7D%7D%7D
                                         unit: ops
                                     overrides: []
                                 options:
@@ -419,6 +455,11 @@ spec:
                                             fillOpacity: 12
                                             lineWidth: 1
                                             showPoints: never
+                                        links:
+                                            - title: Traces of ${__field.labels.service_name}
+                                              url: /explore?schemaVersion=1&panes=%7B%22a%22%3A%7B%22datasource%22%3A%22victoriatraces%22%2C%22queries%22%3A%5B%7B%22datasource%22%3A%7B%22type%22%3A%22jaeger%22%2C%22uid%22%3A%22victoriatraces%22%7D%2C%22queryType%22%3A%22search%22%2C%22refId%22%3A%22A%22%2C%22service%22%3A%22${__field.labels.service_name}%22%7D%5D%2C%22range%22%3A%7B%22from%22%3A%22${__from}%22%2C%22to%22%3A%22${__to}%22%7D%7D%7D
+                                            - title: Logs of ${__field.labels.service_name}
+                                              url: /explore?schemaVersion=1&panes=%7B%22a%22%3A%7B%22datasource%22%3A%22victorialogs%22%2C%22queries%22%3A%5B%7B%22datasource%22%3A%7B%22type%22%3A%22victoriametrics-logs-datasource%22%2C%22uid%22%3A%22victorialogs%22%7D%2C%22expr%22%3A%22service.name%3A%3D%5C%22${__field.labels.service_name}%5C%22%22%2C%22refId%22%3A%22A%22%7D%5D%2C%22range%22%3A%7B%22from%22%3A%22${__from}%22%2C%22to%22%3A%22${__to}%22%7D%7D%7D
                                         unit: s
                                     overrides: []
                                 options:
@@ -843,6 +884,11 @@ spec:
                                             spanNulls: false
                                             thresholdsStyle:
                                                 mode: "off"
+                                        links:
+                                            - title: Traces of ${__field.labels.service_name}
+                                              url: /explore?schemaVersion=1&panes=%7B%22a%22%3A%7B%22datasource%22%3A%22victoriatraces%22%2C%22queries%22%3A%5B%7B%22datasource%22%3A%7B%22type%22%3A%22jaeger%22%2C%22uid%22%3A%22victoriatraces%22%7D%2C%22queryType%22%3A%22search%22%2C%22refId%22%3A%22A%22%2C%22service%22%3A%22${__field.labels.service_name}%22%7D%5D%2C%22range%22%3A%7B%22from%22%3A%22${__from}%22%2C%22to%22%3A%22${__to}%22%7D%7D%7D
+                                            - title: Logs of ${__field.labels.service_name}
+                                              url: /explore?schemaVersion=1&panes=%7B%22a%22%3A%7B%22datasource%22%3A%22victorialogs%22%2C%22queries%22%3A%5B%7B%22datasource%22%3A%7B%22type%22%3A%22victoriametrics-logs-datasource%22%2C%22uid%22%3A%22victorialogs%22%7D%2C%22expr%22%3A%22service.name%3A%3D%5C%22${__field.labels.service_name}%5C%22%22%2C%22refId%22%3A%22A%22%7D%5D%2C%22range%22%3A%7B%22from%22%3A%22${__from}%22%2C%22to%22%3A%22${__to}%22%7D%7D%7D
                                         thresholds:
                                             mode: absolute
                                             steps:
@@ -905,6 +951,11 @@ spec:
                                             spanNulls: false
                                             thresholdsStyle:
                                                 mode: "off"
+                                        links:
+                                            - title: Traces of ${__field.labels.service_name}
+                                              url: /explore?schemaVersion=1&panes=%7B%22a%22%3A%7B%22datasource%22%3A%22victoriatraces%22%2C%22queries%22%3A%5B%7B%22datasource%22%3A%7B%22type%22%3A%22jaeger%22%2C%22uid%22%3A%22victoriatraces%22%7D%2C%22queryType%22%3A%22search%22%2C%22refId%22%3A%22A%22%2C%22service%22%3A%22${__field.labels.service_name}%22%7D%5D%2C%22range%22%3A%7B%22from%22%3A%22${__from}%22%2C%22to%22%3A%22${__to}%22%7D%7D%7D
+                                            - title: Logs of ${__field.labels.service_name}
+                                              url: /explore?schemaVersion=1&panes=%7B%22a%22%3A%7B%22datasource%22%3A%22victorialogs%22%2C%22queries%22%3A%5B%7B%22datasource%22%3A%7B%22type%22%3A%22victoriametrics-logs-datasource%22%2C%22uid%22%3A%22victorialogs%22%7D%2C%22expr%22%3A%22service.name%3A%3D%5C%22${__field.labels.service_name}%5C%22%22%2C%22refId%22%3A%22A%22%7D%5D%2C%22range%22%3A%7B%22from%22%3A%22${__from}%22%2C%22to%22%3A%22${__to}%22%7D%7D%7D
                                         thresholds:
                                             mode: absolute
                                             steps:
@@ -967,6 +1018,11 @@ spec:
                                             spanNulls: false
                                             thresholdsStyle:
                                                 mode: "off"
+                                        links:
+                                            - title: Traces of ${__field.labels.service_name}
+                                              url: /explore?schemaVersion=1&panes=%7B%22a%22%3A%7B%22datasource%22%3A%22victoriatraces%22%2C%22queries%22%3A%5B%7B%22datasource%22%3A%7B%22type%22%3A%22jaeger%22%2C%22uid%22%3A%22victoriatraces%22%7D%2C%22queryType%22%3A%22search%22%2C%22refId%22%3A%22A%22%2C%22service%22%3A%22${__field.labels.service_name}%22%7D%5D%2C%22range%22%3A%7B%22from%22%3A%22${__from}%22%2C%22to%22%3A%22${__to}%22%7D%7D%7D
+                                            - title: Logs of ${__field.labels.service_name}
+                                              url: /explore?schemaVersion=1&panes=%7B%22a%22%3A%7B%22datasource%22%3A%22victorialogs%22%2C%22queries%22%3A%5B%7B%22datasource%22%3A%7B%22type%22%3A%22victoriametrics-logs-datasource%22%2C%22uid%22%3A%22victorialogs%22%7D%2C%22expr%22%3A%22service.name%3A%3D%5C%22${__field.labels.service_name}%5C%22%22%2C%22refId%22%3A%22A%22%7D%5D%2C%22range%22%3A%7B%22from%22%3A%22${__from}%22%2C%22to%22%3A%22${__to}%22%7D%7D%7D
                                         thresholds:
                                             mode: absolute
                                             steps:
@@ -2156,6 +2212,75 @@ spec:
                                         mode: multi
                                         sort: none
                             version: ""
+                otel-running-versions:
+                    kind: Panel
+                    spec:
+                        data:
+                            kind: QueryGroup
+                            spec:
+                                queries:
+                                    - kind: PanelQuery
+                                      spec:
+                                        hidden: false
+                                        query:
+                                            datasource:
+                                                name: prometheus
+                                            group: prometheus
+                                            kind: DataQuery
+                                            spec:
+                                                expr: count by (service_name, service_version) (go_goroutine_count{service_name=~"$app"})
+                                                format: table
+                                                instant: true
+                                            version: v0
+                                        refId: A
+                                queryOptions: {}
+                                transformations:
+                                    - group: organize
+                                      kind: Transformation
+                                      spec:
+                                        options:
+                                            excludeByName:
+                                                Time: true
+                                            renameByName:
+                                                Value: instances
+                                                service_version: version
+                                    - group: sortBy
+                                      kind: Transformation
+                                      spec:
+                                        options:
+                                            fields: {}
+                                            sort:
+                                                - desc: false
+                                                  field: service_name
+                        description: The service_version each service's instances report now, from the OTel resource attributes on go_goroutine_count; a rollout in progress shows two rows for one service. Click a row to open that service's traces or logs. Blue markers on the time series are the first sample of a new version.
+                        id: 1.95250349e+08
+                        links: []
+                        title: Running versions
+                        vizConfig:
+                            group: table
+                            kind: VizConfig
+                            spec:
+                                fieldConfig:
+                                    defaults:
+                                        custom:
+                                            align: auto
+                                            inspect: false
+                                        links:
+                                            - title: Traces of ${__data.fields.service_name}
+                                              url: /explore?schemaVersion=1&panes=%7B%22a%22%3A%7B%22datasource%22%3A%22victoriatraces%22%2C%22queries%22%3A%5B%7B%22datasource%22%3A%7B%22type%22%3A%22jaeger%22%2C%22uid%22%3A%22victoriatraces%22%7D%2C%22queryType%22%3A%22search%22%2C%22refId%22%3A%22A%22%2C%22service%22%3A%22${__data.fields.service_name}%22%7D%5D%2C%22range%22%3A%7B%22from%22%3A%22${__from}%22%2C%22to%22%3A%22${__to}%22%7D%7D%7D
+                                            - title: Logs of ${__data.fields.service_name}
+                                              url: /explore?schemaVersion=1&panes=%7B%22a%22%3A%7B%22datasource%22%3A%22victorialogs%22%2C%22queries%22%3A%5B%7B%22datasource%22%3A%7B%22type%22%3A%22victoriametrics-logs-datasource%22%2C%22uid%22%3A%22victorialogs%22%7D%2C%22expr%22%3A%22service.name%3A%3D%5C%22${__data.fields.service_name}%5C%22%22%2C%22refId%22%3A%22A%22%7D%5D%2C%22range%22%3A%7B%22from%22%3A%22${__from}%22%2C%22to%22%3A%22${__to}%22%7D%7D%7D
+                                    overrides: []
+                                options:
+                                    cellHeight: sm
+                                    footer:
+                                        countRows: false
+                                        reducer: null
+                                        show: false
+                                    frameIndex: 0
+                                    showHeader: true
+                                    showTypeIcons: false
+                            version: ""
                 otel-status-pie:
                     kind: Panel
                     spec:
@@ -2545,6 +2670,15 @@ spec:
                                             width: 4
                                             x: 20
                                             "y": 4
+                                        - kind: GridLayoutItem
+                                          spec:
+                                            element:
+                                                kind: ElementReference
+                                                name: otel-running-versions
+                                            height: 15
+                                            width: 24
+                                            x: 0
+                                            "y": 8
                             title: Overview & Key Metrics
                         - kind: RowsLayoutRow
                           spec:

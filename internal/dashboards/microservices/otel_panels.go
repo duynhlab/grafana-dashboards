@@ -103,6 +103,9 @@ type otelSeriesOptions struct {
 	// ColorByThresholds colours the series by Steps instead of the classic
 	// palette.
 	ColorByThresholds bool
+	// ServiceLinks links each series to its service's traces and logs; the
+	// series must carry a service_name label.
+	ServiceLinks bool
 }
 
 // otelSeries is the board's timeseries: thin filled lines, no points, gaps left
@@ -150,6 +153,9 @@ func otelSeries(title, description, unit string, opts otelSeriesOptions, queries
 			Calcs(opts.Calcs).
 			SortBy(opts.SortBy).
 			SortDesc(true))
+	if opts.ServiceLinks {
+		viz = viz.DataLinks(otelServiceLinks(seriesService))
+	}
 	return otelPanel(title, description, viz, queries...)
 }
 

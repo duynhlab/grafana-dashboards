@@ -13,6 +13,7 @@ import (
 
 func otelOverview(b *dashboardv2.DashboardBuilder) *dashboardv2.DashboardBuilder {
 	return b.
+		Panel("otel-running-versions", otelRunningVersions()).
 		Panel("otel-p99", otelStat("99th Percentile Response Success",
 			"99% of requests complete faster than this. Detects worst-case latency and outliers.",
 			"s", []panels.Threshold{
@@ -112,6 +113,7 @@ func otelErrors(b *dashboardv2.DashboardBuilder) *dashboardv2.DashboardBuilder {
 					panels.Thr("orange", panels.Ptr(5)),
 				},
 				ColorByThresholds: true,
+				ServiceLinks:      true,
 			},
 			panels.PromQuery(msqueries.OTelClientErrorRPSByService, "{{service_name}}"))).
 		Panel("otel-5xx-service", otelSeries("Server Errors (5xx)",
@@ -125,6 +127,7 @@ func otelErrors(b *dashboardv2.DashboardBuilder) *dashboardv2.DashboardBuilder {
 					panels.Thr("red", panels.Ptr(2)),
 				},
 				ColorByThresholds: true,
+				ServiceLinks:      true,
 			},
 			panels.PromQuery(msqueries.OTelServerErrorRPSByService, "{{service_name}}"))).
 		Panel("otel-route-p95", otelSeries("Response time 95th percentile",
@@ -204,15 +207,15 @@ func otelGRPCPerCallee(b *dashboardv2.DashboardBuilder) *dashboardv2.DashboardBu
 	return b.
 		Panel("otel-grpc-callee-rps", otelSeries("gRPC Server RPS per Callee",
 			"Server-side gRPC request rate aggregated per callee service (app). Source: rpc_server_call_duration_seconds_count.",
-			"reqps", otelSeriesOptions{},
+			"reqps", otelSeriesOptions{ServiceLinks: true},
 			panels.PromQuery(msqueries.OTelGRPCServerRPSPerCallee, "{{service_name}}"))).
 		Panel("otel-grpc-callee-error-ratio", otelSeries("gRPC Server Error Ratio per Callee",
 			"Share of server-side gRPC calls with rpc_response_status_code != OK, per callee service (app). Source: rpc_server_call_duration_seconds_count.",
-			"percentunit", otelSeriesOptions{},
+			"percentunit", otelSeriesOptions{ServiceLinks: true},
 			panels.PromQuery(msqueries.OTelGRPCServerErrorRatioPerCallee, "{{service_name}}"))).
 		Panel("otel-grpc-callee-p95", otelSeries("gRPC Server P95 Latency per Callee",
 			"Server-side gRPC 95th percentile call duration per callee service (app). Source: rpc_server_call_duration_seconds_bucket.",
-			"s", otelSeriesOptions{},
+			"s", otelSeriesOptions{ServiceLinks: true},
 			panels.PromQuery(msqueries.OTelGRPCServerP95PerCallee, "{{service_name}}")))
 }
 
@@ -220,7 +223,7 @@ func otelDatabase(b *dashboardv2.DashboardBuilder) *dashboardv2.DashboardBuilder
 	return b.
 		Panel("otel-db-p95-service", otelPanel("DB query p95 by service",
 			"otelpgx per-statement latency (DB-scale buckets, pkg v0.24.0). Query ops only.",
-			otelDBViz("s"),
+			otelDBViz("s").DataLinks(otelServiceLinks(seriesService)),
 			panels.PromQuery(msqueries.OTelDBQueryP95ByService, "{{service_name}}"))).
 		Panel("otel-db-p95-op", otelPanel("DB p95 by operation type",
 			"query / batch / prepare / connect / acquire — split by op.",
@@ -228,7 +231,7 @@ func otelDatabase(b *dashboardv2.DashboardBuilder) *dashboardv2.DashboardBuilder
 			panels.PromQuery(msqueries.OTelDBP95ByOperation, "{{pgx_operation_type}}"))).
 		Panel("otel-db-errors", otelPanel("DB operation errors",
 			"otelpgx non-ErrNoRows operation errors. Healthy = no series/0.",
-			otelDBViz("ops"),
+			otelDBViz("ops").DataLinks(otelServiceLinks(seriesService)),
 			panels.PromQuery(msqueries.OTelDBOperationErrors, "{{service_name}}"))).
 		Panel("otel-pool-inflight", otelPanel("Pool in-flight (acquired conns)",
 			"Connections currently checked out ≈ concurrent DB work in flight.",
