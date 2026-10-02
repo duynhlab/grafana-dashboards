@@ -1,7 +1,8 @@
 module github.com/duynhlab/grafana-dashboards
 
-go 1.26
+go 1.27.1
 
-require github.com/grafana/grafana-foundation-sdk/go v0.0.20
-
-require gopkg.in/yaml.v3 v3.0.1
+require (
+	github.com/grafana/grafana-foundation-sdk/go v0.0.20
+	gopkg.in/yaml.v3 v3.0.1
+)

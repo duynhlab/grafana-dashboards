@@ -101,7 +101,7 @@ Alert rules:
 
 ## Requirements
 
-- Go 1.26 or newer
+- Go 1.27 or newer (the version in `go.mod`)
 - Grafana 13 or newer (12.x does not serve `dashboard.grafana.app/v2`)
 - Grafana Operator for Kubernetes delivery
 - Flux CLI for OCI publishing

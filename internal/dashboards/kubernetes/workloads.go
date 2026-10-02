@@ -11,9 +11,9 @@ import (
 
 // Workloads renders the Kubernetes Workloads dashboard: per-workload and
 // per-pod CPU, memory, network, and reliability, scoped by the
-// namespace/workload_type/workload template variables. It replaces the board
-// homelab currently fetches from the obs-as-code OCI artifact and keeps the
-// same UID and title.
+// namespace/workload_type/workload template variables. It replaced the board
+// homelab used to fetch from the obs-as-code OCI artifact and kept the same UID
+// and title.
 func Workloads() cog.Builder[dashboardv2.Dashboard] {
 	b := dashboardv2.NewDashboardBuilder("Kubernetes Workloads").
 		Description("Per-workload and per-pod CPU, memory, network, and reliability, filtered by namespace and owning workload.").
