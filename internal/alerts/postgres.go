@@ -12,7 +12,7 @@ func BackendsWaiting() Rule {
 		Domain:    standards.DomainPostgres,
 		Folder:    standards.FolderDatabases,
 		Group:     "databases",
-		Expr:      pgqueries.BackendsWaiting,
+		Expr:      pgqueries.BackendsWaitingByCluster,
 		For:       "10m",
 		Threshold: 0,
 		Labels: map[string]string{
@@ -22,7 +22,7 @@ func BackendsWaiting() Rule {
 		},
 		Annotations: map[string]string{
 			standards.AnnotationSummary:      "PostgreSQL backends are waiting",
-			standards.AnnotationDescription:  "cnpg_backends_waiting_total is above zero for the evaluation window.",
+			standards.AnnotationDescription:  "cnpg_backends_waiting_total is above zero on {{ $labels.cnpg_io_cluster }} for the evaluation window.",
 			standards.AnnotationDashboardUID: "pg-io-waits",
 		},
 	}

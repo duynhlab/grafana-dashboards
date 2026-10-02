@@ -12,7 +12,7 @@ func CrashLoopingPods() Rule {
 		Domain:    standards.DomainKubernetes,
 		Folder:    standards.FolderKubernetes,
 		Group:     "kubernetes",
-		Expr:      k8squeries.CrashLoopingPods,
+		Expr:      orZero(k8squeries.CrashLoopingPods),
 		For:       "5m",
 		Threshold: 0,
 		Labels: map[string]string{
@@ -35,7 +35,7 @@ func PendingPods() Rule {
 		Domain:    standards.DomainKubernetes,
 		Folder:    standards.FolderKubernetes,
 		Group:     "kubernetes",
-		Expr:      k8squeries.PendingPods,
+		Expr:      orZero(k8squeries.PendingPods),
 		For:       "15m",
 		Threshold: 0,
 		Labels: map[string]string{
@@ -58,7 +58,7 @@ func PVCsAtRisk() Rule {
 		Domain:    standards.DomainKubernetes,
 		Folder:    standards.FolderKubernetes,
 		Group:     "kubernetes",
-		Expr:      k8squeries.PVCsAtRisk,
+		Expr:      orZero(k8squeries.PVCsAtRisk),
 		For:       "15m",
 		Threshold: 0,
 		Labels: map[string]string{

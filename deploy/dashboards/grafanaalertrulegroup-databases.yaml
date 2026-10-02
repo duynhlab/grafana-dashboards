@@ -15,7 +15,7 @@ spec:
     rules:
         - annotations:
             dashboard_uid: pg-io-waits
-            description: cnpg_backends_waiting_total is above zero for the evaluation window.
+            description: cnpg_backends_waiting_total is above zero on {{ $labels.cnpg_io_cluster }} for the evaluation window.
             summary: PostgreSQL backends are waiting
           condition: B
           data:
@@ -25,7 +25,7 @@ spec:
                     type: prometheus
                     uid: prometheus
                 editorMode: code
-                expr: sum (cnpg_backends_waiting_total{cnpg_io_cluster=~"$cluster", pod=~"$pod"})
+                expr: sum by (cnpg_io_cluster) (cnpg_backends_waiting_total)
                 instant: true
                 refId: A
               refId: A
