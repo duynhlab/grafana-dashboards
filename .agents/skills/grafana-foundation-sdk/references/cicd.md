@@ -19,8 +19,8 @@ Workflow: `.github/workflows/as-code.yml`. Actions `actions/checkout@v7`,
 
 `changes`: on a pull request, `tj-actions/changed-files` (pinned by commit SHA — its
 tags were retargeted in the March 2025 compromise, so a tag is not a pin) lists the
-changed paths with the prose ones ignored (`README.md`, `AGENTS.md`, `CLAUDE.md`,
-`LICENSE`, `docs/`, `.agents/`, `.claude/`, `.cursor/`) and the job reports `code=true`
+changed paths with the prose ones ignored (`README.md`, `DASHBOARD.md`, `AGENTS.md`,
+`CLAUDE.md`, `LICENSE`, `.agents/`, `.claude/`, `.cursor/`) and the job reports `code=true`
 when anything is left. Pushes always report `code=true`.
 
 `e2e-kind` (needs `validate` and `changes`, runs only when `code=true`): runs
