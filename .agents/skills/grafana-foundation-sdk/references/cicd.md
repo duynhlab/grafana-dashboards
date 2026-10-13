@@ -17,7 +17,13 @@ Workflow: `.github/workflows/as-code.yml`. Actions `actions/checkout@v7`,
 5. the number of `deploy/dashboards/grafanamanifest-*.yaml` files equals the number of
    `generated/dashboards/**/*.spec.json` files
 
-`e2e-kind` (needs `validate`): runs `test/e2e/kind/run.sh`, see [e2e-kind.md](e2e-kind.md).
+`changes`: on a pull request, diffs against the base branch and reports `code=true`
+unless every changed path is prose (`README.md`, `AGENTS.md`, `CLAUDE.md`, `LICENSE`,
+`docs/`, `.agents/`, `.claude/`, `.cursor/`). Pushes always report `code=true`.
+
+`e2e-kind` (needs `validate` and `changes`, runs only when `code=true`): runs
+`test/e2e/kind/run.sh`, see [e2e-kind.md](e2e-kind.md). A docs-only pull request
+therefore shows it as skipped, which is the intended result, not a missing check.
 
 `publish-oci` (any push, needs `validate`):
 - `flux push artifact` of `deploy/` to `ghcr.io/duynhlab/grafana-dashboards-as-code`

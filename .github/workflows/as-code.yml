@@ -117,8 +117,39 @@ jobs:
             --tag "${EXTRA_TAG}" \
             --creds="${GHCR_USER}:${GHCR_TOKEN}"
 
+  changes:
+    # The Kind e2e takes minutes and proves what Grafana receives. A pull
+    # request that touches only prose (README, AGENTS, docs/, the skill and
+    # editor folders) cannot change that, so it skips the e2e. Pushes to main
+    # and tags always count as code: they publish the artifact.
+    runs-on: ubuntu-latest
+    outputs:
+      code: ${{ steps.diff.outputs.code }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - id: diff
+        env:
+          BASE_REF: ${{ github.base_ref }}
+        run: |
+          if [ "${{ github.event_name }}" != "pull_request" ]; then
+            echo "code=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          changed="$(git diff --name-only "origin/${BASE_REF}...HEAD")"
+          printf 'changed files:\n%s\n' "${changed}"
+          if printf '%s\n' "${changed}" | grep -vE '^(README\.md|AGENTS\.md|CLAUDE\.md|LICENSE|docs/|\.agents/|\.claude/|\.cursor/)' | grep -q .; then
+            echo "code=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "docs-only change: e2e-kind is skipped"
+            echo "code=false" >> "$GITHUB_OUTPUT"
+          fi
+
   e2e-kind:
-    needs: validate
+    needs: [validate, changes]
+    if: needs.changes.outputs.code == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
