@@ -130,17 +130,29 @@ jobs:
         with:
           fetch-depth: 0
 
+      # Pinned by commit, not tag: this action's tags were retargeted to a
+      # malicious commit in March 2025 (CVE-2025-30066), so only a SHA is a
+      # pin. Bump by updating the SHA and the comment together.
+      - id: changed
+        uses: tj-actions/changed-files@9426d40962ed5378910ee2e21d5f8c6fcbf2dd96 # v47.0.6
+        with:
+          files_ignore: |
+            README.md
+            AGENTS.md
+            CLAUDE.md
+            LICENSE
+            docs/**
+            .agents/**
+            .claude/**
+            .cursor/**
+
       - id: diff
         env:
-          BASE_REF: ${{ github.base_ref }}
+          ANY_CODE: ${{ steps.changed.outputs.any_changed }}
+          CODE_FILES: ${{ steps.changed.outputs.all_changed_files }}
         run: |
-          if [ "${{ github.event_name }}" != "pull_request" ]; then
-            echo "code=true" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-          changed="$(git diff --name-only "origin/${BASE_REF}...HEAD")"
-          printf 'changed files:\n%s\n' "${changed}"
-          if printf '%s\n' "${changed}" | grep -vE '^(README\.md|AGENTS\.md|CLAUDE\.md|LICENSE|docs/|\.agents/|\.claude/|\.cursor/)' | grep -q .; then
+          if [ "${{ github.event_name }}" != "pull_request" ] || [ "${ANY_CODE}" = "true" ]; then
+            printf 'code paths changed: %s\n' "${CODE_FILES:-(push event)}"
             echo "code=true" >> "$GITHUB_OUTPUT"
           else
             echo "docs-only change: e2e-kind is skipped"
