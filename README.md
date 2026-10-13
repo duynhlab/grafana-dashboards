@@ -9,7 +9,7 @@ OCI artifact.
 |---|---|
 | **Dashboard model** | Dashboard v2 (`dashboard.grafana.app/v2`), so **Grafana 13 or newer**; 12.0 and 12.1 serve no higher than `v2alpha1` |
 | **Delivery** | `GrafanaManifest` + `GrafanaAlertRuleGroup` CRs, published to `ghcr.io/duynhlab/grafana-dashboards-as-code`, applied by Flux |
-| **Inventory** | 18 dashboards · 6 folders · 4 alert rules |
+| **Inventory** | 19 dashboards · 6 folders · 4 alert rules |
 | **Toolchain** | Go `1.27.1` (`go.mod`), Foundation SDK `v0.0.20` |
 | **Tested against** | Grafana `13.2.0` on Grafana Operator `5.25.0` in Kind (`make e2e-kind`) |
 | **Quality gates** | `gofmt` + `go vet`, 90% coverage, byte-identical regeneration, read-back of every board |
@@ -60,8 +60,9 @@ on any difference.
 
 ## Dashboards
 
-Every query uses the logical datasource `prometheus`, resolved at deploy time
-(homelab maps it to VictoriaMetrics). *Elements* is the number of panels and
+Every query uses a logical datasource resolved at deploy time: `prometheus`
+(homelab maps it to VictoriaMetrics) or, for the pg_stat_ch board, `clickhouse`
+(homelab's ClickHouse datasource uid). *Elements* is the number of panels and
 other elements in the generated spec.
 
 | Folder | UID | Title | Elements | What it shows |
@@ -74,6 +75,7 @@ other elements in the generated spec.
 | Databases | `pg-query-performance` | PostgreSQL — Query Performance (pg_stat_statements) | 14 | Throughput, latency, cache efficiency, block I/O, top statements |
 | Databases | `pg-exporter-instance` | PG Exporter Instance | 61 | Remote/RDS instances via the Pigsty `postgres_exporter` model (`pg_*` metrics, `pg:*` rules, `ins`/`cls` labels — not `cnpg_*`) |
 | Databases | `pgdog` | PGDog | 30 | PGDog pooler: clients, servers, transactions, queries, traffic, prepared statements, mirroring |
+| Databases | `postgresql-query-telemetry` | PostgreSQL — Query telemetry (pg_stat_ch) | 21 | Per-execution statement events from the pg_stat_ch extension, read from ClickHouse (logical datasource `clickhouse`): p50/p95/p99 over time, statements/s by operation, database and application, errors by SQLSTATE, top statements, slowest executions, plus the exporter's own health from Prometheus |
 | Observability | `temporal-worker` | Temporal — Workflows & Activities | 21 | Both halves of Temporal: SDK/worker metrics over OTLP and server metrics (gRPC by role, persistence, task-queue backlog) |
 | Observability | `otel-collector-health` | OTel Collector Health | 10 | Collector pipeline throughput, exporter fan-out, self resource usage |
 | Microservices | `microservices-monitoring-001-otel` | Microservices (OTel) | 41 | 1:1 port of the helm-charts board: Go services RED, Go runtime and HTTP I/O, east-west gRPC by method and per callee, and the `otelpgx` DB client and pool, from OpenTelemetry semantic-convention metrics keyed on `service_name`. Adds deploy markers, a running-versions table, and links from per-service series to their traces and logs |

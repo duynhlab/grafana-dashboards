@@ -6,7 +6,7 @@ A domain is a Grafana folder plus the Go packages that feed it. Folder title equ
 | Folder | Packages | Dashboards (UID) | Alert group |
 |---|---|---|---|
 | `Kubernetes` | `queries/prometheus/kubernetes`, `dashboards/kubernetes`, `alerts/kubernetes.go` | `kubernetes-cluster-overview`, `keda` | `kubernetes` |
-| `Databases` | `queries/prometheus/postgres`, `dashboards/postgres`, `alerts/postgres.go` | `pg-io-waits`, `pg-maintenance`, `pg-query-performance`, `pg-exporter-instance`, `pgdog` | `databases` |
+| `Databases` | `queries/prometheus/postgres`, `queries/clickhouse/postgres`, `dashboards/postgres`, `alerts/postgres.go` | `pg-io-waits`, `pg-maintenance`, `pg-query-performance`, `pg-exporter-instance`, `pgdog`, `postgresql-query-telemetry` | `databases` |
 | `Observability` | `queries/prometheus/observability`, `dashboards/observability` | `temporal-worker`, `otel-collector-health` | none yet |
 | `Microservices` | `queries/prometheus/microservices`, `dashboards/microservices` | `microservices-monitoring-001-otel`, `business-otel`, `red-spanmetrics`, `rfc0021-baseline`, `inventory-overview` | none yet |
 | `Platform` | `queries/prometheus/platform`, `dashboards/platform` | `cert-manager`, `keycloak-identity` | none yet |

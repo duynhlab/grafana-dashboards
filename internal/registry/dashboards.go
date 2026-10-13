@@ -60,6 +60,12 @@ var Dashboards = []DashboardDefinition{
 		Build:  postgres.PGDog,
 	},
 	{
+		UID:    "postgresql-query-telemetry",
+		Domain: standards.DomainPostgres,
+		Folder: standards.FolderDatabases,
+		Build:  postgres.PGQueryTelemetry,
+	},
+	{
 		UID:    "temporal-worker",
 		Domain: standards.DomainObservability,
 		Folder: standards.FolderObservability,
