@@ -123,12 +123,14 @@ Register it in `internal/registry/dashboards.go` with `UID`, `Folder`, `Build`.
    The generator refuses an empty `Domain`.
 5. Add `test/dashboards/<name>_test.go` (title, variable count, panel count, manifest
    name, key PromQL fragments). Add alerts if the board has operational thresholds.
-6. `make validate`. Inspect the diff in `generated/` and `deploy/`.
+6. Update `DASHBOARD.md`: add the board to its tables, bump the counts, and record its
+   folder membership. A removed or renamed board edits the same file.
+7. `make validate`. Inspect the diff in `generated/` and `deploy/`.
 
 **Add an alert**: reuse a domain query, define `alerts.Rule` in `internal/alerts/<domain>.go`,
 set `Group`, labels `severity|domain|component`, annotations `summary|description|dashboard_uid`
 (the UID must exist in the dashboard registry), register in `internal/registry/alerts.go`,
-`make validate`. Details in `alerts.md`.
+add it to the alert table in `DASHBOARD.md`, `make validate`. Details in `alerts.md`.
 
 **Port legacy JSON**: read the JSON under `dashboard/` for titles, PromQL, variables, and
 layout; rewrite as dashboardv2 with the helpers; keep the same UID when the board is a

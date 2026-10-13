@@ -33,6 +33,13 @@ make e2e-kind    # Kind + Grafana Operator smoke test, needs Docker
   adding abstractions.
 - `make validate` must pass before a change is reported as done. Report its output.
 
+## Docs
+
+- A new, removed, or renamed dashboard, alert, or folder updates `DASHBOARD.md` in the
+  same change: its tables, the counts, and the folder membership.
+- A version bump (a git tag, the homelab `semver` pin, the "Latest release" row)
+  updates those facts in `README.md` in the same change.
+
 ## Parallel work
 
 One orchestrator owns the registry, shared helpers, generated output, Makefile, and
@@ -44,3 +51,6 @@ dashboard, and test files. See `references/multi-agent.md` in the skill.
 Conventional commits (`feat(as-code): ...`, `fix(e2e): ...`, `docs(skill): ...`).
 Branch from `main`, open a pull request; CI runs `make validate` equivalents plus the
 Kind e2e.
+
+Never add a `Co-authored-by: Cursor <cursoragent@cursor.com>` trailer (or any
+Cursor co-author trailer) to a commit or pull request.

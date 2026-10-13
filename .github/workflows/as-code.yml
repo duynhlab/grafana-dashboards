@@ -119,7 +119,7 @@ jobs:
 
   changes:
     # The Kind e2e takes minutes and proves what Grafana receives. A pull
-    # request that touches only prose (README, AGENTS, docs/, the skill and
+    # request that touches only prose (README, DASHBOARD, AGENTS, the skill and
     # editor folders) cannot change that, so it skips the e2e. Pushes to main
     # and tags always count as code: they publish the artifact.
     runs-on: ubuntu-latest
@@ -138,10 +138,10 @@ jobs:
         with:
           files_ignore: |
             README.md
+            DASHBOARD.md
             AGENTS.md
             CLAUDE.md
             LICENSE
-            docs/**
             .agents/**
             .claude/**
             .cursor/**
