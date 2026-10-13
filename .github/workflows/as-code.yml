@@ -117,8 +117,51 @@ jobs:
             --tag "${EXTRA_TAG}" \
             --creds="${GHCR_USER}:${GHCR_TOKEN}"
 
+  changes:
+    # The Kind e2e takes minutes and proves what Grafana receives. A pull
+    # request that touches only prose (README, AGENTS, docs/, the skill and
+    # editor folders) cannot change that, so it skips the e2e. Pushes to main
+    # and tags always count as code: they publish the artifact.
+    runs-on: ubuntu-latest
+    outputs:
+      code: ${{ steps.diff.outputs.code }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      # Pinned by commit, not tag: this action's tags were retargeted to a
+      # malicious commit in March 2025 (CVE-2025-30066), so only a SHA is a
+      # pin. Bump by updating the SHA and the comment together.
+      - id: changed
+        uses: tj-actions/changed-files@9426d40962ed5378910ee2e21d5f8c6fcbf2dd96 # v47.0.6
+        with:
+          files_ignore: |
+            README.md
+            AGENTS.md
+            CLAUDE.md
+            LICENSE
+            docs/**
+            .agents/**
+            .claude/**
+            .cursor/**
+
+      - id: diff
+        env:
+          ANY_CODE: ${{ steps.changed.outputs.any_changed }}
+          CODE_FILES: ${{ steps.changed.outputs.all_changed_files }}
+        run: |
+          if [ "${{ github.event_name }}" != "pull_request" ] || [ "${ANY_CODE}" = "true" ]; then
+            printf 'code paths changed: %s\n' "${CODE_FILES:-(push event)}"
+            echo "code=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "docs-only change: e2e-kind is skipped"
+            echo "code=false" >> "$GITHUB_OUTPUT"
+          fi
+
   e2e-kind:
-    needs: validate
+    needs: [validate, changes]
+    if: needs.changes.outputs.code == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
