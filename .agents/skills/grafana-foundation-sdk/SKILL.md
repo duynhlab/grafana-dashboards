@@ -79,8 +79,10 @@ go doc github.com/grafana/grafana-foundation-sdk/go/dashboardv2 DashboardBuilder
 | table | `panels.Table` + `panels.QueryTable`, `panels.Merge`, `panels.Organize`, `panels.SortBy` |
 | multi-target panel | `panels.PromQuery(expr, legend)` for ref A, `panels.Query("B", expr, legend)` for the rest |
 | template variable | `panels.QueryVar(name, label, definition)` |
+| ClickHouse SQL target | `panels.ClickHouseSeries(refID, sql)` (time bucket first column), `panels.ClickHouseTable(refID, sql)` (rows; a one-row table feeds a stat) — any panel helper that takes queries accepts them |
+| ClickHouse variable | `panels.ClickHouseQueryVar(name, label, sql)` (one column of values) |
 | layout | `panels.RowsLayout(panels.Row(title, panels.GridItem(id, x, y, w, h)...))` |
-| time / datasource | `standards.TimeSettings(from, to, refresh)`, `standards.PrometheusDatasource()` |
+| time / datasource | `standards.TimeSettings(from, to, refresh)`, `standards.PrometheusDatasource()`, `standards.ClickHouseDatasource()` (logical name `clickhouse`) |
 | alert | `alerts.Rule{...}` with `standards.Label*` and `standards.Annotation*` keys |
 
 ## Dashboard skeleton

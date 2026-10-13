@@ -14,3 +14,19 @@ const PrometheusPlugin = "prometheus"
 func PrometheusDatasource() cog.Builder[dashboardv2.Dashboardv2DataQueryKindDatasource] {
 	return dashboardv2.NewDashboardv2DataQueryKindDatasourceBuilder().Name(PrometheusPlugin)
 }
+
+// ClickHousePlugin is the datasource plugin id for SQL queries against the
+// ClickHouse OLAP store (per-execution PostgreSQL events, OTel logs and traces).
+// The Foundation SDK has no typed query builder for it; panels.ClickHouse*
+// assemble the DataQueryKind by hand with this group.
+const ClickHousePlugin = "grafana-clickhouse-datasource"
+
+// ClickHouseDatasourceName is the logical datasource reference. Like
+// `prometheus`, it is a name the consumer resolves at deploy time: homelab
+// provisions its ClickHouse datasource with uid `clickhouse`.
+const ClickHouseDatasourceName = "clickhouse"
+
+// ClickHouseDatasource returns the logical ClickHouse datasource reference.
+func ClickHouseDatasource() cog.Builder[dashboardv2.Dashboardv2DataQueryKindDatasource] {
+	return dashboardv2.NewDashboardv2DataQueryKindDatasourceBuilder().Name(ClickHouseDatasourceName)
+}

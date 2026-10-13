@@ -11,6 +11,7 @@ resources:
     - grafanamanifest-pg-query-performance.yaml
     - grafanamanifest-pg-exporter-instance.yaml
     - grafanamanifest-pgdog.yaml
+    - grafanamanifest-postgresql-query-telemetry.yaml
     - grafanamanifest-temporal-worker.yaml
     - grafanamanifest-otel-collector-health.yaml
     - grafanamanifest-microservices-monitoring-001-otel.yaml

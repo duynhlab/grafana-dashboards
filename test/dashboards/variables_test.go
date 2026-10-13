@@ -22,9 +22,13 @@ type variableSpec struct {
 		Query struct {
 			Group string `json:"group"`
 			Spec  *struct {
+				// Prometheus label_values variables.
 				QryType int    `json:"qryType"`
 				Query   string `json:"query"`
 				RefID   string `json:"refId"`
+				// ClickHouse SQL variables.
+				RawSQL    string `json:"rawSql"`
+				QueryType string `json:"queryType"`
 			} `json:"spec"`
 		} `json:"query"`
 		IncludeAll       bool `json:"includeAll"`
@@ -40,6 +44,10 @@ type variableSpec struct {
 //   - an empty query.group, which routes the variable query nowhere;
 //   - an empty current.value on an include-all variable, which Grafana reads as
 //     a real selection so `label=~"$var"` matches nothing.
+//
+// The spec shape depends on the datasource plugin: Prometheus variables carry a
+// label_values() query with qryType 1, ClickHouse variables carry rawSql with
+// queryType table. The group decides which assertions apply.
 //
 // It runs over the whole registry so a new board cannot reintroduce them.
 func TestQueryVariablesAreResolvable(t *testing.T) {
@@ -69,11 +77,21 @@ func TestQueryVariablesAreResolvable(t *testing.T) {
 				t.Errorf("%s: query.spec is null; the label_values() expression never reaches the datasource", name)
 				continue
 			}
-			if v.Spec.Query.Spec.Query == "" {
-				t.Errorf("%s: query.spec.query is empty", name)
-			}
-			if v.Spec.Query.Spec.QryType != 1 {
-				t.Errorf("%s: query.spec.qryType = %d, want 1 (label values)", name, v.Spec.Query.Spec.QryType)
+			switch v.Spec.Query.Group {
+			case "grafana-clickhouse-datasource":
+				if v.Spec.Query.Spec.RawSQL == "" {
+					t.Errorf("%s: query.spec.rawSql is empty", name)
+				}
+				if v.Spec.Query.Spec.QueryType != "table" {
+					t.Errorf("%s: query.spec.queryType = %q, want table (one column of values)", name, v.Spec.Query.Spec.QueryType)
+				}
+			default:
+				if v.Spec.Query.Spec.Query == "" {
+					t.Errorf("%s: query.spec.query is empty", name)
+				}
+				if v.Spec.Query.Spec.QryType != 1 {
+					t.Errorf("%s: query.spec.qryType = %d, want 1 (label values)", name, v.Spec.Query.Spec.QryType)
+				}
 			}
 			if v.Spec.Query.Spec.RefID == "" {
 				t.Errorf("%s: query.spec.refId is empty", name)

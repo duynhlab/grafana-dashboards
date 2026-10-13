@@ -1,0 +1,2162 @@
+{
+  "annotations": [],
+  "cursorSync": "Off",
+  "description": "Per-execution PostgreSQL statement events from the pg_stat_ch extension in ClickHouse: latency percentiles over time, top statements, errors, load attribution, and exporter health.",
+  "editable": true,
+  "elements": {
+    "buffer-hit": {
+      "kind": "Panel",
+      "spec": {
+        "id": 1627498387,
+        "title": "Buffer hit ratio",
+        "description": "",
+        "links": [],
+        "data": {
+          "kind": "QueryGroup",
+          "spec": {
+            "queries": [
+              {
+                "kind": "PanelQuery",
+                "spec": {
+                  "query": {
+                    "kind": "DataQuery",
+                    "group": "grafana-clickhouse-datasource",
+                    "version": "v0",
+                    "datasource": {
+                      "name": "clickhouse"
+                    },
+                    "spec": {
+                      "editorType": "sql",
+                      "format": 1,
+                      "queryType": "table",
+                      "rawSql": "SELECT 100.0 * sum(shared_blks_hit) / greatest(sum(shared_blks_hit) + sum(shared_blks_read), 1) AS hit_pct FROM pg_stat_ch.events_raw WHERE $__timeFilter(ts) AND db_name IN (${db_name:singlequote}) AND app IN (${app:singlequote})"
+                    }
+                  },
+                  "refId": "A",
+                  "hidden": false
+                }
+              }
+            ],
+            "transformations": [],
+            "queryOptions": {}
+          }
+        },
+        "vizConfig": {
+          "kind": "VizConfig",
+          "group": "stat",
+          "version": "",
+          "spec": {
+            "options": {
+              "graphMode": "area",
+              "colorMode": "value",
+              "justifyMode": "auto",
+              "textMode": "auto",
+              "wideLayout": true,
+              "showPercentChange": false,
+              "reduceOptions": {
+                "calcs": [
+                  "lastNotNull"
+                ]
+              },
+              "percentChangeColorMode": "standard",
+              "orientation": ""
+            },
+            "fieldConfig": {
+              "defaults": {
+                "unit": "percent",
+                "thresholds": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "value": null,
+                      "color": "red"
+                    },
+                    {
+                      "value": 90,
+                      "color": "yellow"
+                    },
+                    {
+                      "value": 99,
+                      "color": "green"
+                    }
+                  ]
+                }
+              },
+              "overrides": []
+            }
+          }
+        }
+      }
+    },
+    "cpu-vs-io": {
+      "kind": "Panel",
+      "spec": {
+        "id": 1212887086,
+        "title": "Time split: CPU vs I/O wait",
+        "description": "",
+        "links": [],
+        "data": {
+          "kind": "QueryGroup",
+          "spec": {
+            "queries": [
+              {
+                "kind": "PanelQuery",
+                "spec": {
+                  "query": {
+                    "kind": "DataQuery",
+                    "group": "grafana-clickhouse-datasource",
+                    "version": "v0",
+                    "datasource": {
+                      "name": "clickhouse"
+                    },
+                    "spec": {
+                      "editorType": "sql",
+                      "format": 0,
+                      "queryType": "timeseries",
+                      "rawSql": "SELECT $__timeInterval(ts) AS time, avg(cpu_user_time_us + cpu_sys_time_us) / 1000 AS cpu_ms, avg(shared_blk_read_time_us + shared_blk_write_time_us + temp_blk_read_time_us + temp_blk_write_time_us) / 1000 AS io_wait_ms, avg(duration_us) / 1000 AS duration_ms FROM pg_stat_ch.events_raw WHERE $__timeFilter(ts) AND db_name IN (${db_name:singlequote}) AND app IN (${app:singlequote}) GROUP BY time ORDER BY time"
+                    }
+                  },
+                  "refId": "A",
+                  "hidden": false
+                }
+              }
+            ],
+            "transformations": [],
+            "queryOptions": {}
+          }
+        },
+        "vizConfig": {
+          "kind": "VizConfig",
+          "group": "timeseries",
+          "version": "",
+          "spec": {
+            "options": {
+              "legend": {
+                "displayMode": "list",
+                "placement": "bottom",
+                "showLegend": false,
+                "calcs": []
+              },
+              "tooltip": {
+                "mode": "",
+                "sort": ""
+              }
+            },
+            "fieldConfig": {
+              "defaults": {
+                "unit": "ms",
+                "custom": {}
+              },
+              "overrides": []
+            }
+          }
+        }
+      }
+    },
+    "error-rate": {
+      "kind": "Panel",
+      "spec": {
+        "id": 1252745638,
+        "title": "Error rate",
+        "description": "",
+        "links": [],
+        "data": {
+          "kind": "QueryGroup",
+          "spec": {
+            "queries": [
+              {
+                "kind": "PanelQuery",
+                "spec": {
+                  "query": {
+                    "kind": "DataQuery",
+                    "group": "grafana-clickhouse-datasource",
+                    "version": "v0",
+                    "datasource": {
+                      "name": "clickhouse"
+                    },
+                    "spec": {
+                      "editorType": "sql",
+                      "format": 1,
+                      "queryType": "table",
+                      "rawSql": "SELECT 100.0 * countIf(err_elevel \u003e 0) / greatest(count(), 1) AS error_pct FROM pg_stat_ch.events_raw WHERE $__timeFilter(ts) AND db_name IN (${db_name:singlequote}) AND app IN (${app:singlequote})"
+                    }
+                  },
+                  "refId": "A",
+                  "hidden": false
+                }
+              }
+            ],
+            "transformations": [],
+            "queryOptions": {}
+          }
+        },
+        "vizConfig": {
+          "kind": "VizConfig",
+          "group": "stat",
+          "version": "",
+          "spec": {
+            "options": {
+              "graphMode": "area",
+              "colorMode": "value",
+              "justifyMode": "auto",
+              "textMode": "auto",
+              "wideLayout": true,
+              "showPercentChange": false,
+              "reduceOptions": {
+                "calcs": [
+                  "lastNotNull"
+                ]
+              },
+              "percentChangeColorMode": "standard",
+              "orientation": ""
+            },
+            "fieldConfig": {
+              "defaults": {
+                "unit": "percent",
+                "thresholds": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "value": null,
+                      "color": "green"
+                    },
+                    {
+                      "value": 1,
+                      "color": "yellow"
+                    },
+                    {
+                      "value": 5,
+                      "color": "red"
+                    }
+                  ]
+                }
+              },
+              "overrides": []
+            }
+          }
+        }
+      }
+    },
+    "errors-by-sqlstate": {
+      "kind": "Panel",
+      "spec": {
+        "id": 1784475442,
+        "title": "Errors/s by SQLSTATE",
+        "description": "",
+        "links": [],
+        "data": {
+          "kind": "QueryGroup",
+          "spec": {
+            "queries": [
+              {
+                "kind": "PanelQuery",
+                "spec": {
+                  "query": {
+                    "kind": "DataQuery",
+                    "group": "grafana-clickhouse-datasource",
+                    "version": "v0",
+                    "datasource": {
+                      "name": "clickhouse"
+                    },
+                    "spec": {
+                      "editorType": "sql",
+                      "format": 0,
+                      "queryType": "timeseries",
+                      "rawSql": "SELECT $__timeInterval(ts) AS time, err_sqlstate, count() / $__interval_s AS eps FROM pg_stat_ch.events_raw WHERE $__timeFilter(ts) AND db_name IN (${db_name:singlequote}) AND app IN (${app:singlequote}) AND err_elevel \u003e 0 GROUP BY time, err_sqlstate ORDER BY time"
+                    }
+                  },
+                  "refId": "A",
+                  "hidden": false
+                }
+              }
+            ],
+            "transformations": [],
+            "queryOptions": {}
+          }
+        },
+        "vizConfig": {
+          "kind": "VizConfig",
+          "group": "timeseries",
+          "version": "",
+          "spec": {
+            "options": {
+              "legend": {
+                "displayMode": "list",
+                "placement": "bottom",
+                "showLegend": false,
+                "calcs": []
+              },
+              "tooltip": {
+                "mode": "",
+                "sort": ""
+              }
+            },
+            "fieldConfig": {
+              "defaults": {
+                "unit": "reqps",
+                "custom": {}
+              },
+              "overrides": []
+            }
+          }
+        }
+      }
+    },
+    "events-flow": {
+      "kind": "Panel",
+      "spec": {
+        "id": 538306183,
+        "title": "Events: enqueued / exported / dropped per second",
+        "description": "",
+        "links": [],
+        "data": {
+          "kind": "QueryGroup",
+          "spec": {
+            "queries": [
+              {
+                "kind": "PanelQuery",
+                "spec": {
+                  "query": {
+                    "kind": "DataQuery",
+                    "group": "prometheus",
+                    "version": "v0",
+                    "datasource": {
+                      "name": "prometheus"
+                    },
+                    "spec": {
+                      "expr": "sum by (cnpg_io_cluster) (rate(cnpg_pg_stat_ch_enqueued_events[5m]))",
+                      "legendFormat": "{{cnpg_io_cluster}} enqueued",
+                      "range": true
+                    }
+                  },
+                  "refId": "A",
+                  "hidden": false
+                }
+              },
+              {
+                "kind": "PanelQuery",
+                "spec": {
+                  "query": {
+                    "kind": "DataQuery",
+                    "group": "prometheus",
+                    "version": "v0",
+                    "datasource": {
+                      "name": "prometheus"
+                    },
+                    "spec": {
+                      "expr": "sum by (cnpg_io_cluster) (rate(cnpg_pg_stat_ch_exported_events[5m]))",
+                      "legendFormat": "{{cnpg_io_cluster}} exported",
+                      "range": true
+                    }
+                  },
+                  "refId": "B",
+                  "hidden": false
+                }
+              },
+              {
+                "kind": "PanelQuery",
+                "spec": {
+                  "query": {
+                    "kind": "DataQuery",
+                    "group": "prometheus",
+                    "version": "v0",
+                    "datasource": {
+                      "name": "prometheus"
+                    },
+                    "spec": {
+                      "expr": "sum by (cnpg_io_cluster) (rate(cnpg_pg_stat_ch_dropped_events[5m]))",
+                      "legendFormat": "{{cnpg_io_cluster}} dropped",
+                      "range": true
+                    }
+                  },
+                  "refId": "C",
+                  "hidden": false
+                }
+              }
+            ],
+            "transformations": [],
+            "queryOptions": {}
+          }
+        },
+        "vizConfig": {
+          "kind": "VizConfig",
+          "group": "timeseries",
+          "version": "",
+          "spec": {
+            "options": {
+              "legend": {
+                "displayMode": "list",
+                "placement": "bottom",
+                "showLegend": false,
+                "calcs": []
+              },
+              "tooltip": {
+                "mode": "",
+                "sort": ""
+              }
+            },
+            "fieldConfig": {
+              "defaults": {
+                "unit": "reqps",
+                "custom": {}
+              },
+              "overrides": []
+            }
+          }
+        }
+      }
+    },
+    "intro": {
+      "kind": "Panel",
+      "spec": {
+        "id": 775786673,
+        "title": "",
+        "description": "",
+        "links": [],
+        "data": {
+          "kind": "QueryGroup",
+          "spec": {
+            "queries": [],
+            "transformations": [],
+            "queryOptions": {}
+          }
+        },
+        "vizConfig": {
+          "kind": "VizConfig",
+          "group": "text",
+          "version": "",
+          "spec": {
+            "options": {
+              "mode": "markdown",
+              "content": "### PostgreSQL — Query telemetry (pg_stat_ch)\nOne event **per statement execution** from `platform-db` and `product-db`, shipped by the `pg_stat_ch` extension into ClickHouse `pg_stat_ch.events_raw` (7 days hot, 90 days total). This answers what `pg_stat_statements` cannot: **server-side p50/p95/p99 over time**, errors by SQLSTATE, per-app/role load, and *what changed between two moments*. `db_name` is the cluster key (every database name is unique across clusters). Under overload the ring **drops, never queues** — check the exporter-health row before trusting a dip."
+            },
+            "fieldConfig": {
+              "defaults": {},
+              "overrides": []
+            }
+          }
+        }
+      }
+    },
+    "latency-percentiles": {
+      "kind": "Panel",
+      "spec": {
+        "id": 168152284,
+        "title": "Statement latency percentiles",
+        "description": "",
+        "links": [],
+        "data": {
+          "kind": "QueryGroup",
+          "spec": {
+            "queries": [
+              {
+                "kind": "PanelQuery",
+                "spec": {
+                  "query": {
+                    "kind": "DataQuery",
+                    "group": "grafana-clickhouse-datasource",
+                    "version": "v0",
+                    "datasource": {
+                      "name": "clickhouse"
+                    },
+                    "spec": {
+                      "editorType": "sql",
+                      "format": 0,
+                      "queryType": "timeseries",
+                      "rawSql": "SELECT $__timeInterval(ts) AS time, quantile(0.5)(duration_us) / 1000 AS p50_ms, quantile(0.95)(duration_us) / 1000 AS p95_ms, quantile(0.99)(duration_us) / 1000 AS p99_ms FROM pg_stat_ch.events_raw WHERE $__timeFilter(ts) AND db_name IN (${db_name:singlequote}) AND app IN (${app:singlequote}) GROUP BY time ORDER BY time"
+                    }
+                  },
+                  "refId": "A",
+                  "hidden": false
+                }
+              }
+            ],
+            "transformations": [],
+            "queryOptions": {}
+          }
+        },
+        "vizConfig": {
+          "kind": "VizConfig",
+          "group": "timeseries",
+          "version": "",
+          "spec": {
+            "options": {
+              "legend": {
+                "displayMode": "list",
+                "placement": "bottom",
+                "showLegend": false,
+                "calcs": []
+              },
+              "tooltip": {
+                "mode": "",
+                "sort": ""
+              }
+            },
+            "fieldConfig": {
+              "defaults": {
+                "unit": "ms",
+                "custom": {}
+              },
+              "overrides": []
+            }
+          }
+        }
+      }
+    },
+    "p50": {
+      "kind": "Panel",
+      "spec": {
+        "id": 772906810,
+        "title": "p50 latency",
+        "description": "",
+        "links": [],
+        "data": {
+          "kind": "QueryGroup",
+          "spec": {
+            "queries": [
+              {
+                "kind": "PanelQuery",
+                "spec": {
+                  "query": {
+                    "kind": "DataQuery",
+                    "group": "grafana-clickhouse-datasource",
+                    "version": "v0",
+                    "datasource": {
+                      "name": "clickhouse"
+                    },
+                    "spec": {
+                      "editorType": "sql",
+                      "format": 1,
+                      "queryType": "table",
+                      "rawSql": "SELECT quantile(0.5)(duration_us) / 1000 AS p50_ms FROM pg_stat_ch.events_raw WHERE $__timeFilter(ts) AND db_name IN (${db_name:singlequote}) AND app IN (${app:singlequote})"
+                    }
+                  },
+                  "refId": "A",
+                  "hidden": false
+                }
+              }
+            ],
+            "transformations": [],
+            "queryOptions": {}
+          }
+        },
+        "vizConfig": {
+          "kind": "VizConfig",
+          "group": "stat",
+          "version": "",
+          "spec": {
+            "options": {
+              "graphMode": "area",
+              "colorMode": "value",
+              "justifyMode": "auto",
+              "textMode": "auto",
+              "wideLayout": true,
+              "showPercentChange": false,
+              "reduceOptions": {
+                "calcs": [
+                  "lastNotNull"
+                ]
+              },
+              "percentChangeColorMode": "standard",
+              "orientation": ""
+            },
+            "fieldConfig": {
+              "defaults": {
+                "unit": "ms",
+                "thresholds": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "value": null,
+                      "color": "green"
+                    },
+                    {
+                      "value": 50,
+                      "color": "yellow"
+                    },
+                    {
+                      "value": 250,
+                      "color": "orange"
+                    },
+                    {
+                      "value": 1000,
+                      "color": "red"
+                    }
+                  ]
+                }
+              },
+              "overrides": []
+            }
+          }
+        }
+      }
+    },
+    "p95": {
+      "kind": "Panel",
+      "spec": {
+        "id": 453492085,
+        "title": "p95 latency",
+        "description": "",
+        "links": [],
+        "data": {
+          "kind": "QueryGroup",
+          "spec": {
+            "queries": [
+              {
+                "kind": "PanelQuery",
+                "spec": {
+                  "query": {
+                    "kind": "DataQuery",
+                    "group": "grafana-clickhouse-datasource",
+                    "version": "v0",
+                    "datasource": {
+                      "name": "clickhouse"
+                    },
+                    "spec": {
+                      "editorType": "sql",
+                      "format": 1,
+                      "queryType": "table",
+                      "rawSql": "SELECT quantile(0.95)(duration_us) / 1000 AS p95_ms FROM pg_stat_ch.events_raw WHERE $__timeFilter(ts) AND db_name IN (${db_name:singlequote}) AND app IN (${app:singlequote})"
+                    }
+                  },
+                  "refId": "A",
+                  "hidden": false
+                }
+              }
+            ],
+            "transformations": [],
+            "queryOptions": {}
+          }
+        },
+        "vizConfig": {
+          "kind": "VizConfig",
+          "group": "stat",
+          "version": "",
+          "spec": {
+            "options": {
+              "graphMode": "area",
+              "colorMode": "value",
+              "justifyMode": "auto",
+              "textMode": "auto",
+              "wideLayout": true,
+              "showPercentChange": false,
+              "reduceOptions": {
+                "calcs": [
+                  "lastNotNull"
+                ]
+              },
+              "percentChangeColorMode": "standard",
+              "orientation": ""
+            },
+            "fieldConfig": {
+              "defaults": {
+                "unit": "ms",
+                "thresholds": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "value": null,
+                      "color": "green"
+                    },
+                    {
+                      "value": 50,
+                      "color": "yellow"
+                    },
+                    {
+                      "value": 250,
+                      "color": "orange"
+                    },
+                    {
+                      "value": 1000,
+                      "color": "red"
+                    }
+                  ]
+                }
+              },
+              "overrides": []
+            }
+          }
+        }
+      }
+    },
+    "p95-by-database": {
+      "kind": "Panel",
+      "spec": {
+        "id": 1689011589,
+        "title": "p95 latency by database",
+        "description": "",
+        "links": [],
+        "data": {
+          "kind": "QueryGroup",
+          "spec": {
+            "queries": [
+              {
+                "kind": "PanelQuery",
+                "spec": {
+                  "query": {
+                    "kind": "DataQuery",
+                    "group": "grafana-clickhouse-datasource",
+                    "version": "v0",
+                    "datasource": {
+                      "name": "clickhouse"
+                    },
+                    "spec": {
+                      "editorType": "sql",
+                      "format": 0,
+                      "queryType": "timeseries",
+                      "rawSql": "SELECT $__timeInterval(ts) AS time, db_name, quantile(0.95)(duration_us) / 1000 AS p95_ms FROM pg_stat_ch.events_raw WHERE $__timeFilter(ts) AND db_name IN (${db_name:singlequote}) AND app IN (${app:singlequote}) GROUP BY time, db_name ORDER BY time"
+                    }
+                  },
+                  "refId": "A",
+                  "hidden": false
+                }
+              }
+            ],
+            "transformations": [],
+            "queryOptions": {}
+          }
+        },
+        "vizConfig": {
+          "kind": "VizConfig",
+          "group": "timeseries",
+          "version": "",
+          "spec": {
+            "options": {
+              "legend": {
+                "displayMode": "list",
+                "placement": "bottom",
+                "showLegend": false,
+                "calcs": []
+              },
+              "tooltip": {
+                "mode": "",
+                "sort": ""
+              }
+            },
+            "fieldConfig": {
+              "defaults": {
+                "unit": "ms",
+                "custom": {}
+              },
+              "overrides": []
+            }
+          }
+        }
+      }
+    },
+    "p99": {
+      "kind": "Panel",
+      "spec": {
+        "id": 520602561,
+        "title": "p99 latency",
+        "description": "",
+        "links": [],
+        "data": {
+          "kind": "QueryGroup",
+          "spec": {
+            "queries": [
+              {
+                "kind": "PanelQuery",
+                "spec": {
+                  "query": {
+                    "kind": "DataQuery",
+                    "group": "grafana-clickhouse-datasource",
+                    "version": "v0",
+                    "datasource": {
+                      "name": "clickhouse"
+                    },
+                    "spec": {
+                      "editorType": "sql",
+                      "format": 1,
+                      "queryType": "table",
+                      "rawSql": "SELECT quantile(0.99)(duration_us) / 1000 AS p99_ms FROM pg_stat_ch.events_raw WHERE $__timeFilter(ts) AND db_name IN (${db_name:singlequote}) AND app IN (${app:singlequote})"
+                    }
+                  },
+                  "refId": "A",
+                  "hidden": false
+                }
+              }
+            ],
+            "transformations": [],
+            "queryOptions": {}
+          }
+        },
+        "vizConfig": {
+          "kind": "VizConfig",
+          "group": "stat",
+          "version": "",
+          "spec": {
+            "options": {
+              "graphMode": "area",
+              "colorMode": "value",
+              "justifyMode": "auto",
+              "textMode": "auto",
+              "wideLayout": true,
+              "showPercentChange": false,
+              "reduceOptions": {
+                "calcs": [
+                  "lastNotNull"
+                ]
+              },
+              "percentChangeColorMode": "standard",
+              "orientation": ""
+            },
+            "fieldConfig": {
+              "defaults": {
+                "unit": "ms",
+                "thresholds": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "value": null,
+                      "color": "green"
+                    },
+                    {
+                      "value": 50,
+                      "color": "yellow"
+                    },
+                    {
+                      "value": 250,
+                      "color": "orange"
+                    },
+                    {
+                      "value": 1000,
+                      "color": "red"
+                    }
+                  ]
+                }
+              },
+              "overrides": []
+            }
+          }
+        }
+      }
+    },
+    "rate-by-application": {
+      "kind": "Panel",
+      "spec": {
+        "id": 251071556,
+        "title": "Statements/s by application",
+        "description": "",
+        "links": [],
+        "data": {
+          "kind": "QueryGroup",
+          "spec": {
+            "queries": [
+              {
+                "kind": "PanelQuery",
+                "spec": {
+                  "query": {
+                    "kind": "DataQuery",
+                    "group": "grafana-clickhouse-datasource",
+                    "version": "v0",
+                    "datasource": {
+                      "name": "clickhouse"
+                    },
+                    "spec": {
+                      "editorType": "sql",
+                      "format": 0,
+                      "queryType": "timeseries",
+                      "rawSql": "SELECT $__timeInterval(ts) AS time, app, count() / $__interval_s AS rps FROM pg_stat_ch.events_raw WHERE $__timeFilter(ts) AND db_name IN (${db_name:singlequote}) AND app IN (${app:singlequote}) GROUP BY time, app ORDER BY time"
+                    }
+                  },
+                  "refId": "A",
+                  "hidden": false
+                }
+              }
+            ],
+            "transformations": [],
+            "queryOptions": {}
+          }
+        },
+        "vizConfig": {
+          "kind": "VizConfig",
+          "group": "timeseries",
+          "version": "",
+          "spec": {
+            "options": {
+              "legend": {
+                "displayMode": "list",
+                "placement": "bottom",
+                "showLegend": false,
+                "calcs": []
+              },
+              "tooltip": {
+                "mode": "",
+                "sort": ""
+              }
+            },
+            "fieldConfig": {
+              "defaults": {
+                "unit": "reqps",
+                "custom": {}
+              },
+              "overrides": []
+            }
+          }
+        }
+      }
+    },
+    "rate-by-database": {
+      "kind": "Panel",
+      "spec": {
+        "id": 144830675,
+        "title": "Statements/s by database",
+        "description": "",
+        "links": [],
+        "data": {
+          "kind": "QueryGroup",
+          "spec": {
+            "queries": [
+              {
+                "kind": "PanelQuery",
+                "spec": {
+                  "query": {
+                    "kind": "DataQuery",
+                    "group": "grafana-clickhouse-datasource",
+                    "version": "v0",
+                    "datasource": {
+                      "name": "clickhouse"
+                    },
+                    "spec": {
+                      "editorType": "sql",
+                      "format": 0,
+                      "queryType": "timeseries",
+                      "rawSql": "SELECT $__timeInterval(ts) AS time, db_name, count() / $__interval_s AS rps FROM pg_stat_ch.events_raw WHERE $__timeFilter(ts) AND db_name IN (${db_name:singlequote}) AND app IN (${app:singlequote}) GROUP BY time, db_name ORDER BY time"
+                    }
+                  },
+                  "refId": "A",
+                  "hidden": false
+                }
+              }
+            ],
+            "transformations": [],
+            "queryOptions": {}
+          }
+        },
+        "vizConfig": {
+          "kind": "VizConfig",
+          "group": "timeseries",
+          "version": "",
+          "spec": {
+            "options": {
+              "legend": {
+                "displayMode": "list",
+                "placement": "bottom",
+                "showLegend": false,
+                "calcs": []
+              },
+              "tooltip": {
+                "mode": "",
+                "sort": ""
+              }
+            },
+            "fieldConfig": {
+              "defaults": {
+                "unit": "reqps",
+                "custom": {}
+              },
+              "overrides": []
+            }
+          }
+        }
+      }
+    },
+    "rate-by-operation": {
+      "kind": "Panel",
+      "spec": {
+        "id": 1871078627,
+        "title": "Statements/s by operation",
+        "description": "",
+        "links": [],
+        "data": {
+          "kind": "QueryGroup",
+          "spec": {
+            "queries": [
+              {
+                "kind": "PanelQuery",
+                "spec": {
+                  "query": {
+                    "kind": "DataQuery",
+                    "group": "grafana-clickhouse-datasource",
+                    "version": "v0",
+                    "datasource": {
+                      "name": "clickhouse"
+                    },
+                    "spec": {
+                      "editorType": "sql",
+                      "format": 0,
+                      "queryType": "timeseries",
+                      "rawSql": "SELECT $__timeInterval(ts) AS time, db_operation, count() / $__interval_s AS rps FROM pg_stat_ch.events_raw WHERE $__timeFilter(ts) AND db_name IN (${db_name:singlequote}) AND app IN (${app:singlequote}) GROUP BY time, db_operation ORDER BY time"
+                    }
+                  },
+                  "refId": "A",
+                  "hidden": false
+                }
+              }
+            ],
+            "transformations": [],
+            "queryOptions": {}
+          }
+        },
+        "vizConfig": {
+          "kind": "VizConfig",
+          "group": "timeseries",
+          "version": "",
+          "spec": {
+            "options": {
+              "legend": {
+                "displayMode": "list",
+                "placement": "bottom",
+                "showLegend": false,
+                "calcs": []
+              },
+              "tooltip": {
+                "mode": "",
+                "sort": ""
+              }
+            },
+            "fieldConfig": {
+              "defaults": {
+                "unit": "reqps",
+                "custom": {}
+              },
+              "overrides": []
+            }
+          }
+        }
+      }
+    },
+    "recent-errors": {
+      "kind": "Panel",
+      "spec": {
+        "id": 232440090,
+        "title": "Recent errors",
+        "description": "",
+        "links": [],
+        "data": {
+          "kind": "QueryGroup",
+          "spec": {
+            "queries": [
+              {
+                "kind": "PanelQuery",
+                "spec": {
+                  "query": {
+                    "kind": "DataQuery",
+                    "group": "grafana-clickhouse-datasource",
+                    "version": "v0",
+                    "datasource": {
+                      "name": "clickhouse"
+                    },
+                    "spec": {
+                      "editorType": "sql",
+                      "format": 1,
+                      "queryType": "table",
+                      "rawSql": "SELECT ts, db_name, app, db_user, err_sqlstate, err_elevel, err_message, query_text, client_addr FROM pg_stat_ch.errors_recent WHERE $__timeFilter(ts) AND db_name IN (${db_name:singlequote}) AND app IN (${app:singlequote}) ORDER BY ts DESC LIMIT 100"
+                    }
+                  },
+                  "refId": "A",
+                  "hidden": false
+                }
+              }
+            ],
+            "transformations": [],
+            "queryOptions": {}
+          }
+        },
+        "vizConfig": {
+          "kind": "VizConfig",
+          "group": "table",
+          "version": "",
+          "spec": {
+            "options": {
+              "frameIndex": 0,
+              "showHeader": true,
+              "showTypeIcons": false,
+              "footer": {
+                "show": false,
+                "reducer": null,
+                "countRows": false
+              },
+              "cellHeight": "sm"
+            },
+            "fieldConfig": {
+              "defaults": {
+                "custom": {
+                  "align": "auto",
+                  "inspect": false
+                }
+              },
+              "overrides": [
+                {
+                  "matcher": {
+                    "id": "byName",
+                    "options": "err_message"
+                  },
+                  "properties": [
+                    {
+                      "id": "custom.width",
+                      "value": 380
+                    }
+                  ]
+                },
+                {
+                  "matcher": {
+                    "id": "byName",
+                    "options": "query_text"
+                  },
+                  "properties": [
+                    {
+                      "id": "custom.width",
+                      "value": 380
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    "send-failures": {
+      "kind": "Panel",
+      "spec": {
+        "id": 1919503245,
+        "title": "Send failures (5m) and ring usage %",
+        "description": "",
+        "links": [],
+        "data": {
+          "kind": "QueryGroup",
+          "spec": {
+            "queries": [
+              {
+                "kind": "PanelQuery",
+                "spec": {
+                  "query": {
+                    "kind": "DataQuery",
+                    "group": "prometheus",
+                    "version": "v0",
+                    "datasource": {
+                      "name": "prometheus"
+                    },
+                    "spec": {
+                      "expr": "sum by (cnpg_io_cluster) (increase(cnpg_pg_stat_ch_send_failures[5m]))",
+                      "legendFormat": "{{cnpg_io_cluster}} send failures / 5m",
+                      "range": true
+                    }
+                  },
+                  "refId": "A",
+                  "hidden": false
+                }
+              },
+              {
+                "kind": "PanelQuery",
+                "spec": {
+                  "query": {
+                    "kind": "DataQuery",
+                    "group": "prometheus",
+                    "version": "v0",
+                    "datasource": {
+                      "name": "prometheus"
+                    },
+                    "spec": {
+                      "expr": "max by (cnpg_io_cluster, pod) (cnpg_pg_stat_ch_queue_usage_pct)",
+                      "legendFormat": "{{pod}} ring %",
+                      "range": true
+                    }
+                  },
+                  "refId": "B",
+                  "hidden": false
+                }
+              }
+            ],
+            "transformations": [],
+            "queryOptions": {}
+          }
+        },
+        "vizConfig": {
+          "kind": "VizConfig",
+          "group": "timeseries",
+          "version": "",
+          "spec": {
+            "options": {
+              "legend": {
+                "displayMode": "list",
+                "placement": "bottom",
+                "showLegend": false,
+                "calcs": []
+              },
+              "tooltip": {
+                "mode": "",
+                "sort": ""
+              }
+            },
+            "fieldConfig": {
+              "defaults": {
+                "unit": "short",
+                "custom": {}
+              },
+              "overrides": []
+            }
+          }
+        }
+      }
+    },
+    "slowest-executions": {
+      "kind": "Panel",
+      "spec": {
+        "id": 1748977020,
+        "title": "Slowest individual executions",
+        "description": "",
+        "links": [],
+        "data": {
+          "kind": "QueryGroup",
+          "spec": {
+            "queries": [
+              {
+                "kind": "PanelQuery",
+                "spec": {
+                  "query": {
+                    "kind": "DataQuery",
+                    "group": "grafana-clickhouse-datasource",
+                    "version": "v0",
+                    "datasource": {
+                      "name": "clickhouse"
+                    },
+                    "spec": {
+                      "editorType": "sql",
+                      "format": 1,
+                      "queryType": "table",
+                      "rawSql": "SELECT ts, db_name, app, db_user, pid, query_id, round(duration_us / 1000, 2) AS duration_ms, rows, shared_blks_read, query_text FROM pg_stat_ch.events_raw WHERE $__timeFilter(ts) AND db_name IN (${db_name:singlequote}) AND app IN (${app:singlequote}) ORDER BY duration_us DESC LIMIT 25"
+                    }
+                  },
+                  "refId": "A",
+                  "hidden": false
+                }
+              }
+            ],
+            "transformations": [],
+            "queryOptions": {}
+          }
+        },
+        "vizConfig": {
+          "kind": "VizConfig",
+          "group": "table",
+          "version": "",
+          "spec": {
+            "options": {
+              "frameIndex": 0,
+              "showHeader": true,
+              "showTypeIcons": false,
+              "footer": {
+                "show": false,
+                "reducer": null,
+                "countRows": false
+              },
+              "cellHeight": "sm"
+            },
+            "fieldConfig": {
+              "defaults": {
+                "custom": {
+                  "align": "auto",
+                  "inspect": false
+                }
+              },
+              "overrides": [
+                {
+                  "matcher": {
+                    "id": "byName",
+                    "options": "duration_ms"
+                  },
+                  "properties": [
+                    {
+                      "id": "unit",
+                      "value": "ms"
+                    },
+                    {
+                      "id": "custom.cellOptions",
+                      "value": {
+                        "mode": "gradient",
+                        "type": "gauge"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "matcher": {
+                    "id": "byName",
+                    "options": "query_text"
+                  },
+                  "properties": [
+                    {
+                      "id": "custom.width",
+                      "value": 300
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    "statements-per-s": {
+      "kind": "Panel",
+      "spec": {
+        "id": 1600514481,
+        "title": "Statements/s",
+        "description": "",
+        "links": [],
+        "data": {
+          "kind": "QueryGroup",
+          "spec": {
+            "queries": [
+              {
+                "kind": "PanelQuery",
+                "spec": {
+                  "query": {
+                    "kind": "DataQuery",
+                    "group": "grafana-clickhouse-datasource",
+                    "version": "v0",
+                    "datasource": {
+                      "name": "clickhouse"
+                    },
+                    "spec": {
+                      "editorType": "sql",
+                      "format": 1,
+                      "queryType": "table",
+                      "rawSql": "SELECT count() / greatest(dateDiff('second', $__fromTime, $__toTime), 1) AS statements_per_s FROM pg_stat_ch.events_raw WHERE $__timeFilter(ts) AND db_name IN (${db_name:singlequote}) AND app IN (${app:singlequote})"
+                    }
+                  },
+                  "refId": "A",
+                  "hidden": false
+                }
+              }
+            ],
+            "transformations": [],
+            "queryOptions": {}
+          }
+        },
+        "vizConfig": {
+          "kind": "VizConfig",
+          "group": "stat",
+          "version": "",
+          "spec": {
+            "options": {
+              "graphMode": "area",
+              "colorMode": "value",
+              "justifyMode": "auto",
+              "textMode": "auto",
+              "wideLayout": true,
+              "showPercentChange": false,
+              "reduceOptions": {
+                "calcs": [
+                  "lastNotNull"
+                ]
+              },
+              "percentChangeColorMode": "standard",
+              "orientation": ""
+            },
+            "fieldConfig": {
+              "defaults": {
+                "unit": "reqps",
+                "thresholds": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "value": null,
+                      "color": "blue"
+                    }
+                  ]
+                }
+              },
+              "overrides": []
+            }
+          }
+        }
+      }
+    },
+    "top-by-physical-reads": {
+      "kind": "Panel",
+      "spec": {
+        "id": 1075886860,
+        "title": "Top statements by physical reads",
+        "description": "",
+        "links": [],
+        "data": {
+          "kind": "QueryGroup",
+          "spec": {
+            "queries": [
+              {
+                "kind": "PanelQuery",
+                "spec": {
+                  "query": {
+                    "kind": "DataQuery",
+                    "group": "grafana-clickhouse-datasource",
+                    "version": "v0",
+                    "datasource": {
+                      "name": "clickhouse"
+                    },
+                    "spec": {
+                      "editorType": "sql",
+                      "format": 1,
+                      "queryType": "table",
+                      "rawSql": "SELECT query_id, db_name, count() AS calls, sum(shared_blks_read) AS blks_read, round(avg(shared_blks_read), 1) AS avg_blks_read, round(avg(duration_us) / 1000, 2) AS avg_ms, any(query_text) AS query_text FROM pg_stat_ch.events_raw WHERE $__timeFilter(ts) AND db_name IN (${db_name:singlequote}) AND app IN (${app:singlequote}) AND shared_blks_read \u003e 0 GROUP BY query_id, db_name ORDER BY blks_read DESC LIMIT 15"
+                    }
+                  },
+                  "refId": "A",
+                  "hidden": false
+                }
+              }
+            ],
+            "transformations": [],
+            "queryOptions": {}
+          }
+        },
+        "vizConfig": {
+          "kind": "VizConfig",
+          "group": "table",
+          "version": "",
+          "spec": {
+            "options": {
+              "frameIndex": 0,
+              "showHeader": true,
+              "showTypeIcons": false,
+              "footer": {
+                "show": false,
+                "reducer": null,
+                "countRows": false
+              },
+              "cellHeight": "sm"
+            },
+            "fieldConfig": {
+              "defaults": {
+                "custom": {
+                  "align": "auto",
+                  "inspect": false
+                }
+              },
+              "overrides": [
+                {
+                  "matcher": {
+                    "id": "byName",
+                    "options": "avg_ms"
+                  },
+                  "properties": [
+                    {
+                      "id": "unit",
+                      "value": "ms"
+                    }
+                  ]
+                },
+                {
+                  "matcher": {
+                    "id": "byName",
+                    "options": "query_text"
+                  },
+                  "properties": [
+                    {
+                      "id": "custom.width",
+                      "value": 360
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    "top-by-total-time": {
+      "kind": "Panel",
+      "spec": {
+        "id": 661790061,
+        "title": "Top statements by total time",
+        "description": "",
+        "links": [],
+        "data": {
+          "kind": "QueryGroup",
+          "spec": {
+            "queries": [
+              {
+                "kind": "PanelQuery",
+                "spec": {
+                  "query": {
+                    "kind": "DataQuery",
+                    "group": "grafana-clickhouse-datasource",
+                    "version": "v0",
+                    "datasource": {
+                      "name": "clickhouse"
+                    },
+                    "spec": {
+                      "editorType": "sql",
+                      "format": 1,
+                      "queryType": "table",
+                      "rawSql": "SELECT query_id, db_name, db_operation, countMerge(calls_state) AS calls, round(sumMerge(duration_sum_state) / 1e6, 2) AS total_s, round(100 * sumMerge(duration_sum_state) / (SELECT sumMerge(duration_sum_state) FROM pg_stat_ch.query_stats_5m WHERE $__timeFilter(bucket) AND db_name IN (${db_name:singlequote})), 2) AS pct_runtime, round(arrayElement(quantilesTDigestMerge(0.5, 0.95, 0.99)(duration_q_state), 1) / 1000, 2) AS p50_ms, round(arrayElement(quantilesTDigestMerge(0.5, 0.95, 0.99)(duration_q_state), 2) / 1000, 2) AS p95_ms, round(arrayElement(quantilesTDigestMerge(0.5, 0.95, 0.99)(duration_q_state), 3) / 1000, 2) AS p99_ms, sumMerge(errors_sum_state) AS errors, round(100.0 * sumMerge(shared_hit_sum_state) / greatest(sumMerge(shared_hit_sum_state) + sumMerge(shared_read_sum_state), 1), 1) AS hit_pct, anyMerge(query_text_state) AS query_text FROM pg_stat_ch.query_stats_5m WHERE $__timeFilter(bucket) AND db_name IN (${db_name:singlequote}) GROUP BY query_id, db_name, db_operation ORDER BY total_s DESC LIMIT 25"
+                    }
+                  },
+                  "refId": "A",
+                  "hidden": false
+                }
+              }
+            ],
+            "transformations": [],
+            "queryOptions": {}
+          }
+        },
+        "vizConfig": {
+          "kind": "VizConfig",
+          "group": "table",
+          "version": "",
+          "spec": {
+            "options": {
+              "frameIndex": 0,
+              "showHeader": true,
+              "showTypeIcons": false,
+              "footer": {
+                "show": false,
+                "reducer": null,
+                "countRows": false
+              },
+              "cellHeight": "sm"
+            },
+            "fieldConfig": {
+              "defaults": {
+                "custom": {
+                  "align": "auto",
+                  "inspect": false
+                }
+              },
+              "overrides": [
+                {
+                  "matcher": {
+                    "id": "byName",
+                    "options": "p95_ms"
+                  },
+                  "properties": [
+                    {
+                      "id": "unit",
+                      "value": "ms"
+                    },
+                    {
+                      "id": "custom.cellOptions",
+                      "value": {
+                        "mode": "gradient",
+                        "type": "gauge"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "matcher": {
+                    "id": "byName",
+                    "options": "p99_ms"
+                  },
+                  "properties": [
+                    {
+                      "id": "unit",
+                      "value": "ms"
+                    },
+                    {
+                      "id": "custom.cellOptions",
+                      "value": {
+                        "mode": "gradient",
+                        "type": "gauge"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "matcher": {
+                    "id": "byName",
+                    "options": "hit_pct"
+                  },
+                  "properties": [
+                    {
+                      "id": "unit",
+                      "value": "percent"
+                    },
+                    {
+                      "id": "custom.cellOptions",
+                      "value": {
+                        "mode": "gradient",
+                        "type": "gauge"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "matcher": {
+                    "id": "byName",
+                    "options": "query_text"
+                  },
+                  "properties": [
+                    {
+                      "id": "custom.width",
+                      "value": 520
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    "wal-and-temp": {
+      "kind": "Panel",
+      "spec": {
+        "id": 841456400,
+        "title": "WAL bytes/s and temp bytes/s",
+        "description": "",
+        "links": [],
+        "data": {
+          "kind": "QueryGroup",
+          "spec": {
+            "queries": [
+              {
+                "kind": "PanelQuery",
+                "spec": {
+                  "query": {
+                    "kind": "DataQuery",
+                    "group": "grafana-clickhouse-datasource",
+                    "version": "v0",
+                    "datasource": {
+                      "name": "clickhouse"
+                    },
+                    "spec": {
+                      "editorType": "sql",
+                      "format": 0,
+                      "queryType": "timeseries",
+                      "rawSql": "SELECT $__timeInterval(ts) AS time, sum(wal_bytes) / $__interval_s AS wal_bytes_per_s, sum(temp_blks_written) * 8192 / $__interval_s AS temp_bytes_per_s FROM pg_stat_ch.events_raw WHERE $__timeFilter(ts) AND db_name IN (${db_name:singlequote}) AND app IN (${app:singlequote}) GROUP BY time ORDER BY time"
+                    }
+                  },
+                  "refId": "A",
+                  "hidden": false
+                }
+              }
+            ],
+            "transformations": [],
+            "queryOptions": {}
+          }
+        },
+        "vizConfig": {
+          "kind": "VizConfig",
+          "group": "timeseries",
+          "version": "",
+          "spec": {
+            "options": {
+              "legend": {
+                "displayMode": "list",
+                "placement": "bottom",
+                "showLegend": false,
+                "calcs": []
+              },
+              "tooltip": {
+                "mode": "",
+                "sort": ""
+              }
+            },
+            "fieldConfig": {
+              "defaults": {
+                "unit": "Bps",
+                "custom": {}
+              },
+              "overrides": []
+            }
+          }
+        }
+      }
+    }
+  },
+  "layout": {
+    "kind": "RowsLayout",
+    "spec": {
+      "rows": [
+        {
+          "kind": "RowsLayoutRow",
+          "spec": {
+            "title": "Overview — health at a glance",
+            "layout": {
+              "kind": "GridLayout",
+              "spec": {
+                "items": [
+                  {
+                    "kind": "GridLayoutItem",
+                    "spec": {
+                      "x": 0,
+                      "y": 0,
+                      "width": 24,
+                      "height": 3,
+                      "element": {
+                        "kind": "ElementReference",
+                        "name": "intro"
+                      }
+                    }
+                  },
+                  {
+                    "kind": "GridLayoutItem",
+                    "spec": {
+                      "x": 0,
+                      "y": 3,
+                      "width": 4,
+                      "height": 5,
+                      "element": {
+                        "kind": "ElementReference",
+                        "name": "statements-per-s"
+                      }
+                    }
+                  },
+                  {
+                    "kind": "GridLayoutItem",
+                    "spec": {
+                      "x": 4,
+                      "y": 3,
+                      "width": 4,
+                      "height": 5,
+                      "element": {
+                        "kind": "ElementReference",
+                        "name": "p50"
+                      }
+                    }
+                  },
+                  {
+                    "kind": "GridLayoutItem",
+                    "spec": {
+                      "x": 8,
+                      "y": 3,
+                      "width": 4,
+                      "height": 5,
+                      "element": {
+                        "kind": "ElementReference",
+                        "name": "p95"
+                      }
+                    }
+                  },
+                  {
+                    "kind": "GridLayoutItem",
+                    "spec": {
+                      "x": 12,
+                      "y": 3,
+                      "width": 4,
+                      "height": 5,
+                      "element": {
+                        "kind": "ElementReference",
+                        "name": "p99"
+                      }
+                    }
+                  },
+                  {
+                    "kind": "GridLayoutItem",
+                    "spec": {
+                      "x": 16,
+                      "y": 3,
+                      "width": 4,
+                      "height": 5,
+                      "element": {
+                        "kind": "ElementReference",
+                        "name": "error-rate"
+                      }
+                    }
+                  },
+                  {
+                    "kind": "GridLayoutItem",
+                    "spec": {
+                      "x": 20,
+                      "y": 3,
+                      "width": 4,
+                      "height": 5,
+                      "element": {
+                        "kind": "ElementReference",
+                        "name": "buffer-hit"
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "kind": "RowsLayoutRow",
+          "spec": {
+            "title": "Traffic \u0026 errors",
+            "layout": {
+              "kind": "GridLayout",
+              "spec": {
+                "items": [
+                  {
+                    "kind": "GridLayoutItem",
+                    "spec": {
+                      "x": 0,
+                      "y": 0,
+                      "width": 12,
+                      "height": 8,
+                      "element": {
+                        "kind": "ElementReference",
+                        "name": "rate-by-operation"
+                      }
+                    }
+                  },
+                  {
+                    "kind": "GridLayoutItem",
+                    "spec": {
+                      "x": 12,
+                      "y": 0,
+                      "width": 12,
+                      "height": 8,
+                      "element": {
+                        "kind": "ElementReference",
+                        "name": "rate-by-database"
+                      }
+                    }
+                  },
+                  {
+                    "kind": "GridLayoutItem",
+                    "spec": {
+                      "x": 0,
+                      "y": 8,
+                      "width": 12,
+                      "height": 8,
+                      "element": {
+                        "kind": "ElementReference",
+                        "name": "errors-by-sqlstate"
+                      }
+                    }
+                  },
+                  {
+                    "kind": "GridLayoutItem",
+                    "spec": {
+                      "x": 12,
+                      "y": 8,
+                      "width": 12,
+                      "height": 8,
+                      "element": {
+                        "kind": "ElementReference",
+                        "name": "rate-by-application"
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "kind": "RowsLayoutRow",
+          "spec": {
+            "title": "Latency",
+            "layout": {
+              "kind": "GridLayout",
+              "spec": {
+                "items": [
+                  {
+                    "kind": "GridLayoutItem",
+                    "spec": {
+                      "x": 0,
+                      "y": 0,
+                      "width": 12,
+                      "height": 8,
+                      "element": {
+                        "kind": "ElementReference",
+                        "name": "latency-percentiles"
+                      }
+                    }
+                  },
+                  {
+                    "kind": "GridLayoutItem",
+                    "spec": {
+                      "x": 12,
+                      "y": 0,
+                      "width": 12,
+                      "height": 8,
+                      "element": {
+                        "kind": "ElementReference",
+                        "name": "p95-by-database"
+                      }
+                    }
+                  },
+                  {
+                    "kind": "GridLayoutItem",
+                    "spec": {
+                      "x": 0,
+                      "y": 8,
+                      "width": 12,
+                      "height": 8,
+                      "element": {
+                        "kind": "ElementReference",
+                        "name": "cpu-vs-io"
+                      }
+                    }
+                  },
+                  {
+                    "kind": "GridLayoutItem",
+                    "spec": {
+                      "x": 12,
+                      "y": 8,
+                      "width": 12,
+                      "height": 8,
+                      "element": {
+                        "kind": "ElementReference",
+                        "name": "wal-and-temp"
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "kind": "RowsLayoutRow",
+          "spec": {
+            "title": "Top statements (by fingerprint)",
+            "layout": {
+              "kind": "GridLayout",
+              "spec": {
+                "items": [
+                  {
+                    "kind": "GridLayoutItem",
+                    "spec": {
+                      "x": 0,
+                      "y": 0,
+                      "width": 24,
+                      "height": 11,
+                      "element": {
+                        "kind": "ElementReference",
+                        "name": "top-by-total-time"
+                      }
+                    }
+                  },
+                  {
+                    "kind": "GridLayoutItem",
+                    "spec": {
+                      "x": 0,
+                      "y": 11,
+                      "width": 12,
+                      "height": 9,
+                      "element": {
+                        "kind": "ElementReference",
+                        "name": "top-by-physical-reads"
+                      }
+                    }
+                  },
+                  {
+                    "kind": "GridLayoutItem",
+                    "spec": {
+                      "x": 12,
+                      "y": 11,
+                      "width": 12,
+                      "height": 9,
+                      "element": {
+                        "kind": "ElementReference",
+                        "name": "slowest-executions"
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "kind": "RowsLayoutRow",
+          "spec": {
+            "title": "Errors",
+            "layout": {
+              "kind": "GridLayout",
+              "spec": {
+                "items": [
+                  {
+                    "kind": "GridLayoutItem",
+                    "spec": {
+                      "x": 0,
+                      "y": 0,
+                      "width": 24,
+                      "height": 10,
+                      "element": {
+                        "kind": "ElementReference",
+                        "name": "recent-errors"
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "kind": "RowsLayoutRow",
+          "spec": {
+            "title": "Exporter health — is the picture complete? (cnpg_pg_stat_ch_*)",
+            "layout": {
+              "kind": "GridLayout",
+              "spec": {
+                "items": [
+                  {
+                    "kind": "GridLayoutItem",
+                    "spec": {
+                      "x": 0,
+                      "y": 0,
+                      "width": 12,
+                      "height": 8,
+                      "element": {
+                        "kind": "ElementReference",
+                        "name": "events-flow"
+                      }
+                    }
+                  },
+                  {
+                    "kind": "GridLayoutItem",
+                    "spec": {
+                      "x": 12,
+                      "y": 0,
+                      "width": 12,
+                      "height": 8,
+                      "element": {
+                        "kind": "ElementReference",
+                        "name": "send-failures"
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "links": [
+    {
+      "title": "CloudNativePG Cluster Overview",
+      "type": "link",
+      "icon": "dashboard",
+      "tooltip": "",
+      "url": "/d/cloudnative-pg",
+      "tags": [],
+      "asDropdown": false,
+      "targetBlank": false,
+      "includeVars": false,
+      "keepTime": false
+    },
+    {
+      "title": "Runbook: plan regression",
+      "type": "link",
+      "icon": "doc",
+      "tooltip": "",
+      "url": "https://github.com/duynhlab/homelab/blob/main/docs/observability/runbooks/postgresql/plan-regression-investigation.md",
+      "tags": [],
+      "asDropdown": false,
+      "targetBlank": true,
+      "includeVars": false,
+      "keepTime": false
+    }
+  ],
+  "preload": false,
+  "tags": [
+    "postgresql",
+    "cloudnative-pg",
+    "clickhouse",
+    "pg_stat_ch",
+    "generated",
+    "foundation-sdk"
+  ],
+  "timeSettings": {
+    "timezone": "browser",
+    "from": "now-3h",
+    "to": "now",
+    "autoRefresh": "30s",
+    "autoRefreshIntervals": [
+      "5s",
+      "10s",
+      "30s",
+      "1m",
+      "5m",
+      "15m",
+      "30m",
+      "1h",
+      "2h",
+      "1d"
+    ],
+    "hideTimepicker": false,
+    "fiscalYearStartMonth": 0
+  },
+  "title": "PostgreSQL — Query telemetry (pg_stat_ch)",
+  "variables": [
+    {
+      "kind": "QueryVariable",
+      "spec": {
+        "name": "db_name",
+        "current": {
+          "text": "All",
+          "value": "$__all"
+        },
+        "label": "Database",
+        "hide": "dontHide",
+        "refresh": "onDashboardLoad",
+        "skipUrlSync": false,
+        "query": {
+          "kind": "DataQuery",
+          "group": "grafana-clickhouse-datasource",
+          "version": "v0",
+          "datasource": {
+            "name": "clickhouse"
+          },
+          "spec": {
+            "editorType": "sql",
+            "format": 1,
+            "queryType": "table",
+            "rawSql": "SELECT DISTINCT db_name FROM pg_stat_ch.events_raw WHERE ts \u003e now() - INTERVAL 7 DAY ORDER BY db_name",
+            "refId": "A"
+          }
+        },
+        "regex": "",
+        "regexApplyTo": "value",
+        "sort": "alphabeticalAsc",
+        "definition": "SELECT DISTINCT db_name FROM pg_stat_ch.events_raw WHERE ts \u003e now() - INTERVAL 7 DAY ORDER BY db_name",
+        "options": [],
+        "multi": true,
+        "includeAll": true,
+        "allowCustomValue": false
+      }
+    },
+    {
+      "kind": "QueryVariable",
+      "spec": {
+        "name": "app",
+        "current": {
+          "text": "All",
+          "value": "$__all"
+        },
+        "label": "Application",
+        "hide": "dontHide",
+        "refresh": "onDashboardLoad",
+        "skipUrlSync": false,
+        "query": {
+          "kind": "DataQuery",
+          "group": "grafana-clickhouse-datasource",
+          "version": "v0",
+          "datasource": {
+            "name": "clickhouse"
+          },
+          "spec": {
+            "editorType": "sql",
+            "format": 1,
+            "queryType": "table",
+            "rawSql": "SELECT DISTINCT app FROM pg_stat_ch.events_raw WHERE ts \u003e now() - INTERVAL 7 DAY ORDER BY app",
+            "refId": "A"
+          }
+        },
+        "regex": "",
+        "regexApplyTo": "value",
+        "sort": "alphabeticalAsc",
+        "definition": "SELECT DISTINCT app FROM pg_stat_ch.events_raw WHERE ts \u003e now() - INTERVAL 7 DAY ORDER BY app",
+        "options": [],
+        "multi": true,
+        "includeAll": true,
+        "allowCustomValue": false
+      }
+    }
+  ]
+}
