@@ -106,3 +106,48 @@ func SingleQueryVar(name, label, definition string) *dashboardv2.QueryVariableBu
 		Refresh(dashboardv2.VariableRefreshOnDashboardLoad).
 		Sort(dashboardv2.VariableSortAlphabeticalAsc)
 }
+
+func option(text, value string) dashboardv2.VariableOption {
+	return dashboardv2.VariableOption{
+		Text:  dashboardv2.StringOrArrayOfString{String: &text},
+		Value: dashboardv2.StringOrArrayOfString{String: &value},
+	}
+}
+
+// TextVar builds a free-text box that starts empty. Queries reading it must
+// treat the empty string as "no filter chosen"; Grafana substitutes "" rather
+// than skipping the target.
+func TextVar(name, label string) *dashboardv2.TextVariableBuilder {
+	return dashboardv2.NewTextVariableBuilder(name).
+		Label(label).
+		Query("").
+		Current(option("", ""))
+}
+
+// Choice is one option of a custom variable: the text the reader sees and the
+// value substituted into queries.
+type Choice struct {
+	Text  string
+	Value string
+}
+
+// CustomVar builds a single-select variable over fixed choices, preselecting the
+// first. current is set explicitly for the same reason as QueryVar: an unset one
+// serialises as "" and Grafana reads that as a real selection.
+func CustomVar(name, label string, choices ...Choice) *dashboardv2.CustomVariableBuilder {
+	query := make([]string, 0, len(choices))
+	options := make([]dashboardv2.VariableOption, 0, len(choices))
+	for _, c := range choices {
+		query = append(query, c.Text+" : "+c.Value)
+		options = append(options, option(c.Text, c.Value))
+	}
+	b := dashboardv2.NewCustomVariableBuilder(name).
+		Label(label).
+		Query(strings.Join(query, ", ")).
+		Options(options).
+		AllowCustomValue(false)
+	if len(choices) > 0 {
+		b = b.Current(option(choices[0].Text, choices[0].Value))
+	}
+	return b
+}

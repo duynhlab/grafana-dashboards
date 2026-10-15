@@ -44,3 +44,27 @@ func Row(title string, items ...cog.Builder[dashboardv2.GridLayoutItemKind]) cog
 	}
 	return dashboardv2.Row(title).GridLayout(grid)
 }
+
+// described sets the panel description, the "i" tooltip beside the title. The
+// panel helpers return a cog.Builder, so the description is applied to the built
+// panel rather than threaded through every helper's signature.
+type described struct {
+	panel       cog.Builder[dashboardv2.PanelKind]
+	description string
+}
+
+func (d described) Build() (dashboardv2.PanelKind, error) {
+	p, err := d.panel.Build()
+	if err != nil {
+		return dashboardv2.PanelKind{}, err
+	}
+	p.Spec.Description = d.description
+	return p, nil
+}
+
+// Describe attaches a description to a panel built by any helper. Use it when a
+// panel can legitimately be empty, or when a column means something its name
+// does not say.
+func Describe(description string, panel cog.Builder[dashboardv2.PanelKind]) cog.Builder[dashboardv2.PanelKind] {
+	return described{panel: panel, description: description}
+}

@@ -57,3 +57,46 @@ func TestVariableQueryRejectsAnEmptyExpression(t *testing.T) {
 		t.Fatal("expected an empty variable expression to be rejected")
 	}
 }
+
+func TestTextVarStartsEmpty(t *testing.T) {
+	variable, err := TextVar("query_id", "query_id").Build()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if variable.Spec.Name != "query_id" || variable.Spec.Label == nil || *variable.Spec.Label != "query_id" {
+		t.Errorf("name=%q label=%v", variable.Spec.Name, variable.Spec.Label)
+	}
+	if got := variable.Spec.Current.Value.String; got == nil || *got != "" {
+		t.Errorf("current.value = %v, want empty", got)
+	}
+}
+
+func TestCustomVarPreselectsTheFirstChoice(t *testing.T) {
+	variable, err := CustomVar("scope", "Sessions",
+		Choice{Text: "Workload only", Value: "0"},
+		Choice{Text: "Include platform sessions", Value: "1"},
+	).Build()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if variable.Spec.Query != "Workload only : 0, Include platform sessions : 1" {
+		t.Errorf("query = %q", variable.Spec.Query)
+	}
+	if len(variable.Spec.Options) != 2 {
+		t.Fatalf("options = %d, want 2", len(variable.Spec.Options))
+	}
+	if got := variable.Spec.Current.Value.String; got == nil || *got != "0" {
+		t.Errorf("current.value = %v, want 0", got)
+	}
+	if variable.Spec.Multi || variable.Spec.IncludeAll || variable.Spec.AllowCustomValue {
+		t.Error("custom variable must be single-select with no custom values")
+	}
+
+	empty, err := CustomVar("none", "None").Build()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(empty.Spec.Options) != 0 {
+		t.Errorf("options = %d, want 0", len(empty.Spec.Options))
+	}
+}

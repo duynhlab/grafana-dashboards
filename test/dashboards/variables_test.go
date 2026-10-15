@@ -62,14 +62,26 @@ func TestQueryVariablesAreResolvable(t *testing.T) {
 			t.Fatalf("%s: marshal variables: %v", definition.UID, err)
 		}
 
-		var variables []variableSpec
-		if err := json.Unmarshal(body, &variables); err != nil {
+		// Other kinds (custom, textbox) carry query as a plain string, so only
+		// QueryVariable elements are decoded into variableSpec.
+		var raw []json.RawMessage
+		if err := json.Unmarshal(body, &raw); err != nil {
 			t.Fatalf("%s: unmarshal variables: %v", definition.UID, err)
 		}
 
-		for _, v := range variables {
-			if v.Kind != "QueryVariable" {
+		for _, element := range raw {
+			var kind struct {
+				Kind string `json:"kind"`
+			}
+			if err := json.Unmarshal(element, &kind); err != nil {
+				t.Fatalf("%s: unmarshal variable kind: %v", definition.UID, err)
+			}
+			if kind.Kind != "QueryVariable" {
 				continue
+			}
+			var v variableSpec
+			if err := json.Unmarshal(element, &v); err != nil {
+				t.Fatalf("%s: unmarshal variable: %v", definition.UID, err)
 			}
 			name := definition.UID + "/" + v.Spec.Name
 

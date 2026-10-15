@@ -20,12 +20,13 @@ func TestPGQueryTelemetry(t *testing.T) {
 		t.Fatalf("unexpected title: %s", dash.Title)
 	}
 
-	if len(dash.Variables) != 2 {
-		t.Fatalf("expected 2 variables, got %d", len(dash.Variables))
+	// db_name, app, scope (custom), query_id (textbox).
+	if len(dash.Variables) != 4 {
+		t.Fatalf("expected 4 variables, got %d", len(dash.Variables))
 	}
 
-	if len(dash.Elements) < 20 {
-		t.Fatalf("expected at least 20 panels, got %d", len(dash.Elements))
+	if len(dash.Elements) != 33 {
+		t.Fatalf("expected 33 panels, got %d", len(dash.Elements))
 	}
 
 	manifest, err := dashboardv2.Manifest("postgresql-query-telemetry", postgres.PGQueryTelemetry()).Build()
@@ -40,7 +41,9 @@ func TestPGQueryTelemetry(t *testing.T) {
 	if err != nil {
 		t.Fatalf("marshal: %v", err)
 	}
-	s := string(body)
+	// encoding/json escapes > and < inside the SQL strings; undo it so the
+	// needles read as SQL.
+	s := strings.NewReplacer(`\u003e`, ">", `\u003c`, "<").Replace(string(body))
 	for _, needle := range []string{
 		// ClickHouse targets are routed to the ClickHouse plugin and datasource.
 		`"group":"grafana-clickhouse-datasource"`,
@@ -50,15 +53,25 @@ func TestPGQueryTelemetry(t *testing.T) {
 		"FROM pg_stat_ch.events_raw",
 		"FROM pg_stat_ch.query_stats_5m",
 		"FROM pg_stat_ch.errors_recent",
+		"FROM pg_stat_ch.db_app_user_1m",
 		"quantilesTDigestMerge(0.5, 0.95, 0.99)",
 		// Both variables scope every events_raw query.
 		"db_name IN (${db_name:singlequote})",
 		"app IN (${app:singlequote})",
+		// Real errors only; platform sessions hidden by default.
+		"err_elevel >= 21",
+		"${scope:raw} = 1",
+		// Drill-down, work_mem spills, per-statement worst case.
+		"query_id = toInt64OrZero(${query_id:sqlstring})",
+		"temp_blks_written > 0",
+		"maxMerge(duration_max_state)",
 		// The exporter-health row stays on Prometheus.
 		`"group":"prometheus"`,
 		"cnpg_pg_stat_ch_exported_events",
 		"cnpg_pg_stat_ch_dropped_events",
 		"cnpg_pg_stat_ch_send_failures",
+		"cnpg_pg_stat_ch_last_success_age_seconds",
+		"cnpg_pg_stat_ch_dsa_oom_count",
 	} {
 		if !strings.Contains(s, needle) {
 			t.Fatalf("missing fragment: %s", needle)
