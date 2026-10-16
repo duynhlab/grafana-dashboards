@@ -20,13 +20,13 @@ func TestPGQueryTelemetry(t *testing.T) {
 		t.Fatalf("unexpected title: %s", dash.Title)
 	}
 
-	// db_name, app, scope (custom), query_id (textbox).
+	// db_name, application_name, scope (custom), query_id (textbox).
 	if len(dash.Variables) != 4 {
 		t.Fatalf("expected 4 variables, got %d", len(dash.Variables))
 	}
 
-	if len(dash.Elements) != 33 {
-		t.Fatalf("expected 33 panels, got %d", len(dash.Elements))
+	if len(dash.Elements) != 34 {
+		t.Fatalf("expected 34 panels, got %d", len(dash.Elements))
 	}
 
 	manifest, err := dashboardv2.Manifest("postgresql-query-telemetry", postgres.PGQueryTelemetry()).Build()
@@ -57,7 +57,9 @@ func TestPGQueryTelemetry(t *testing.T) {
 		"quantilesTDigestMerge(0.5, 0.95, 0.99)",
 		// Both variables scope every events_raw query.
 		"db_name IN (${db_name:singlequote})",
-		"app IN (${app:singlequote})",
+		"application_name IN (${application_name:singlequote})",
+		"FROM pg_stat_ch.db_app_user_1m ORDER BY application_name",
+		"application_name = ''",
 		// Real errors only; platform sessions hidden by default.
 		"err_elevel >= 21",
 		"${scope:raw} = 1",

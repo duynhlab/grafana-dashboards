@@ -15,23 +15,26 @@ package postgres
 // 1 ("Include platform sessions"). The instance manager and the metrics exporter
 // poll every database, and Barman's backup holds pg_backup_start open for
 // minutes in database `postgres`; left in, they dominate totals and tails.
-const scopeEvents = `(${scope:raw} = 1 OR (app NOT IN ('cnpg-instance-manager', 'cnpg_metrics_exporter') AND db_name != 'postgres'))`
+const scopeEvents = `(${scope:raw} = 1 OR (application_name NOT IN ('cnpg-instance-manager', 'cnpg_metrics_exporter') AND db_name != 'postgres'))`
 
-// scopeRollup is scopeEvents for query_stats_5m, which has no app column: only
+// scopeRollup is scopeEvents for query_stats_5m, which has no application_name
+// column: only
 // the `postgres` database can be excluded there.
 const scopeRollup = `(${scope:raw} = 1 OR db_name != 'postgres')`
 
 // Scope shared by every events_raw and errors_recent query: the dashboard
-// range, the db_name and app variables, and the platform-session scope. Both
+// range, the db_name and application_name variables, and the platform-session
+// scope. Both
 // list variables are include-all; Grafana expands $__all to every value, which
 // is why `IN (...)` and not `=` is used.
-const whereEvents = `$__timeFilter(ts) AND db_name IN (${db_name:singlequote}) AND app IN (${app:singlequote}) AND ` + scopeEvents
+const whereEvents = `$__timeFilter(ts) AND db_name IN (${db_name:singlequote}) AND application_name IN (${application_name:singlequote}) AND ` + scopeEvents
 
-// whereRollup is the same scope for the 5-minute rollup, which has no app column.
+// whereRollup is the same scope for the 5-minute rollup, which has no
+// application_name column.
 const whereRollup = `$__timeFilter(bucket) AND db_name IN (${db_name:singlequote}) AND ` + scopeRollup
 
 // whereAppUser is the same scope for the 1-minute db_app_user_1m rollup.
-const whereAppUser = `$__timeFilter(bucket) AND db_name IN (${db_name:singlequote}) AND app IN (${app:singlequote}) AND ` + scopeEvents
+const whereAppUser = `$__timeFilter(bucket) AND db_name IN (${db_name:singlequote}) AND application_name IN (${application_name:singlequote}) AND ` + scopeEvents
 
 // Error severity. err_elevel carries the PostgreSQL elevel: 0 is success, 19
 // WARNING, 21 ERROR, 22 FATAL, 23 PANIC. A real error is >= 21. The rollups'
@@ -42,10 +45,13 @@ const (
 	isWarning = `err_elevel = 19`
 )
 
-// Variables.
+// Variables. Both read the 1-minute rollup, which keeps the same 90 days as
+// events_raw at a fraction of the rows. "All" expands to exactly this list, so
+// a list shorter than the retention would silently drop older rows from any
+// wider range.
 const (
-	DBNameValues = `SELECT DISTINCT db_name FROM pg_stat_ch.events_raw WHERE ts > now() - INTERVAL 7 DAY ORDER BY db_name`
-	AppValues    = `SELECT DISTINCT app FROM pg_stat_ch.events_raw WHERE ts > now() - INTERVAL 7 DAY ORDER BY app`
+	DBNameValues          = `SELECT DISTINCT db_name FROM pg_stat_ch.db_app_user_1m ORDER BY db_name`
+	ApplicationNameValues = `SELECT DISTINCT application_name FROM pg_stat_ch.db_app_user_1m ORDER BY application_name`
 )
 
 // Overview — one row over the whole range, so a stat reduces to a figure that
@@ -63,7 +69,7 @@ const (
 const (
 	RateByOperation    = `SELECT $__timeInterval(ts) AS time, db_operation, count() / $__interval_s AS rps FROM pg_stat_ch.events_raw WHERE ` + whereEvents + ` GROUP BY time, db_operation ORDER BY time`
 	RateByDatabase     = `SELECT $__timeInterval(ts) AS time, db_name, count() / $__interval_s AS rps FROM pg_stat_ch.events_raw WHERE ` + whereEvents + ` GROUP BY time, db_name ORDER BY time`
-	RateByApplication  = `SELECT $__timeInterval(ts) AS time, app, count() / $__interval_s AS rps FROM pg_stat_ch.events_raw WHERE ` + whereEvents + ` GROUP BY time, app ORDER BY time`
+	RateByApplication  = `SELECT $__timeInterval(ts) AS time, application_name, count() / $__interval_s AS rps FROM pg_stat_ch.events_raw WHERE ` + whereEvents + ` GROUP BY time, application_name ORDER BY time`
 	ErrorsBySQLState   = `SELECT $__timeInterval(ts) AS time, err_sqlstate, count() / $__interval_s AS eps FROM pg_stat_ch.events_raw WHERE ` + whereEvents + ` AND ` + isError + ` GROUP BY time, err_sqlstate ORDER BY time`
 	WarningsBySQLState = `SELECT $__timeInterval(ts) AS time, err_sqlstate, count() / $__interval_s AS wps FROM pg_stat_ch.events_raw WHERE ` + whereEvents + ` AND ` + isWarning + ` GROUP BY time, err_sqlstate ORDER BY time`
 )
@@ -87,8 +93,9 @@ const (
 )
 
 // Top statements. The total-time table reads the 5-minute rollup so a 30-day
-// window stays cheap; the others read events_raw. query_stats_5m has no app
-// column, so the app variable and the app half of the scope do not apply to it.
+// window stays cheap; the others read events_raw. query_stats_5m has no
+// application_name column, so that variable and the application_name half of the
+// scope do not apply to it.
 const (
 	TopStatementsByTotalTime = `SELECT query_id, db_name, db_operation, countMerge(calls_state) AS calls, round(sumMerge(duration_sum_state) / 1e6, 2) AS total_s, ` +
 		`round(100 * sumMerge(duration_sum_state) / (SELECT sumMerge(duration_sum_state) FROM pg_stat_ch.query_stats_5m WHERE ` + whereRollup + `), 2) AS pct_runtime, ` +
@@ -104,7 +111,7 @@ const (
 		`FROM pg_stat_ch.query_stats_5m WHERE ` + whereRollup + ` GROUP BY query_id, db_name, db_operation ORDER BY total_s DESC LIMIT 25`
 	TopStatementsByPhysicalReads = `SELECT query_id, db_name, count() AS calls, sum(shared_blks_read) AS blks_read, round(avg(shared_blks_read), 1) AS avg_blks_read, round(avg(duration_us) / 1000, 2) AS avg_ms, any(query_text) AS query_text ` +
 		`FROM pg_stat_ch.events_raw WHERE ` + whereEvents + ` AND shared_blks_read > 0 GROUP BY query_id, db_name ORDER BY blks_read DESC LIMIT 15`
-	SlowestExecutions = `SELECT ts, db_name, app, db_user, pid, query_id, round(duration_us / 1000, 2) AS duration_ms, rows, shared_blks_read, query_text ` +
+	SlowestExecutions = `SELECT ts, db_name, application_name, db_user, pid, query_id, round(duration_us / 1000, 2) AS duration_ms, rows, shared_blks_read, query_text ` +
 		`FROM pg_stat_ch.events_raw WHERE ` + whereEvents + ` ORDER BY duration_us DESC LIMIT 25`
 	// A statement that writes temp blocks sorted or hashed more than work_mem.
 	TempSpillStatements = `SELECT query_id, db_name, count() AS executions, round(avg(temp_blks_written), 1) AS avg_temp_blks, round(avg(duration_us) / 1000, 2) AS avg_ms, any(query_text) AS query_text ` +
@@ -120,16 +127,21 @@ const (
 	queryIDFilter    = `${query_id:sqlstring} != '' AND query_id = toInt64OrZero(${query_id:sqlstring})`
 	StatementLatency = `SELECT $__timeInterval(ts) AS time, count() / $__interval_s AS calls_per_s, avg(duration_us) / 1000 AS avg_ms, quantile(0.95)(duration_us) / 1000 AS p95_ms FROM pg_stat_ch.events_raw ` +
 		`WHERE $__timeFilter(ts) AND db_name IN (${db_name:singlequote}) AND ` + queryIDFilter + ` GROUP BY time ORDER BY time`
-	StatementErrors = `SELECT ts, db_name, app, db_user, err_sqlstate, err_elevel, err_message, query_text FROM pg_stat_ch.errors_recent ` +
+	StatementErrors = `SELECT ts, db_name, application_name, db_user, err_sqlstate, err_elevel, err_message, query_text FROM pg_stat_ch.errors_recent ` +
 		`WHERE $__timeFilter(ts) AND db_name IN (${db_name:singlequote}) AND ` + queryIDFilter + ` ORDER BY ts DESC LIMIT 100`
 )
 
 // Load attribution from the 1-minute db_app_user_1m rollup. errors_sum_state
 // counts err_elevel > 0, so these error figures include warnings.
 const (
-	LoadByAppAndRole = `SELECT app, db_user, countMerge(calls_state) AS calls, round(sumMerge(duration_sum_state) / 1e6, 2) AS total_s, ` +
+	LoadByAppAndRole = `SELECT application_name, db_user, countMerge(calls_state) AS calls, round(sumMerge(duration_sum_state) / 1e6, 2) AS total_s, ` +
 		`round(arrayElement(quantilesTDigestMerge(0.5, 0.95, 0.99)(duration_q_state), 3) / 1000, 2) AS p99_ms, sumMerge(errors_sum_state) AS errors ` +
-		`FROM pg_stat_ch.db_app_user_1m WHERE ` + whereAppUser + ` GROUP BY app, db_user ORDER BY total_s DESC LIMIT 25`
+		`FROM pg_stat_ch.db_app_user_1m WHERE ` + whereAppUser + ` GROUP BY application_name, db_user ORDER BY total_s DESC LIMIT 25`
+	// Every session must set application_name (PGAPPNAME). Not scoped by the
+	// Sessions variable: a platform session without a name is a finding too.
+	MissingApplicationName = `SELECT db_name, db_user, countMerge(calls_state) AS statements, max(bucket) AS last_seen ` +
+		`FROM pg_stat_ch.db_app_user_1m WHERE $__timeFilter(bucket) AND db_name IN (${db_name:singlequote}) AND application_name = '' ` +
+		`GROUP BY db_name, db_user ORDER BY statements DESC LIMIT 25`
 	ErrorRateByDatabaseAndRole = `SELECT db_name, db_user, countMerge(calls_state) AS queries, sumMerge(errors_sum_state) AS errors, round(100.0 * errors / greatest(queries, 1), 2) AS error_pct ` +
 		`FROM pg_stat_ch.db_app_user_1m WHERE ` + whereAppUser + ` GROUP BY db_name, db_user HAVING errors > 0 ORDER BY error_pct DESC LIMIT 25`
 )
@@ -147,5 +159,5 @@ const (
 )
 
 // Errors — the 30-day errors_recent rollup, newest first.
-const RecentErrors = `SELECT ts, db_name, app, db_user, err_sqlstate, err_elevel, err_message, query_text, client_addr ` +
+const RecentErrors = `SELECT ts, db_name, application_name, db_user, err_sqlstate, err_elevel, err_message, query_text, client_addr ` +
 	`FROM pg_stat_ch.errors_recent WHERE ` + whereEvents + ` ORDER BY ts DESC LIMIT 100`
