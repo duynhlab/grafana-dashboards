@@ -66,8 +66,8 @@ func PGQueryTelemetry() cog.Builder[dashboardv2.Dashboard] {
 		}).
 		QueryVariable(panels.ClickHouseQueryVar("db_name", "Database", chqueries.DBNameValues)).
 		QueryVariable(panels.ClickHouseQueryVar("application_name", "application_name", chqueries.ApplicationNameValues)).
-		// 0 hides CNPG's own sessions (instance manager, metrics exporter, Barman in
-		// database postgres); the queries test ${scope:raw} = 1.
+		// 0 hides the platform's own sessions (CNPG, PgDog's health check, Barman,
+		// the grant jobs, and database postgres); the queries test ${scope:raw} = 1.
 		CustomVariable(panels.CustomVar("scope", "Sessions",
 			panels.Choice{Text: "Workload only", Value: "0"},
 			panels.Choice{Text: "Include platform sessions", Value: "1"},
@@ -146,7 +146,7 @@ func PGQueryTelemetry() cog.Builder[dashboardv2.Dashboard] {
 				[]cog.Builder[dashboardv2.PanelQueryKind]{panels.ClickHouseTable("A", chqueries.ErrorRateByDatabaseAndRole)}, nil,
 				panels.Column{Name: "error_pct", Unit: "percent", Gauge: true},
 			))).
-		Panel("missing-application-name", panels.Describe("Every PostgreSQL client must set application_name, normally through PGAPPNAME. Each row is a role whose statements arrived with an empty application_name. Not scoped by Sessions or application_name; the table should stay empty.",
+		Panel("missing-application-name", panels.Describe("Every PostgreSQL client must set application_name, normally through PGAPPNAME. Each row is a role whose statements arrived with an empty application_name. Not scoped by Sessions or application_name. Until the platform consumers (Temporal, pgroles, the PgBouncer pooler) set theirs, their roles are expected here; an application role is a finding.",
 			panels.Table("Statements without application_name",
 				[]cog.Builder[dashboardv2.PanelQueryKind]{panels.ClickHouseTable("A", chqueries.MissingApplicationName)}, nil,
 			))).

@@ -11,11 +11,14 @@
 // formats (${db_name:singlequote}) to Grafana.
 package postgres
 
-// scopeEvents hides CloudNativePG's own sessions unless the `scope` variable is
-// 1 ("Include platform sessions"). The instance manager and the metrics exporter
-// poll every database, and Barman's backup holds pg_backup_start open for
-// minutes in database `postgres`; left in, they dominate totals and tails.
-const scopeEvents = `(${scope:raw} = 1 OR (application_name NOT IN ('cnpg-instance-manager', 'cnpg_metrics_exporter') AND db_name != 'postgres'))`
+// scopeEvents hides the platform's own sessions unless the `scope` variable is
+// 1 ("Include platform sessions"). The names were measured on Kind once every
+// workload set PGAPPNAME: CNPG's instance manager and metrics exporter poll every
+// database, PgDog's health check (`pg_is_in_recovery()`) runs in each pooled
+// database, Barman's backup holds pg_backup_start open in database `postgres`,
+// and `db-authz` / `pgroles` are the names RFC-0029 gives the grant jobs.
+// Keycloak, Temporal and psql stay visible: they are real load or a person.
+const scopeEvents = `(${scope:raw} = 1 OR (application_name NOT IN ('cnpg-instance-manager', 'cnpg_metrics_exporter', 'PgDog', 'barman_cloud_backup', 'db-authz', 'pgroles') AND db_name != 'postgres'))`
 
 // scopeRollup is scopeEvents for query_stats_5m, which has no application_name
 // column: only
