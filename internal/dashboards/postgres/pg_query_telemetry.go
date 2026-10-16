@@ -36,7 +36,7 @@ const queryTelemetryIntro = "### PostgreSQL — Query telemetry (pg_stat_ch)\n" 
 	"One event **per statement execution** from `platform-db` and `product-db`, shipped by the " +
 	"`pg_stat_ch` extension into ClickHouse `pg_stat_ch.events_raw` (7 days hot, 90 days total). " +
 	"This answers what `pg_stat_statements` cannot: **server-side p50/p95/p99 over time**, errors by " +
-	"SQLSTATE, per-app/role load, and *what changed between two moments*. `db_name` is the cluster " +
+	"SQLSTATE, load per `application_name` and role, and *what changed between two moments*. `db_name` is the cluster " +
 	"key (every database name is unique across clusters). While ClickHouse is unreachable events wait in the " +
 	"ring and are dropped once it is full; a batch the server rejects is lost — check the exporter-health row " +
 	"before trusting a dip."
@@ -65,9 +65,9 @@ func PGQueryTelemetry() cog.Builder[dashboardv2.Dashboard] {
 				TargetBlank(true),
 		}).
 		QueryVariable(panels.ClickHouseQueryVar("db_name", "Database", chqueries.DBNameValues)).
-		QueryVariable(panels.ClickHouseQueryVar("app", "Application", chqueries.AppValues)).
-		// 0 hides CNPG's own sessions (instance manager, metrics exporter, Barman in
-		// database postgres); the queries test ${scope:raw} = 1.
+		QueryVariable(panels.ClickHouseQueryVar("application_name", "application_name", chqueries.ApplicationNameValues)).
+		// 0 hides the platform's own sessions (CNPG, PgDog's health check, Barman,
+		// the grant jobs, and database postgres); the queries test ${scope:raw} = 1.
 		CustomVariable(panels.CustomVar("scope", "Sessions",
 			panels.Choice{Text: "Workload only", Value: "0"},
 			panels.Choice{Text: "Include platform sessions", Value: "1"},
@@ -89,7 +89,7 @@ func PGQueryTelemetry() cog.Builder[dashboardv2.Dashboard] {
 		Panel("errors-by-sqlstate", panels.Series("Errors/s by SQLSTATE", "reqps", panels.ClickHouseSeries("A", chqueries.ErrorsBySQLState))).
 		Panel("warnings-by-sqlstate", panels.Describe("Statements that completed with a WARNING (err_elevel 19). They are not errors and are excluded from the error rate.",
 			panels.Series("Warnings/s by SQLSTATE", "reqps", panels.ClickHouseSeries("A", chqueries.WarningsBySQLState)))).
-		Panel("rate-by-application", panels.Series("Statements/s by application", "reqps", panels.ClickHouseSeries("A", chqueries.RateByApplication))).
+		Panel("rate-by-application", panels.Series("Statements/s by application_name", "reqps", panels.ClickHouseSeries("A", chqueries.RateByApplication))).
 		// Latency.
 		Panel("latency-percentiles", panels.Series("Statement latency percentiles", "ms", panels.ClickHouseSeries("A", chqueries.LatencyPercentiles))).
 		Panel("p95-by-database", panels.Series("p95 latency by database", "ms", panels.ClickHouseSeries("A", chqueries.P95ByDatabase))).
@@ -99,15 +99,16 @@ func PGQueryTelemetry() cog.Builder[dashboardv2.Dashboard] {
 		Panel("wal-records-fpi", panels.Series("WAL records and full-page images per second", "short", panels.ClickHouseSeries("A", chqueries.WALRecordsAndFPI))).
 		Panel("blocks-dirtied", panels.Series("Blocks dirtied per second", "short", panels.ClickHouseSeries("A", chqueries.BlocksDirtied))).
 		// Top statements (by query_id fingerprint, shared with pg_stat_statements).
-		Panel("top-by-total-time", panels.Table("Top statements by total time",
-			[]cog.Builder[dashboardv2.PanelQueryKind]{panels.ClickHouseTable("A", chqueries.TopStatementsByTotalTime)}, nil,
-			panels.Column{Name: "avg_ms", Unit: "ms"},
-			panels.Column{Name: "p95_ms", Unit: "ms", Gauge: true},
-			panels.Column{Name: "p99_ms", Unit: "ms", Gauge: true},
-			panels.Column{Name: "max_ms", Unit: "ms"},
-			panels.Column{Name: "hit_pct", Unit: "percent", Gauge: true},
-			panels.Column{Name: "query_text", Width: panels.Ptr(520)},
-		)).
+		Panel("top-by-total-time", panels.Describe("Read from the 5-minute rollup, which has no application_name column: the application_name variable does not filter this table, and Workload only hides only the postgres database.",
+			panels.Table("Top statements by total time",
+				[]cog.Builder[dashboardv2.PanelQueryKind]{panels.ClickHouseTable("A", chqueries.TopStatementsByTotalTime)}, nil,
+				panels.Column{Name: "avg_ms", Unit: "ms"},
+				panels.Column{Name: "p95_ms", Unit: "ms", Gauge: true},
+				panels.Column{Name: "p99_ms", Unit: "ms", Gauge: true},
+				panels.Column{Name: "max_ms", Unit: "ms"},
+				panels.Column{Name: "hit_pct", Unit: "percent", Gauge: true},
+				panels.Column{Name: "query_text", Width: panels.Ptr(520)},
+			))).
 		Panel("top-by-physical-reads", panels.Table("Top statements by physical reads",
 			[]cog.Builder[dashboardv2.PanelQueryKind]{panels.ClickHouseTable("A", chqueries.TopStatementsByPhysicalReads)}, nil,
 			panels.Column{Name: "avg_ms", Unit: "ms"},
@@ -134,8 +135,8 @@ func PGQueryTelemetry() cog.Builder[dashboardv2.Dashboard] {
 				panels.Column{Name: "query_text", Width: panels.Ptr(380)},
 			))).
 		// Load attribution, from the 1-minute rollup.
-		Panel("load-by-app-role", panels.Describe("Total server time per application and role. errors comes from the rollup and includes warnings.",
-			panels.Table("Load by application and role",
+		Panel("load-by-app-role", panels.Describe("Total server time per application_name and role. errors comes from the rollup and includes warnings.",
+			panels.Table("Load by application_name and role",
 				[]cog.Builder[dashboardv2.PanelQueryKind]{panels.ClickHouseTable("A", chqueries.LoadByAppAndRole)}, nil,
 				panels.Column{Name: "total_s", Unit: "s", Gauge: true},
 				panels.Column{Name: "p99_ms", Unit: "ms"},
@@ -144,6 +145,10 @@ func PGQueryTelemetry() cog.Builder[dashboardv2.Dashboard] {
 			panels.Table("Error rate by database and role",
 				[]cog.Builder[dashboardv2.PanelQueryKind]{panels.ClickHouseTable("A", chqueries.ErrorRateByDatabaseAndRole)}, nil,
 				panels.Column{Name: "error_pct", Unit: "percent", Gauge: true},
+			))).
+		Panel("missing-application-name", panels.Describe("Every PostgreSQL client must set application_name, normally through PGAPPNAME. Each row is a role whose statements arrived with an empty application_name. Not scoped by Sessions or application_name. Until the platform consumers (Temporal, pgroles, the PgBouncer pooler) set theirs, their roles are expected here; an application role is a finding.",
+			panels.Table("Statements without application_name",
+				[]cog.Builder[dashboardv2.PanelQueryKind]{panels.ClickHouseTable("A", chqueries.MissingApplicationName)}, nil,
 			))).
 		// Errors.
 		Panel("recent-errors", panels.Table("Recent errors",
@@ -221,6 +226,7 @@ func PGQueryTelemetry() cog.Builder[dashboardv2.Dashboard] {
 		panels.Row("Load attribution (1-minute rollup)",
 			panels.GridItem("load-by-app-role", 0, 0, 12, 9),
 			panels.GridItem("error-rate-by-db-role", 12, 0, 12, 9),
+			panels.GridItem("missing-application-name", 0, 9, 24, 7),
 		),
 		panels.Row("Errors",
 			panels.GridItem("recent-errors", 0, 0, 24, 10),
