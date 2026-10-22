@@ -251,5 +251,13 @@ func otelDatabase(b *dashboardv2.DashboardBuilder) *dashboardv2.DashboardBuilder
 				{Id: "custom.axisLabel", Value: "wait-time s/s"},
 			}),
 			panels.PromQuery(msqueries.OTelPoolEmptyAcquireRate, "waits/s {{service_name}}"),
-			panels.Query("B", msqueries.OTelPoolEmptyAcquireWaitSecs, "wait-time s/s {{service_name}}")))
+			panels.Query("B", msqueries.OTelPoolEmptyAcquireWaitSecs, "wait-time s/s {{service_name}}"))).
+		Panel("otel-pool-evictions", otelPanel("Pool dead connections replaced",
+			"Pooled connections the server had already closed (a pooler roll), replaced before a query was sent. pkg/dbx >= v0.39.0; connections idle over 1s are replaced by the pgxpool ping instead and are not counted.",
+			otelDBViz("short").DataLinks(otelServiceLinks(seriesService)),
+			panels.PromQuery(msqueries.OTelPoolAcquireEvictions, "{{service_name}}"))).
+		Panel("otel-pool-connect-failures", otelPanel("Pool connect failures",
+			"New connections the pool failed to open, by SQLSTATE (28P01 password, 57P01 shutting down, 53300 too many) or connect. Never retried; healthy = no series, sustained = PgxPoolConnectFailures.",
+			otelDBViz("short").DataLinks(otelServiceLinks(seriesService)),
+			panels.PromQuery(msqueries.OTelPoolConnectFailures, "{{service_name}} {{error_type}}")))
 }
