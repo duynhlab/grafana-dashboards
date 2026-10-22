@@ -13,8 +13,8 @@ OCI artifact.
 | **Toolchain** | Go `1.27.1` (`go.mod`), Foundation SDK `v0.0.20` |
 | **Tested against** | Grafana `13.2.0` on Grafana Operator `5.25.0` in Kind (`make e2e-kind`) |
 | **Quality gates** | `gofmt` + `go vet`, 90% coverage, byte-identical regeneration, read-back of every board |
-| **Latest release** | tag `v0.5.0` (there are no GitHub Releases; tags are the versions) |
-| **Consumer** | [`duynhlab/homelab`](https://github.com/duynhlab/homelab), pinned to `semver: "0.5.0"` |
+| **Latest release** | tag `v0.8.0` (there are no GitHub Releases; tags are the versions) |
+| **Consumer** | [`duynhlab/homelab`](https://github.com/duynhlab/homelab), pinned to `semver: "0.8.0"` |
 
 ## Contents
 
@@ -255,7 +255,7 @@ surface.
 
 | Consumer | Object | Reads |
 |---|---|---|
-| homelab | `OCIRepository` `grafana-dashboards-as-code-oci` | this artifact, `semver: "0.5.0"` |
+| homelab | `OCIRepository` `grafana-dashboards-as-code-oci` | this artifact, `semver: "0.8.0"` |
 | homelab | `Kustomization` `grafana-dashboards-as-code-folders-local` | `./folders`, health-checked on the six folder manifests |
 | homelab | `Kustomization` `grafana-dashboards-as-code-dashboards-local` | `./dashboards`, `dependsOn` the folders wave, health-checked on all 19 boards |
 | homelab | `GrafanaDashboard` `redis`, `cloudnative-pg` | `dashboard/redis/redis.json` and `dashboard/postgresql/cloudnative-pg-cluster.json` by raw URL on `main` |

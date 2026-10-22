@@ -27,7 +27,9 @@ package microservices
 //	              db_client_operation_errors_total (otelpgx),
 //	              pgxpool_{acquired_connections,max_connections,
 //	                       empty_acquire_total,
-//	                       empty_acquire_wait_time_nanoseconds_total}
+//	                       empty_acquire_wait_time_nanoseconds_total},
+//	              pgx_pool_{acquire_evictions_total,
+//	                        connect_failures_total} (pkg/dbx >= v0.39.0)
 const (
 	// OTelAppLabelValues drives the only template variable. go_goroutine_count is
 	// the cheapest always-present series on every OTel Go service, so it is the
@@ -168,6 +170,11 @@ const (
 
 	OTelPoolEmptyAcquireRate     = `sum by (service_name) (rate(pgxpool_empty_acquire_total{service_name=~"$app"}[$__rate_interval]))`
 	OTelPoolEmptyAcquireWaitSecs = `sum by (service_name) (rate(pgxpool_empty_acquire_wait_time_nanoseconds_total{service_name=~"$app"}[$__rate_interval])) / 1e9`
+
+	// pkg/dbx counters. Both series are born by their first event, where rate()
+	// reads 0, so they are counted with increase() per interval.
+	OTelPoolAcquireEvictions = `sum by (service_name) (increase(pgx_pool_acquire_evictions_total{service_name=~"$app"}[$__rate_interval]))`
+	OTelPoolConnectFailures  = `sum by (service_name, error_type) (increase(pgx_pool_connect_failures_total{service_name=~"$app"}[$__rate_interval]))`
 )
 
 // Deploys and versions. Neither is in the helm-charts source. Both read the

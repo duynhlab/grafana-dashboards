@@ -65,8 +65,9 @@ var otelSourcePanelTitles = []string{
 
 // otelAddedPanels are the panels the board adds to the port, keyed by the
 // source title they follow.
-var otelAddedPanels = map[string]string{
-	"Total Request": "Running versions",
+var otelAddedPanels = map[string][]string{
+	"Total Request":                      {"Running versions"},
+	"Pool contention (waiting acquires)": {"Pool dead connections replaced", "Pool connect failures"},
 }
 
 // otelLinkedPanels link every series (or table row) to the service's traces and
@@ -80,6 +81,8 @@ var otelLinkedPanels = map[string]string{
 	"gRPC Server P95 Latency per Callee": "${__field.labels.service_name}",
 	"DB query p95 by service":            "${__field.labels.service_name}",
 	"DB operation errors":                "${__field.labels.service_name}",
+	"Pool dead connections replaced":     "${__field.labels.service_name}",
+	"Pool connect failures":              "${__field.labels.service_name}",
 }
 
 var otelSourceRowTitles = []string{
@@ -156,9 +159,7 @@ func TestMicroservicesOTel(t *testing.T) {
 	var wantTitles []string
 	for _, title := range otelSourcePanelTitles {
 		wantTitles = append(wantTitles, title)
-		if added, ok := otelAddedPanels[title]; ok {
-			wantTitles = append(wantTitles, added)
-		}
+		wantTitles = append(wantTitles, otelAddedPanels[title]...)
 	}
 	if len(dash.Elements) != len(wantTitles) {
 		t.Fatalf("expected %d panels, got %d", len(wantTitles), len(dash.Elements))
@@ -306,6 +307,8 @@ func TestMicroservicesOTel(t *testing.T) {
 		"go_memory_gc_goal_bytes",
 		"db_client_operation_errors_total",
 		"pgxpool_acquired_connections",
+		"pgx_pool_acquire_evictions_total",
+		"pgx_pool_connect_failures_total",
 		"$__rate_interval",
 		"$__range",
 		"label_values(go_goroutine_count, service_name)",

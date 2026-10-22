@@ -1668,6 +1668,61 @@ spec:
                                     textMode: auto
                                     wideLayout: true
                             version: ""
+                otel-pool-connect-failures:
+                    kind: Panel
+                    spec:
+                        data:
+                            kind: QueryGroup
+                            spec:
+                                queries:
+                                    - kind: PanelQuery
+                                      spec:
+                                        hidden: false
+                                        query:
+                                            datasource:
+                                                name: prometheus
+                                            group: prometheus
+                                            kind: DataQuery
+                                            spec:
+                                                expr: sum by (service_name, error_type) (increase(pgx_pool_connect_failures_total{service_name=~"$app"}[$__rate_interval]))
+                                                legendFormat: '{{service_name}} {{error_type}}'
+                                            version: v0
+                                        refId: A
+                                queryOptions: {}
+                                transformations: []
+                        description: New connections the pool failed to open, by SQLSTATE (28P01 password, 57P01 shutting down, 53300 too many) or connect. Never retried; healthy = no series, sustained = PgxPoolConnectFailures.
+                        id: 1.109642525e+09
+                        links: []
+                        title: Pool connect failures
+                        vizConfig:
+                            group: timeseries
+                            kind: VizConfig
+                            spec:
+                                fieldConfig:
+                                    defaults:
+                                        custom:
+                                            fillOpacity: 12
+                                            lineWidth: 1
+                                            showPoints: never
+                                        links:
+                                            - title: Traces of ${__field.labels.service_name}
+                                              url: /explore?schemaVersion=1&panes=%7B%22a%22%3A%7B%22datasource%22%3A%22victoriatraces%22%2C%22queries%22%3A%5B%7B%22datasource%22%3A%7B%22type%22%3A%22jaeger%22%2C%22uid%22%3A%22victoriatraces%22%7D%2C%22queryType%22%3A%22search%22%2C%22refId%22%3A%22A%22%2C%22service%22%3A%22${__field.labels.service_name}%22%7D%5D%2C%22range%22%3A%7B%22from%22%3A%22${__from}%22%2C%22to%22%3A%22${__to}%22%7D%7D%7D
+                                            - title: Logs of ${__field.labels.service_name}
+                                              url: /explore?schemaVersion=1&panes=%7B%22a%22%3A%7B%22datasource%22%3A%22victorialogs%22%2C%22queries%22%3A%5B%7B%22datasource%22%3A%7B%22type%22%3A%22victoriametrics-logs-datasource%22%2C%22uid%22%3A%22victorialogs%22%7D%2C%22expr%22%3A%22service.name%3A%3D%5C%22${__field.labels.service_name}%5C%22%22%2C%22refId%22%3A%22A%22%7D%5D%2C%22range%22%3A%7B%22from%22%3A%22${__from}%22%2C%22to%22%3A%22${__to}%22%7D%7D%7D
+                                        unit: short
+                                    overrides: []
+                                options:
+                                    legend:
+                                        calcs:
+                                            - lastNotNull
+                                            - max
+                                        displayMode: table
+                                        placement: bottom
+                                        showLegend: true
+                                    tooltip:
+                                        mode: multi
+                                        sort: desc
+                            version: ""
                 otel-pool-contention:
                     kind: Panel
                     spec:
@@ -1728,6 +1783,61 @@ spec:
                                               value: right
                                             - id: custom.axisLabel
                                               value: wait-time s/s
+                                options:
+                                    legend:
+                                        calcs:
+                                            - lastNotNull
+                                            - max
+                                        displayMode: table
+                                        placement: bottom
+                                        showLegend: true
+                                    tooltip:
+                                        mode: multi
+                                        sort: desc
+                            version: ""
+                otel-pool-evictions:
+                    kind: Panel
+                    spec:
+                        data:
+                            kind: QueryGroup
+                            spec:
+                                queries:
+                                    - kind: PanelQuery
+                                      spec:
+                                        hidden: false
+                                        query:
+                                            datasource:
+                                                name: prometheus
+                                            group: prometheus
+                                            kind: DataQuery
+                                            spec:
+                                                expr: sum by (service_name) (increase(pgx_pool_acquire_evictions_total{service_name=~"$app"}[$__rate_interval]))
+                                                legendFormat: '{{service_name}}'
+                                            version: v0
+                                        refId: A
+                                queryOptions: {}
+                                transformations: []
+                        description: Pooled connections the server had already closed (a pooler roll), replaced before a query was sent. pkg/dbx >= v0.39.0; connections idle over 1s are replaced by the pgxpool ping instead and are not counted.
+                        id: 2.0827111e+07
+                        links: []
+                        title: Pool dead connections replaced
+                        vizConfig:
+                            group: timeseries
+                            kind: VizConfig
+                            spec:
+                                fieldConfig:
+                                    defaults:
+                                        custom:
+                                            fillOpacity: 12
+                                            lineWidth: 1
+                                            showPoints: never
+                                        links:
+                                            - title: Traces of ${__field.labels.service_name}
+                                              url: /explore?schemaVersion=1&panes=%7B%22a%22%3A%7B%22datasource%22%3A%22victoriatraces%22%2C%22queries%22%3A%5B%7B%22datasource%22%3A%7B%22type%22%3A%22jaeger%22%2C%22uid%22%3A%22victoriatraces%22%7D%2C%22queryType%22%3A%22search%22%2C%22refId%22%3A%22A%22%2C%22service%22%3A%22${__field.labels.service_name}%22%7D%5D%2C%22range%22%3A%7B%22from%22%3A%22${__from}%22%2C%22to%22%3A%22${__to}%22%7D%7D%7D
+                                            - title: Logs of ${__field.labels.service_name}
+                                              url: /explore?schemaVersion=1&panes=%7B%22a%22%3A%7B%22datasource%22%3A%22victorialogs%22%2C%22queries%22%3A%5B%7B%22datasource%22%3A%7B%22type%22%3A%22victoriametrics-logs-datasource%22%2C%22uid%22%3A%22victorialogs%22%7D%2C%22expr%22%3A%22service.name%3A%3D%5C%22${__field.labels.service_name}%5C%22%22%2C%22refId%22%3A%22A%22%7D%5D%2C%22range%22%3A%7B%22from%22%3A%22${__from}%22%2C%22to%22%3A%22${__to}%22%7D%7D%7D
+                                        unit: short
+                                    overrides: []
                                 options:
                                     legend:
                                         calcs:
@@ -2991,6 +3101,24 @@ spec:
                                             width: 12
                                             x: 12
                                             "y": 16
+                                        - kind: GridLayoutItem
+                                          spec:
+                                            element:
+                                                kind: ElementReference
+                                                name: otel-pool-evictions
+                                            height: 8
+                                            width: 12
+                                            x: 0
+                                            "y": 24
+                                        - kind: GridLayoutItem
+                                          spec:
+                                            element:
+                                                kind: ElementReference
+                                                name: otel-pool-connect-failures
+                                            height: 8
+                                            width: 12
+                                            x: 12
+                                            "y": 24
                             title: Database (client — otelpgx)
             links: []
             preload: false

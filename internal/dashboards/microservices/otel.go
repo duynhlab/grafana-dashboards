@@ -93,6 +93,8 @@ func MicroservicesOTel() cog.Builder[dashboardv2.Dashboard] {
 			panels.GridItem("otel-pool-inflight", 12, 8, 12, 8),
 			panels.GridItem("otel-pool-saturation", 0, 16, 12, 8),
 			panels.GridItem("otel-pool-contention", 12, 16, 12, 8),
+			panels.GridItem("otel-pool-evictions", 0, 24, 12, 8),
+			panels.GridItem("otel-pool-connect-failures", 12, 24, 12, 8),
 		),
 	))
 }
